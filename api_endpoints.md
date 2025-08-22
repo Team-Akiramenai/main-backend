@@ -5,6 +5,20 @@ All the API endpoints listed below will need to be prepended with `localhost:808
 The endpoints under `api/public` are accessible without any JWT auth token.
 The endpoints under `api/private` are accessible with the help of a JWT auth token.
 
+# Seeding the database with mock data
+
+1) GET /api/public/seed
+
+This will populate the database with the user:
+```
+Username: amanda
+Email: amanda@gmail.com
+Password: 12345678
+```
+
+It will also add 100 courses with names like **Course Title 1,2,3,...** and publish them in different timestamps.
+
+
 ## User Controller
 
 1) POST api/public/register
