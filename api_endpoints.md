@@ -48,7 +48,14 @@ Request body's JSON:
     "password": "1234567890"
 }
 ```
-Response: HTTP 200 with confirmation text
+Response: HTTP 200 with the following JSON response
+
+```json
+{
+    "accessToken": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzaGFnZ3lAZ21haWwuY29tIiwiaWF0IjoxNzU1ODc3NjMxLCJleHAiOjE3NTU4Nzc5MzEsImFjY291bnRUeXBlIjoiTGVhcm5lciIsInVzZXJJZCI6IjA0MjYwYTE2LWJlYWMtNDlkMy05MjI2LTQ3MTYyNjU0MGJmOCJ9.TdWALjIMMC4hiwH9ghMF489qXWVrybI58xmwIasErCJnhcHQyZIUz6keYbjxGmTq",
+    "accountType": "Learner"
+}
+```
 
 3) POST api/public/logout
 
