@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: backend
+
+  servlet:
+    multipart:
+      max-file-size: 1024MB # 1GB (in MB)
+      max-request-size: 1024MB # 1GB (in MB)
+
+  datasource:
+    #url: jdbc:postgresql://postgres/synaptic_learn
+    url: jdbc:postgresql://localhost:5432/jwt_security
+    username: username
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-only
+    #ddl-auto: create-drop
+    #show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+application:
+  stripe:
+    secret-key: <<REPLACE-ME>>
+    webhook-secret: <<REPLACE-ME>>
+  default-values:
+    default-storage-given: 1073741824 # 1GB (in bytes)
+    media:
+      picture-directory: /home/twaha/Desktop/projects/java/my-security/auth_new/src/main/resources/media/pictures
+      video-directory: /home/twaha/Desktop/projects/java/my-security/auth_new/src/main/resources/media/videos
+      subtitles-directory: /home/twaha/Desktop/projects/java/my-security/auth_new/src/main/resources/media/subtitles
+    user-profile-picture-filename: default-user-logo.png
+  security:
+    password:
+      hashing-strength: 12
+    jwt:
+      secret-key: <<REPLACE-ME>>
+      access-token-validity-duration: 300000 # 5 minutes in ms
+      refresh-token-validity-duration: 86400000 # 1 day in ms
+      https-only-cookie: false
