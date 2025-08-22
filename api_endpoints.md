@@ -415,6 +415,68 @@ Response JSON:
 }
 ```
 
+## Coding Test Controller
+
+1) POST api/protected/add/coding-test
+
+Add a coding test challenge.
+
+Requsest JSON:
+```json
+{
+    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "question": "What is 3 + 3?",
+    "expectedStdout": "6"
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+}
+```
+
+2) POST api/protected/modify/coding-test
+
+Modify a coding test challenge.
+
+Request JSON:
+```json
+{
+    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "codingTestId": "668da333-67b1-4989-b08d-852821681a0c",
+    "question": "Sparky?",
+    "expectedStdout": "Viva la sparky!"
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+}
+```
+
+3) POST api/protected/remove/coding-test
+
+Delete a coding test challenge.
+
+Request JSON:
+```json
+{
+    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+}
+```
+
 ## Purchase Controller
 
 1) POST api/protected/purchase/course
