@@ -13,4 +13,4 @@ NOTE: The video upload related API endpoints are in a separate microservice. So,
 
 # API endpoints 
 
-The available API endpoints are listed in the #[api_endpoints.md](./api_endpoints.md) file.
+The available API endpoints are listed in the [api_endpoints.md](./api_endpoints.md) file.
