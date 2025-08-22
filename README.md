@@ -7,6 +7,9 @@ It's recommended to use the Postgres docker image for this. (The DB name, userna
 
 Then, acquire/generate the things marked `<<REPLACE-ME>>` with the appropriate values.
 
+Then, for forwarding the webhook events in the local development environment, you'll have to run `stripe login` to log into Stripe and then keep the following command running:
+`stripe listen --forward-to http://localhost:8080/webhook --skip-verify`.
+
 After that, run the project using `gradle bootRun`. This will start the server and start listening for requests at `localhost:8080`.
 
 NOTE: The video upload related API endpoints are in a separate microservice. So, you'll need to run that microservice for those endpoints if you want to use them.
