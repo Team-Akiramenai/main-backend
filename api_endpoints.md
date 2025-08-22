@@ -414,3 +414,52 @@ Response JSON:
     "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
 }
 ```
+
+## Purchase Controller
+
+1) POST api/protected/purchase/course
+
+Get the purchase link for the course. The frontend will redirect to the provided link, on which the user will confirm the purchase or deny it.
+Upon successful purchase, Stripe will redirect the user to the pre-configured link. The backend will add the course to the learner's account
+if the purchase was successful indicated by Stripe's web hook events.
+
+Requsest JSON:
+```json
+{
+    "courseId": "fbb34f58-ac82-4b60-8ecd-dd272e62aa63"
+}
+```
+
+Response JSON:
+```json
+{
+    "status": "OK",
+    "msg": "Payment created.",
+    "sessionId": "cs_test_a1ZjiYI9JVt2Z6jnxzXkiENIn9BrpzSOFWf7aFCtjt2gnxlaDmJ4gC3Oo7",
+    "sessionUrl": "https://checkout.stripe.com/c/pay/cs_test_a1ZjiYI9JVt2Z6jnxzXkiENIn9BrpzSOFWf7aFCtjt2gnxlaDmJ4gC3Oo7#fidkdWxOYHwnPyd1blpxYHZxWjA0V2xcU11NY2E9Y19ET1Vmc1R8cDZAQE5rRFJJf39BcEhKXUQyVTV9Z3BucG9DNmdiXGdGRlAwSkZzS39hQDZMdldjYldgQXBmMDJjTWF%2FMlFmSjxjU1BNNTVPfDV1a3BjVCcpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
+}
+```
+
+2) POST api/protected/purchase/storage
+
+Get the purchase link for the requested storage amount. The valid storage amounts are integers between 1 to 20. Each integer
+represents a gigabyte of storage. After getting the purchase link, the frontend will redirect to the provided link, on which
+the user will confirm the purchase or deny it. Upon successful purchase, Stripe will redirect the user to the pre-configured link.
+The backend will add the storage purchased to the instructor's account if the purchase was successful indicated by Stripe's web hook events.
+
+Requsest JSON:
+```json
+{
+    "amountInGBs": 5
+}
+```
+
+Response JSON:
+```json
+{
+    "status": "OK",
+    "msg": "Payment created.",
+    "sessionId": "cs_test_a1NSq9HDa9bGyCmqUUK5CXCpOS4uTTYNVGbFSmd3TjxmOuX89dDftGg4h8",
+    "sessionUrl": "https://checkout.stripe.com/c/pay/cs_test_a1NSq9HDa9bGyCmqUUK5CXCpOS4uTTYNVGbFSmd3TjxmOuX89dDftGg4h8#fidkdWxOYHwnPyd1blpxYHZxWjA0V2xcU11NY2E9Y19ET1Vmc1R8cDZAQE5rRFJJf39BcEhKXUQyVTV9Z3BucG9DNmdiXGdGRlAwSkZzS39hQDZMdldjYldgQXBmMDJjTWF%2FMlFmSjxjU1BNNTVPfDV1a3BjVCcpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
+}
+```
