@@ -342,3 +342,75 @@ Response: HTTP 200.
 
 In the above request, the 3 course items have been reordered in the sequence provided.
 
+
+## Quiz Controller
+
+1) POST api/protected/add/quiz
+
+Adds a quiz to a given course.
+
+Request JSON:
+```json
+{
+    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "question": "Which is the right answer?",
+    "o1": "11",
+    "o2": "22",
+    "o3": "33",
+    "o4": "44",
+    "correctOption": 4
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+}
+```
+
+
+2) POST api/protected/modify/quiz
+
+Modify a given quiz in a given course.
+Only `courseId` and `quizId` is mandatory. The other fields are optional.
+
+Request JSON:
+```json
+{
+    "quizId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2",
+    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "question": "Chicken or egg?",
+    "o1": "aaa",
+    "o2": "bbb",
+    "o3": "ccc",
+    "o4": "ddd",
+    "correctOption": 3
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+}
+```
+
+3) POST api/protected/remove/quiz
+
+Delete a given quiz in a given course.
+
+Request JSON:
+```json
+{
+    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+}
+```
