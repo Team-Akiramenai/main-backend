@@ -10,3 +10,7 @@ Then, acquire/generate the things marked `<<REPLACE-ME>>` with the appropriate v
 After that, run the project using `gradle bootRun`. This will start the server and start listening for requests at `localhost:8080`.
 
 NOTE: The video upload related API endpoints are in a separate microservice. So, you'll need to run that microservice for those endpoints if you want to use them.
+
+# API endpoints 
+
+The available API endpoints are listed in the #[api_endpoints.md](./api_endpoints.md) file.
