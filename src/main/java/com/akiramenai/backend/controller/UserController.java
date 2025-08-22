@@ -1,0 +1,226 @@
+package com.akiramenai.backend.controller;
+
+import com.akiramenai.backend.model.*;
+import com.akiramenai.backend.service.MediaStorageService;
+import com.akiramenai.backend.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
+
+@Slf4j
+@RestController
+public class UserController {
+  private final UserService userService;
+  private final MediaStorageService mediaStorageService;
+
+  @Value("${application.security.jwt.refresh-token-validity-duration}")
+  private String refreshTokenValidityDuration;
+
+  @Value("${application.security.jwt.https-only-cookie}")
+  private String shouldCookieBeSentUsingHttpsOnly;
+
+  public UserController(UserService service, MediaStorageService mediaStorageService) {
+    this.userService = service;
+    this.mediaStorageService = mediaStorageService;
+  }
+
+  Cookie refreshTokenCookieBuilder(String cookieValue) {
+    Cookie refreshTokenCookie = new Cookie("REFRESH_TOKEN", cookieValue);
+    refreshTokenCookie.setHttpOnly(true);
+    refreshTokenCookie.setMaxAge(Integer.parseInt(refreshTokenValidityDuration) / 1000);
+    refreshTokenCookie.setPath("/");
+    if (Boolean.parseBoolean(shouldCookieBeSentUsingHttpsOnly)) {
+      refreshTokenCookie.setSecure(true);
+      log.warn("Refresh token cookie will ONLY be sent over HTTPS. This can changed in the `application.yaml` file.");
+    } else {
+      refreshTokenCookie.setSecure(false);
+      log.warn("Refresh token cookie will be sent over both HTTP and HTTPS. This can changed in the `application.yaml` file.");
+    }
+
+    return refreshTokenCookie;
+  }
+
+  void removeRefreshTokenCookie(HttpServletResponse response) {
+    Cookie cookieToRemove = refreshTokenCookieBuilder(null);
+    cookieToRemove.setMaxAge(0);
+    response.addCookie(cookieToRemove);
+  }
+
+  @PostMapping("api/public/register")
+  public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
+    Optional<String> failureReason = userService.register(registerRequest);
+    if (failureReason.isPresent()) {
+      return new ResponseEntity<>(failureReason.get(), HttpStatus.CONFLICT);
+    }
+
+    return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
+  }
+
+  @PostMapping("api/public/login")
+  public void login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    try {
+      AuthenticationResult authResp = userService.authenticate(loginRequest);
+      if (authResp.errorMessage() != null) {
+        response.setContentType("text/plain");
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.getWriter().print(authResp.errorMessage());
+        response.getWriter().flush();
+        return;
+      }
+
+      LoginResponse loginResponse = LoginResponse
+          .builder()
+          .accessToken(authResp.accessToken())
+          .accountType(authResp.accountType())
+          .build();
+
+      Cookie refreshTokenCookie = refreshTokenCookieBuilder(authResp.refreshToken());
+
+      response.setContentType("application/json");
+      response.setStatus(HttpServletResponse.SC_OK);
+      ObjectMapper om = new ObjectMapper();
+      response.getWriter().print(om.writeValueAsString(loginResponse));
+      response.addCookie(refreshTokenCookie);
+      response.getWriter().flush();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+      response.setContentType("text/plain");
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      try {
+        response.getWriter().print("Authentication failed. Invalid credentials provided.");
+        response.getWriter().flush();
+      } catch (Exception e2) {
+        log.error("Failed to write HTTP response for `/login` request. Reason: {}", e2.getMessage());
+      }
+    }
+  }
+
+  @PostMapping("api/protected/update-username")
+  public ResponseEntity<String> updateUsername(
+      HttpServletRequest request,
+      @RequestBody UpdateUsernameRequest updateUsernameRequest
+  ) {
+    if (updateUsernameRequest.getNewUsername() == null) {
+      new ResponseEntity<>("No new username provided. Please provide a valid username.", HttpStatus.BAD_REQUEST);
+    }
+    updateUsernameRequest.setNewUsername(updateUsernameRequest.getNewUsername().trim());
+    if (updateUsernameRequest.getNewUsername().isEmpty()) {
+      new ResponseEntity<>("New username can't be empty or contain only whitespace characters. Please provide a valid username.", HttpStatus.BAD_REQUEST);
+    }
+
+    String currentUserId = request.getAttribute("userId").toString();
+    Optional<String> resp = userService.changeUsername(currentUserId, updateUsernameRequest.getNewUsername());
+    return resp
+        .map(errorReason -> new ResponseEntity<>(errorReason, HttpStatus.INTERNAL_SERVER_ERROR))
+        .orElseGet(() -> new ResponseEntity<>("Successfully updated username.", HttpStatus.OK));
+  }
+
+
+  @PostMapping("api/protected/update-password")
+  public void updatePassword(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestBody UpdatePasswordRequest updatePasswordRequest
+  ) {
+    log.info("Changing password for user {}", updatePasswordRequest.getOldPassword());
+    if (updatePasswordRequest.getOldPassword() == null || updatePasswordRequest.getNewPassword() == null) {
+      new ResponseEntity<>("Both the old password and the new password needs to provided to update the password.", HttpStatus.BAD_REQUEST);
+    }
+    updatePasswordRequest.setOldPassword(updatePasswordRequest.getOldPassword().trim());
+    updatePasswordRequest.setNewPassword(updatePasswordRequest.getNewPassword().trim());
+    if (updatePasswordRequest.getOldPassword().isEmpty() || updatePasswordRequest.getNewPassword().isEmpty()) {
+      new ResponseEntity<>("Provided passwords can't be empty or contain only whitespace characters.", HttpStatus.BAD_REQUEST);
+    }
+
+    String currentUserId = request.getAttribute("userId").toString();
+    Optional<String> resp = userService.changePassword(currentUserId, updatePasswordRequest.getOldPassword(), updatePasswordRequest.getNewPassword());
+
+    if (resp.isPresent()) {
+      removeRefreshTokenCookie(response);
+      SecurityContextHolder.clearContext();
+      response.setHeader("Authorization", "");
+
+      response.setContentType("text/plain");
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+      try {
+        response.getWriter().print(resp.get());
+        response.getWriter().flush();
+      } catch (Exception e) {
+        log.error("Failed to write HTTP response for `/update_password` request. Reason: {}", e.getMessage());
+      }
+
+      return;
+    }
+
+    response.setContentType("text/plain");
+    response.setStatus(HttpServletResponse.SC_OK);
+    try {
+      response.getWriter().print("Successfully updated password.");
+      response.getWriter().flush();
+    } catch (Exception e) {
+      log.error("Failed to write HTTP response for `/update_password` request. Reason: {}", e.getMessage());
+    }
+  }
+
+  @PostMapping("api/protected/change-profile-picture")
+  public ResponseEntity<String> changeProfilePicture(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam("new-profile-picture") MultipartFile newProfilePicture
+  ) {
+    if (newProfilePicture.isEmpty()) {
+      response.setContentType("text/plain");
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      try {
+        response.getWriter().print("No profile picture provided.");
+        response.getWriter().flush();
+      } catch (Exception e) {
+        log.error("Failed to send response after profile picture change request. Reason: {}", e.getMessage());
+      }
+    }
+
+    ResultOrError<String, FileUploadErrorTypes> savedFilePath = mediaStorageService.saveImage(newProfilePicture);
+    if (savedFilePath.errorType() != null) {
+      switch (savedFilePath.errorType()) {
+        case FileIsEmpty -> {
+          return new ResponseEntity<>(savedFilePath.errorMessage(), HttpStatus.BAD_REQUEST);
+        }
+        case InvalidUploadDir, FailedToCreateUploadDir, FailedToSaveFile -> {
+          return new ResponseEntity<>(savedFilePath.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
+    }
+
+    Optional<String> resp = userService.updateProfilePicturePath(request.getAttribute("userId").toString(), savedFilePath.result());
+    return resp
+        .map(errorReason -> new ResponseEntity<>(errorReason, HttpStatus.INTERNAL_SERVER_ERROR))
+        .orElseGet(() -> new ResponseEntity<>("Successfully updated user's profile picture.", HttpStatus.OK));
+  }
+
+  @PostMapping("api/public/logout")
+  public void refreshToken(HttpServletResponse response) {
+    removeRefreshTokenCookie(response);
+    SecurityContextHolder.clearContext();
+
+    response.setStatus(HttpServletResponse.SC_OK);
+    try {
+      response.getWriter().flush();
+    } catch (Exception e) {
+      log.error("Failed to write HTTP response for `/logout` request. Reason: {}", e.getMessage());
+    }
+  }
+}
