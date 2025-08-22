@@ -7,6 +7,9 @@ It's recommended to use the Postgres docker image for this. (The DB name, userna
 
 Then, acquire/generate the things marked `<<REPLACE-ME>>` with the appropriate values.
 
+(For the Stripe secret keys, you'll have to create a free Stripe account. No credit card required.)
+(For the secret key we use to sign our JWT tokens, you can use)
+
 Then, for forwarding the webhook events in the local development environment, you'll have to run `stripe login` to log into Stripe and then keep the following command running:
 `stripe listen --forward-to http://localhost:8080/webhook --skip-verify`.
 
