@@ -61,11 +61,14 @@ public class SecurityConfig {
 
   CorsConfigurationSource apiConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+    configuration.addAllowedOriginPattern("http://localhost:[*]");  // allow all the ports from localhost
+    configuration.addAllowedOriginPattern("https://*");             // allow any orgin thats behind https
+
+    //configuration.setAllowedOrigins(Arrays.asList("*"));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
     configuration.setAllowedHeaders(Arrays.asList("*")); // Allow all headers
-    configuration.setAllowCredentials(true); // Allow sending credentials (cookies, auth headers)
+    configuration.setAllowCredentials(true);             // Allow sending credentials (cookies, auth headers)
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
