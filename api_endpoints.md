@@ -69,7 +69,7 @@ Changes the profile picture with the uploaded picture.
 The picture needs to be uploaded as a form-data with the name `new-profile-picture`. We accept PNG for now. Make sure to set the content type
 to `image/png`.
 
-5) api/protected/update-password
+5) POST api/protected/update-password
 
 Updates the password to the newly provided password if the old password matches.
 
@@ -82,7 +82,7 @@ Request body's JSON:
 ```
 Response: HTTP 200 with confirmation text
 
-6) api/public/update-username
+6) POST api/public/update-username
 
 Updates the user to the newly provided username.
 
@@ -93,6 +93,21 @@ Request body's JSON:
 }
 ```
 Response: HTTP 200 with confirmation text
+
+7) GET api/protected/get/user-info
+
+Response JSON:
+```json
+{
+    "userId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+    "username": "Amanda",
+    "email": "amanda@gmail.com",
+    "userType": "Instructor",
+    "pfpPath": "default-user-logo.png",
+    "totalStorageInBytes": 11811160064,
+    "usedStorageInBytes": 445575411
+}
+```
 
 ## Course Controller
 
