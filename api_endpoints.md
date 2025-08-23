@@ -346,16 +346,26 @@ Reorganize the ordering of the course items (videos, quizzes, coding tests, term
 Request body's JSON:
 ```json
 {
-    "courseId": "8080944b-2699-40fb-acbb-6ca9c56f695c",
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
     "orderOfItemIds": [
-        "bf142c50-3c25-478c-9b6e-f494f6de64ea",
-        "6942e466-5170-4799-b9c6-25c51ddcae86",
-        "a37a46b6-433e-49fa-90f0-3a781a46aa1f"
+        "QZ_2bb1c9a4-33ba-4cc8-983c-a1a6d41402e1",
+        "QZ_e873ef10-5e29-4c82-b70a-5572b8cfa8b4",
+        "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
+        "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
+        "QZ_ac206c1a-19ea-4a09-974c-dbf674af82ba",
+        "QZ_00505192-b460-46aa-a572-a6525996561f"
     ]
 }
 ```
 
 Response: HTTP 200.
+
+Response JSON:
+```json
+{
+    "itemId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207"
+}
+```
 
 In the above request, the 3 course items have been reordered in the sequence provided.
 
@@ -369,12 +379,12 @@ Adds a quiz to a given course.
 Request JSON:
 ```json
 {
-    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-    "question": "Which is the right answer?",
-    "o1": "11",
-    "o2": "22",
-    "o3": "33",
-    "o4": "44",
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+    "question": "Why are you?",
+    "o1": "Aa",
+    "o2": "Bb",
+    "o3": "Cc",
+    "o4": "Dd",
     "correctOption": 4
 }
 ```
@@ -382,7 +392,7 @@ Request JSON:
 Response JSON:
 ```json
 {
-    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+    "itemId": "QZ_ab466fdf-b90b-4d3e-b801-805c51039ece"
 }
 ```
 
@@ -395,8 +405,8 @@ Only `courseId` and `quizId` is mandatory. The other fields are optional.
 Request JSON:
 ```json
 {
-    "quizId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2",
-    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
+    "itemId": "QZ_ab466fdf-b90b-4d3e-b801-805c51039ece",
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
     "question": "Chicken or egg?",
     "o1": "aaa",
     "o2": "bbb",
@@ -409,7 +419,7 @@ Request JSON:
 Response JSON:
 ```json
 {
-    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+    "itemId": "QZ_ab466fdf-b90b-4d3e-b801-805c51039ece"
 }
 ```
 
@@ -420,15 +430,15 @@ Delete a given quiz in a given course.
 Request JSON:
 ```json
 {
-    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+    "itemId": "QZ_ab466fdf-b90b-4d3e-b801-805c51039ece"
 }
 ```
 
 Response JSON:
 ```json
 {
-    "itemId": "305f2a73-a065-40e2-a8d1-5d16da86c5d2"
+    "itemId": "QZ_ab466fdf-b90b-4d3e-b801-805c51039ece"
 }
 ```
 
@@ -441,16 +451,16 @@ Add a coding test challenge.
 Requsest JSON:
 ```json
 {
-    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-    "question": "What is 3 + 3?",
-    "expectedStdout": "6"
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+    "question": "Which came before: Chicken? Or the egg?",
+    "expectedStdout": "The big beautiful bill..."   
 }
 ```
 
 Response JSON:
 ```json
 {
-    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+    "itemId": "CT_26cc5297-4aa4-4a6c-b179-b8563df21766"
 }
 ```
 
@@ -461,17 +471,17 @@ Modify a coding test challenge.
 Request JSON:
 ```json
 {
-    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-    "codingTestId": "668da333-67b1-4989-b08d-852821681a0c",
-    "question": "Sparky?",
-    "expectedStdout": "Viva la sparky!"
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+    "itemId": "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
+    "question": "Nani?",
+    "expectedStdout": "The big beautiful bill..."   
 }
 ```
 
 Response JSON:
 ```json
 {
-    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+    "itemId": "CT_26cc5297-4aa4-4a6c-b179-b8563df21766"
 }
 ```
 
@@ -482,15 +492,15 @@ Delete a coding test challenge.
 Request JSON:
 ```json
 {
-    "courseId": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+    "courseId": "255e37f3-5473-4c51-99f4-1d0335780f3a",
+    "itemId": "CT_8a2ce190-e5d2-4310-b5b8-fe2bf1c85bf8"
 }
 ```
 
 Response JSON:
 ```json
 {
-    "itemId": "668da333-67b1-4989-b08d-852821681a0c"
+    "itemId": "CT_8a2ce190-e5d2-4310-b5b8-fe2bf1c85bf8"
 }
 ```
 
