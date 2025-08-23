@@ -5,6 +5,7 @@ import com.akiramenai.backend.repo.LearnerInfosRepo;
 import com.akiramenai.backend.service.CourseService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
+import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -47,6 +48,32 @@ public class CourseController {
     }
 
     return sortDirection;
+  }
+
+  @GetMapping("api/protected/get/course")
+  public void getCourse(
+      HttpServletResponse httpResponse,
+      @RequestBody ItemId courseToFetch
+  ) {
+    Optional<UUID> courseId = IdParser.parseId(courseToFetch.itemId());
+    if (courseId.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to parse the provided courseId. Invalid courseId provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    Optional<Course> targetCourse = courseService.getCourse(courseId.get());
+    if (targetCourse.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to retrieve the course. Course not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    Optional<String> respJson = jsonSerializer.serialize(new CleanedCourse(targetCourse.get()));
+    if (respJson.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
   }
 
   @GetMapping("api/public/get/courses")

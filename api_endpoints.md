@@ -113,6 +113,41 @@ Response JSON:
 
 ## Course Controller
 
+0) GET api/protected/get/course
+
+Return the informations about the specified course.
+
+Request JSON:
+```json
+{
+    "itemId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207"
+}
+```
+
+Response JSON:
+```json
+{
+    "id": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+    "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
+    "title": "Course Title #1",
+    "description": "Course Description #1",
+    "thumbnailImageId": null,
+    "courseItemIds": [
+        "QZ_2bb1c9a4-33ba-4cc8-983c-a1a6d41402e1",
+        "QZ_e873ef10-5e29-4c82-b70a-5572b8cfa8b4",
+        "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
+        "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
+        "QZ_ac206c1a-19ea-4a09-974c-dbf674af82ba",
+        "QZ_00505192-b460-46aa-a572-a6525996561f"
+    ],
+    "price": 4.2,
+    "rating": 0.0,
+    "createdAt": "2025-08-23T15:27:15.355931",
+    "lastModifiedAt": "2025-08-23T15:27:15.391495"
+}
+```
+
+
 1) GET api/public/get/courses?page=0&page-size=1&sorting=DESC
 
 Returns a paginated list of published courses in JSON.
