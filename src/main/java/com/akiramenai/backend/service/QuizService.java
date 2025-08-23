@@ -53,7 +53,6 @@ public class QuizService {
         .correctOption(addQuizRequest.correctOption())
         .build();
 
-
     try {
       quizRepo.save(quizToAdd);
       targetCourse.get().getCourseItemIds().add(quizToAdd.getId());
@@ -84,19 +83,33 @@ public class QuizService {
     }
   }
 
-  public Optional<String> deleteQuiz(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
+  public ResultOrError<String, CourseItemOperationErrors> removeQuiz(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
+    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+
     Optional<Course> targetCourse = courseRepo.findCourseById(deleteCourseItemRequest.courseId());
     if (targetCourse.isEmpty()) {
-      return Optional.of("Failed to retrieve requested course.");
+      return resp
+          .result(null)
+          .errorMessage("Failed to retrieve requested course. Course not found.")
+          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .build();
     }
 
     if (!targetCourse.get().getInstructorId().equals(currentUserId)) {
-      return Optional.of("Can't modify the course item. You're not the author of the course.");
+      return resp
+          .result(null)
+          .errorMessage("Can't modify the course item. You're not the author of the course.")
+          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .build();
     }
 
     Optional<Quiz> retrievedQuiz = quizRepo.findQuizById(deleteCourseItemRequest.itemId());
     if (retrievedQuiz.isEmpty()) {
-      return Optional.of("Failed to retrieve the item requested for removal.");
+      return resp
+          .result(null)
+          .errorMessage("Failed to retrieve the item requested for removal.")
+          .errorType(CourseItemOperationErrors.ItemNotFound)
+          .build();
     }
 
     try {
@@ -107,10 +120,26 @@ public class QuizService {
     } catch (Exception e) {
       log.error("Failed to delete the quiz from the course. Reason: ", e);
 
-      return Optional.of("Failed to delete the quiz from the course.");
+      return resp
+          .result(null)
+          .errorMessage("Failed to delete the quiz from the course.")
+          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .build();
     }
 
-    return Optional.empty();
+    CourseItemIdResponse quizItemId = new CourseItemIdResponse(retrievedQuiz.get().getId());
+    Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
+    if (responseJson.isEmpty()) {
+      return resp
+          .result(null)
+          .errorMessage("Failed to serialize JSON response.")
+          .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+          .build();
+    }
+
+    return resp
+        .result(responseJson.get())
+        .build();
   }
 
   public ResultOrError<String, CourseItemOperationErrors> modifyQuiz(ModifyQuizRequest modifyQuizRequest, UUID currentUserId) {
@@ -145,17 +174,17 @@ public class QuizService {
     if (modifyQuizRequest.question() != null) {
       quizToModify.get().setQuestion(modifyQuizRequest.question().trim());
     }
-    if (modifyQuizRequest.option1() != null) {
-      quizToModify.get().setOption1(modifyQuizRequest.option1().trim());
+    if (modifyQuizRequest.o1() != null) {
+      quizToModify.get().setOption1(modifyQuizRequest.o1().trim());
     }
-    if (modifyQuizRequest.option2() != null) {
-      quizToModify.get().setOption2(modifyQuizRequest.option2().trim());
+    if (modifyQuizRequest.o2() != null) {
+      quizToModify.get().setOption2(modifyQuizRequest.o2().trim());
     }
-    if (modifyQuizRequest.option3() != null) {
-      quizToModify.get().setOption3(modifyQuizRequest.option3().trim());
+    if (modifyQuizRequest.o3() != null) {
+      quizToModify.get().setOption3(modifyQuizRequest.o3().trim());
     }
-    if (modifyQuizRequest.option4() != null) {
-      quizToModify.get().setOption4(modifyQuizRequest.option4().trim());
+    if (modifyQuizRequest.o4() != null) {
+      quizToModify.get().setOption4(modifyQuizRequest.o4().trim());
     }
     if (modifyQuizRequest.correctOption() != null) {
       quizToModify.get().setCorrectOption(modifyQuizRequest.correctOption());
@@ -164,7 +193,8 @@ public class QuizService {
     try {
       quizRepo.save(quizToModify.get());
 
-      Optional<String> responseJson = jsonSerializer.serialize(quizToModify.get().getId());
+      CourseItemIdResponse quizItemId = new CourseItemIdResponse(quizToModify.get().getId());
+      Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
       if (responseJson.isEmpty()) {
         return resp
             .errorMessage("Failed to serialize JSON response.")

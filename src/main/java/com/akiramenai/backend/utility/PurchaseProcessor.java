@@ -51,7 +51,6 @@ public class PurchaseProcessor {
             UUID.fromString(purchaseInfo.userId()),
             UUID.fromString(purchaseInfo.courseId())
         );
-        log.info("Adding course {} to user {}.", purchaseInfo.courseId(), purchaseInfo.userId());
         break;
       }
 
@@ -94,8 +93,9 @@ public class PurchaseProcessor {
         courseId.toString(),
         userId.toString()
     );
-    if (resp.isEmpty()) {
-      log.error("Failed to purchase course `{}` for user `{}`.", courseId, userId);
+
+    if (resp.isPresent()) {
+      log.error("Failed to purchase course `{}` for user `{}`. Reason: {}", courseId, userId, resp.get());
       return;
     }
   }

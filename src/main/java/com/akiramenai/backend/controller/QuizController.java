@@ -1,9 +1,6 @@
 package com.akiramenai.backend.controller;
 
-import com.akiramenai.backend.model.AddQuizRequest;
-import com.akiramenai.backend.model.CourseItemOperationErrors;
-import com.akiramenai.backend.model.ModifyQuizRequest;
-import com.akiramenai.backend.model.ResultOrError;
+import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.service.QuizService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -60,6 +57,21 @@ public class QuizController {
         modifyQuizRequest,
         UUID.fromString(request.getAttribute("userId").toString())
     );
+    httpResponseWriter.handleDifferentResponses(response, resp, HttpStatus.OK);
+  }
+
+
+  @PostMapping("api/protected/remove/quiz")
+  public void removeQuiz(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestBody DeleteCourseItemRequest deleteCourseItemRequest
+  ) {
+    ResultOrError<String, CourseItemOperationErrors> resp = quizService.removeQuiz(
+        deleteCourseItemRequest,
+        UUID.fromString(request.getAttribute("userId").toString())
+    );
+
     httpResponseWriter.handleDifferentResponses(response, resp, HttpStatus.OK);
   }
 }

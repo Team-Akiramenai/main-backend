@@ -1,8 +1,6 @@
 package com.akiramenai.backend.controller;
 
-import com.akiramenai.backend.model.AddCodingTestRequest;
-import com.akiramenai.backend.model.CourseItemOperationErrors;
-import com.akiramenai.backend.model.ResultOrError;
+import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.service.CodingTestService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +18,7 @@ import java.util.UUID;
 public class CodingTestController {
   HttpResponseWriter responseWriter = new HttpResponseWriter();
   private final CodingTestService codingTestService;
+  private final HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
 
   public CodingTestController(CodingTestService codingTestService) {
     this.codingTestService = codingTestService;
@@ -66,5 +65,51 @@ public class CodingTestController {
         return;
       }
     }
+  }
+
+  @PostMapping("api/protected/modify/coding-test")
+  public void modifyCodingTest(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+      @RequestBody ModifyCodingTestRequest modifyCodingTestRequest
+  ) {
+    if (modifyCodingTestRequest.courseId() == null || modifyCodingTestRequest.codingTestId() == null) {
+      responseWriter.writeFailedResponse(
+          httpResponse,
+          "The courseId and codingTestId fields must be provided.",
+          HttpStatus.BAD_REQUEST
+      );
+      return;
+    }
+
+    ResultOrError<String, CourseItemOperationErrors> resp = codingTestService.modifyCodingTest(
+        modifyCodingTestRequest,
+        UUID.fromString(httpRequest.getAttribute("userId").toString())
+    );
+
+    httpResponseWriter.handleDifferentResponses(httpResponse, resp, HttpStatus.OK);
+  }
+
+  @PostMapping("api/protected/remove/coding-test")
+  public void removeCodingTest(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+      @RequestBody DeleteCourseItemRequest deleteCourseItemRequest
+  ) {
+    if (deleteCourseItemRequest.courseId() == null || deleteCourseItemRequest.itemId() == null) {
+      responseWriter.writeFailedResponse(
+          httpResponse,
+          "The fields for courseId and itemId must be provided.",
+          HttpStatus.BAD_REQUEST
+      );
+      return;
+    }
+
+    ResultOrError<String, CourseItemOperationErrors> resp = codingTestService.deleteCodingTest(
+        deleteCourseItemRequest,
+        UUID.fromString(httpRequest.getAttribute("userId").toString())
+    );
+
+    httpResponseWriter.handleDifferentResponses(httpResponse, resp, HttpStatus.OK);
   }
 }

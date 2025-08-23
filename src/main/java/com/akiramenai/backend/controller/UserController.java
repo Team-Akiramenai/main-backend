@@ -3,6 +3,8 @@ package com.akiramenai.backend.controller;
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.service.MediaStorageService;
 import com.akiramenai.backend.service.UserService;
+import com.akiramenai.backend.utility.HttpResponseWriter;
+import com.akiramenai.backend.utility.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,19 +14,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RestController
 public class UserController {
   private final UserService userService;
   private final MediaStorageService mediaStorageService;
+  private final HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
+  private final JsonSerializer jsonSerializer = new JsonSerializer();
 
   @Value("${application.security.jwt.refresh-token-validity-duration}")
   private String refreshTokenValidityDuration;
@@ -209,6 +211,30 @@ public class UserController {
     return resp
         .map(errorReason -> new ResponseEntity<>(errorReason, HttpStatus.INTERNAL_SERVER_ERROR))
         .orElseGet(() -> new ResponseEntity<>("Successfully updated user's profile picture.", HttpStatus.OK));
+  }
+
+  @GetMapping("api/protected/get/user-info")
+  public void getUserInfo(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
+  ) {
+    String currentUserId = httpRequest.getAttribute("userId").toString();
+
+    Optional<Users> targetUser = userService.findUserById(UUID.fromString(currentUserId));
+    if (targetUser.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed retrieve user info. User not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    CleanedUserInfo cleanedUserInfo = new CleanedUserInfo(targetUser.get());
+
+    Optional<String> userInfoJson = jsonSerializer.serialize(cleanedUserInfo);
+    if (userInfoJson.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    httpResponseWriter.writeOkResponse(httpResponse, userInfoJson.get(), HttpStatus.OK);
   }
 
   @PostMapping("api/public/logout")

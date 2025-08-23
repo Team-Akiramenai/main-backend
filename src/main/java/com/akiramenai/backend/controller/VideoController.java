@@ -26,7 +26,7 @@ public class VideoController {
   }
 
   @PostMapping("/modify")
-  public void uploadVideo(
+  public void modifyVideoMetadata(
       HttpServletRequest request,
       HttpServletResponse response,
 

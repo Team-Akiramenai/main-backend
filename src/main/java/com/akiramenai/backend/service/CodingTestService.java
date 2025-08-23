@@ -80,7 +80,6 @@ public class CodingTestService {
     }
   }
 
-
   public ResultOrError<String, CourseItemOperationErrors> deleteCodingTest(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
@@ -147,7 +146,7 @@ public class CodingTestService {
           .build();
     }
 
-    if (targetCourse.get().getInstructorId().equals(currentUserId)) {
+    if (!targetCourse.get().getInstructorId().equals(currentUserId)) {
       return resp
           .result(null)
           .errorMessage("Can't modify the course item. You're not the author of the course.")
@@ -182,7 +181,8 @@ public class CodingTestService {
           .build();
     }
 
-    Optional<String> responseJson = jsonSerializer.serialize(codingTestToModify.get().getId());
+    CourseItemIdResponse codingTestId = new CourseItemIdResponse(codingTestToModify.get().getId());
+    Optional<String> responseJson = jsonSerializer.serialize(codingTestId);
     if (responseJson.isEmpty()) {
       return resp
           .errorMessage("Failed to serialize JSON response.")
