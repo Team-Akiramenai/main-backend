@@ -26,7 +26,19 @@ public class CodingTestService {
   public ResultOrError<String, CourseItemOperationErrors> addCodingTest(AddCodingTestRequest addCodingTestRequest, UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
-    Optional<Course> targetCourse = courseRepo.findCourseById(addCodingTestRequest.courseId());
+    UUID courseId;
+    try {
+      courseId = UUID.fromString(addCodingTestRequest.courseId());
+    } catch (Exception e) {
+      log.error("Failed to parse courseId. Reason: {}", e.getMessage());
+
+      return resp
+          .errorMessage("Failed to parse courseId. Invalid courseId provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
     if (targetCourse.isEmpty()) {
       return resp
           .result(null)
@@ -45,17 +57,18 @@ public class CodingTestService {
 
     CodingTest codingTestToAdd = CodingTest
         .builder()
-        .courseId(addCodingTestRequest.courseId())
+        .courseId(courseId)
+        .itemId("CT_" + UUID.randomUUID())
         .question(addCodingTestRequest.question())
         .expectedStdout(addCodingTestRequest.expectedStdout())
         .build();
 
     try {
       codingTestRepo.save(codingTestToAdd);
-      targetCourse.get().getCourseItemIds().add(codingTestToAdd.getId());
+      targetCourse.get().getCourseItemIds().add(codingTestToAdd.getItemId());
       courseRepo.save(targetCourse.get());
 
-      CourseItemIdResponse responseObj = new CourseItemIdResponse(codingTestToAdd.getId());
+      ItemIdResponse responseObj = new ItemIdResponse(codingTestToAdd.getItemId());
       Optional<String> respJson = jsonSerializer.serialize(responseObj);
       if (respJson.isEmpty()) {
         return resp
@@ -83,7 +96,19 @@ public class CodingTestService {
   public ResultOrError<String, CourseItemOperationErrors> deleteCodingTest(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
-    Optional<Course> targetCourse = courseRepo.findCourseById(deleteCourseItemRequest.courseId());
+    UUID courseId;
+    try {
+      courseId = UUID.fromString(deleteCourseItemRequest.courseId());
+    } catch (Exception e) {
+      log.error("Failed to parse courseId. Reason: {}", e.getMessage());
+
+      return resp
+          .errorMessage("Failed to parse courseId. Invalid courseId provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
     if (targetCourse.isEmpty()) {
       return resp
           .errorMessage("Requested course not found.")
@@ -98,7 +123,7 @@ public class CodingTestService {
           .build();
     }
 
-    Optional<CodingTest> retrievedCodingTest = codingTestRepo.findCodingTestById(deleteCourseItemRequest.itemId());
+    Optional<CodingTest> retrievedCodingTest = codingTestRepo.findCodingTestByItemId(deleteCourseItemRequest.itemId());
     if (retrievedCodingTest.isEmpty()) {
       return resp
           .errorMessage("Requested coding test not found.")
@@ -107,7 +132,7 @@ public class CodingTestService {
     }
 
     try {
-      targetCourse.get().getCourseItemIds().remove(retrievedCodingTest.get().getId());
+      targetCourse.get().getCourseItemIds().remove(retrievedCodingTest.get().getItemId());
       courseRepo.save(targetCourse.get());
 
       codingTestRepo.delete(retrievedCodingTest.get());
@@ -120,7 +145,7 @@ public class CodingTestService {
           .build();
     }
 
-    CourseItemIdResponse responseObj = new CourseItemIdResponse(retrievedCodingTest.get().getId());
+    ItemIdResponse responseObj = new ItemIdResponse(retrievedCodingTest.get().getItemId());
     Optional<String> respJson = jsonSerializer.serialize(responseObj);
     if (respJson.isEmpty()) {
       return resp
@@ -137,7 +162,19 @@ public class CodingTestService {
   public ResultOrError<String, CourseItemOperationErrors> modifyCodingTest(ModifyCodingTestRequest modifyCodingTestRequest, UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
-    Optional<Course> targetCourse = courseRepo.findCourseById(UUID.fromString(modifyCodingTestRequest.courseId()));
+    UUID courseId;
+    try {
+      courseId = UUID.fromString(modifyCodingTestRequest.courseId());
+    } catch (Exception e) {
+      log.error("Failed to parse courseId. Reason: {}", e.getMessage());
+
+      return resp
+          .errorMessage("Failed to parse courseId. Invalid courseId provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
     if (targetCourse.isEmpty()) {
       return resp
           .result(null)
@@ -154,7 +191,7 @@ public class CodingTestService {
           .build();
     }
 
-    Optional<CodingTest> codingTestToModify = codingTestRepo.findCodingTestById(UUID.fromString(modifyCodingTestRequest.codingTestId()));
+    Optional<CodingTest> codingTestToModify = codingTestRepo.findCodingTestByItemId(modifyCodingTestRequest.itemId());
     if (codingTestToModify.isEmpty()) {
       return resp
           .result(null)
@@ -181,7 +218,7 @@ public class CodingTestService {
           .build();
     }
 
-    CourseItemIdResponse codingTestId = new CourseItemIdResponse(codingTestToModify.get().getId());
+    ItemIdResponse codingTestId = new ItemIdResponse(codingTestToModify.get().getItemId());
     Optional<String> responseJson = jsonSerializer.serialize(codingTestId);
     if (responseJson.isEmpty()) {
       return resp

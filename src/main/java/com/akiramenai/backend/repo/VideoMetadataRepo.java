@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface VideoMetadataRepo extends JpaRepository<VideoMetadata, UUID> {
   Optional<VideoMetadata> findVideoMetadataById(UUID id);
+
+  Optional<VideoMetadata> findVideoMetadataByItemId(String itemId);
 }

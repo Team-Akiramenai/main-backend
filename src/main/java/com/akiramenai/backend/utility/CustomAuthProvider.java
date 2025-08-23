@@ -5,12 +5,10 @@ import com.akiramenai.backend.model.Users;
 import com.akiramenai.backend.repo.UserRepo;
 import com.akiramenai.backend.service.JWTService;
 import com.akiramenai.backend.service.PasswordHashingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -46,7 +44,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
     }
 
     if (polyCreds.jwtToken() != null) {
-      Optional<String> failureReason = jwtService.isTokenExpired(polyCreds.jwtToken());
+      Optional<String> failureReason = jwtService.isTokenValid(polyCreds.jwtToken());
       if (failureReason.isPresent()) {
         throw new BadCredentialsException("Authentication failed. Reason: " + failureReason.get());
       }

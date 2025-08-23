@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -30,30 +29,30 @@ public class VideoController {
       HttpServletRequest request,
       HttpServletResponse response,
 
-      @RequestBody UploadVideoRequest uploadVideoRequest
+      @RequestBody ModifyVideoMetadataRequest modifyVideoMetadataRequest
   ) {
     if (!request.getAttribute("accountType").equals("Instructor")) {
       httpResponseWriter.writeFailedResponse(response, "Only instructors can upload videos.", HttpStatus.FORBIDDEN);
       return;
     }
-    if (uploadVideoRequest.getCourseId() == null) {
-      httpResponseWriter.writeFailedResponse(response, "Associated course ID not provided.", HttpStatus.BAD_REQUEST);
+    if (modifyVideoMetadataRequest.getCourseId() == null) {
+      httpResponseWriter.writeFailedResponse(response, "Associated courseId not provided.", HttpStatus.BAD_REQUEST);
       return;
     }
-    if (uploadVideoRequest.getVideoMetadataId() == null) {
-      httpResponseWriter.writeFailedResponse(response, "VideoMetadataId not provided.", HttpStatus.BAD_REQUEST);
+    if (modifyVideoMetadataRequest.getItemId() == null) {
+      httpResponseWriter.writeFailedResponse(response, "Associated itemUUID not provided.", HttpStatus.BAD_REQUEST);
       return;
     }
-    if (uploadVideoRequest.getTitle() == null || uploadVideoRequest.getTitle().isBlank()) {
+    if (modifyVideoMetadataRequest.getTitle() == null || modifyVideoMetadataRequest.getTitle().isBlank()) {
       httpResponseWriter.writeFailedResponse(response, "Video title must not be empty or filled with only whitespace characters.", HttpStatus.BAD_REQUEST);
       return;
     }
-    if (uploadVideoRequest.getDescription() == null || uploadVideoRequest.getDescription().isBlank()) {
+    if (modifyVideoMetadataRequest.getDescription() == null || modifyVideoMetadataRequest.getDescription().isBlank()) {
       httpResponseWriter.writeFailedResponse(response, "Video description must not be empty or filled with only whitespace characters.", HttpStatus.BAD_REQUEST);
       return;
     }
 
-    ResultOrError<String, CourseItemOperationErrors> addResp = videoMetadataService.addVideoMetadata(uploadVideoRequest, UUID.fromString(request.getAttribute("userId").toString()));
+    ResultOrError<String, CourseItemOperationErrors> addResp = videoMetadataService.modifyVideoMetadata(modifyVideoMetadataRequest, UUID.fromString(request.getAttribute("userId").toString()));
     httpResponseWriter.handleDifferentResponses(response, addResp, HttpStatus.CREATED);
   }
 }

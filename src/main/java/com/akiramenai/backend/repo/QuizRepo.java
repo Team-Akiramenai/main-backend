@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface QuizRepo extends JpaRepository<Quiz, UUID> {
   Optional<Quiz> findQuizById(UUID id);
+
+  Optional<Quiz> findQuizByItemId(String itemId);
 }

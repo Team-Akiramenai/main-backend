@@ -22,6 +22,9 @@ public class Quiz {
   private UUID id;
 
   @NotNull
+  private String itemId;
+
+  @NotNull
   private UUID courseId;
 
   @NotBlank

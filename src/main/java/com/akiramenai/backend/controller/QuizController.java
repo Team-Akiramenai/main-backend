@@ -44,10 +44,10 @@ public class QuizController {
       HttpServletResponse response,
       @RequestBody ModifyQuizRequest modifyQuizRequest
   ) {
-    if (modifyQuizRequest.quizId() == null || modifyQuizRequest.courseId() == null) {
+    if (modifyQuizRequest.itemId() == null || modifyQuizRequest.courseId() == null) {
       httpResponseWriter.writeFailedResponse(
           response,
-          "Request requires both quiz ID and course ID to be provided.",
+          "Request requires both itemID and courseId to be provided.",
           HttpStatus.BAD_REQUEST
       );
       return;

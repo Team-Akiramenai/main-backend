@@ -73,10 +73,10 @@ public class CodingTestController {
       HttpServletResponse httpResponse,
       @RequestBody ModifyCodingTestRequest modifyCodingTestRequest
   ) {
-    if (modifyCodingTestRequest.courseId() == null || modifyCodingTestRequest.codingTestId() == null) {
+    if (modifyCodingTestRequest.courseId() == null || modifyCodingTestRequest.itemId() == null) {
       responseWriter.writeFailedResponse(
           httpResponse,
-          "The courseId and codingTestId fields must be provided.",
+          "The courseId and itemUUID fields must be provided.",
           HttpStatus.BAD_REQUEST
       );
       return;
@@ -99,7 +99,7 @@ public class CodingTestController {
     if (deleteCourseItemRequest.courseId() == null || deleteCourseItemRequest.itemId() == null) {
       responseWriter.writeFailedResponse(
           httpResponse,
-          "The fields for courseId and itemId must be provided.",
+          "The fields for courseId and itemUUID must be provided.",
           HttpStatus.BAD_REQUEST
       );
       return;

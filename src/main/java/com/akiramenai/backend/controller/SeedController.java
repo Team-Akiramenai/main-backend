@@ -4,6 +4,7 @@ import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.*;
 import com.akiramenai.backend.service.CourseService;
 import com.akiramenai.backend.service.UserService;
+import com.akiramenai.backend.utility.IdParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -68,10 +69,10 @@ public class SeedController {
         System.exit(1);
       }
 
-      CourseItemIdResponse courseItemIdResponse;
+      ItemIdResponse itemIdResponse;
       ObjectMapper objectMapper = new ObjectMapper();
       try {
-        courseItemIdResponse = objectMapper.readValue(resp.result(), CourseItemIdResponse.class);
+        itemIdResponse = objectMapper.readValue(resp.result(), ItemIdResponse.class);
       } catch (Exception e) {
         log.error("Failed parse JSON. Reason: {}", String.valueOf(e));
 
@@ -79,13 +80,13 @@ public class SeedController {
         return null; // without this line the LSP shows warning for impossible condition. The LSP isn't smart enough lol.
       }
 
-      Optional<String> status = courseService.publishCourse(courseItemIdResponse.itemId(), instructorId);
+      Optional<String> status = courseService.publishCourse(UUID.fromString(itemIdResponse.itemId()), instructorId);
       if (status.isPresent()) {
         log.info("Failed to publish course. Reason: {}", status.get());
 
         System.exit(1);
       }
-      publishedCourses.add(courseItemIdResponse.itemId());
+      publishedCourses.add(UUID.fromString(itemIdResponse.itemId()));
     }
 
     return publishedCourses;

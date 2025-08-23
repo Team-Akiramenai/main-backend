@@ -20,6 +20,9 @@ public class CodingTest {
   private UUID id;
 
   @NotNull
+  private String itemId;
+
+  @NotNull
   private UUID courseId;
 
   @NotBlank

@@ -3,6 +3,7 @@ package com.akiramenai.backend.service;
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.CourseRepo;
 import com.akiramenai.backend.repo.QuizRepo;
+import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,20 @@ public class QuizService {
   public ResultOrError<String, CourseItemOperationErrors> addQuiz(AddQuizRequest addQuizRequest, UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
-    Optional<Course> targetCourse = courseRepo.findCourseById(addQuizRequest.courseId());
+    UUID courseId;
+    try {
+      courseId = UUID.fromString(addQuizRequest.courseId());
+    } catch (Exception e) {
+      log.error("Failed to parse courseId. Reason: {}", e.getMessage());
+
+      return resp
+          .result(null)
+          .errorMessage("Failed to parse courseId. Invalid courseId provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
     if (targetCourse.isEmpty()) {
       return resp
           .result(null)
@@ -44,7 +58,8 @@ public class QuizService {
 
     Quiz quizToAdd = Quiz
         .builder()
-        .courseId(addQuizRequest.courseId())
+        .courseId(courseId)
+        .itemId("QZ_" + UUID.randomUUID())
         .question(addQuizRequest.question())
         .option1(addQuizRequest.o1())
         .option2(addQuizRequest.o2())
@@ -55,10 +70,10 @@ public class QuizService {
 
     try {
       quizRepo.save(quizToAdd);
-      targetCourse.get().getCourseItemIds().add(quizToAdd.getId());
+      targetCourse.get().getCourseItemIds().add(quizToAdd.getItemId());
       courseRepo.save(targetCourse.get());
 
-      CourseItemIdResponse quizItemId = new CourseItemIdResponse(quizToAdd.getId());
+      ItemIdResponse quizItemId = new ItemIdResponse(quizToAdd.getItemId());
       Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
       if (responseJson.isEmpty()) {
         return resp
@@ -83,10 +98,24 @@ public class QuizService {
     }
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> removeQuiz(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
+  public ResultOrError<String, CourseItemOperationErrors> removeQuiz(DeleteCourseItemRequest deleteCourseItemRequest,
+                                                                     UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
-    Optional<Course> targetCourse = courseRepo.findCourseById(deleteCourseItemRequest.courseId());
+    UUID courseId;
+    try {
+      courseId = UUID.fromString(deleteCourseItemRequest.courseId());
+    } catch (Exception e) {
+      log.error("Failed to parse courseId. Reason: {}", e.getMessage());
+
+      return resp
+          .result(null)
+          .errorMessage("Failed to parse provided courseId. Invalid courseId provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
     if (targetCourse.isEmpty()) {
       return resp
           .result(null)
@@ -103,7 +132,7 @@ public class QuizService {
           .build();
     }
 
-    Optional<Quiz> retrievedQuiz = quizRepo.findQuizById(deleteCourseItemRequest.itemId());
+    Optional<Quiz> retrievedQuiz = quizRepo.findQuizByItemId(deleteCourseItemRequest.itemId());
     if (retrievedQuiz.isEmpty()) {
       return resp
           .result(null)
@@ -113,7 +142,7 @@ public class QuizService {
     }
 
     try {
-      targetCourse.get().getCourseItemIds().remove(retrievedQuiz.get().getId());
+      targetCourse.get().getCourseItemIds().remove(retrievedQuiz.get().getItemId());
       courseRepo.save(targetCourse.get());
 
       quizRepo.delete(retrievedQuiz.get());
@@ -127,7 +156,7 @@ public class QuizService {
           .build();
     }
 
-    CourseItemIdResponse quizItemId = new CourseItemIdResponse(retrievedQuiz.get().getId());
+    ItemIdResponse quizItemId = new ItemIdResponse(retrievedQuiz.get().getItemId());
     Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
     if (responseJson.isEmpty()) {
       return resp
@@ -142,8 +171,18 @@ public class QuizService {
         .build();
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> modifyQuiz(ModifyQuizRequest modifyQuizRequest, UUID currentUserId) {
+  public ResultOrError<String, CourseItemOperationErrors> modifyQuiz(ModifyQuizRequest modifyQuizRequest,
+                                                                     UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+
+    Optional<ParsedItemInfo> quizInfo = IdParser.parseItemId(modifyQuizRequest.itemId());
+    if (quizInfo.isEmpty()) {
+      return resp
+          .result(null)
+          .errorMessage("Failed to parse itemUUID. Invalid itemUUID provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
 
     Optional<Course> targetCourse = courseRepo.findCourseById(UUID.fromString(modifyQuizRequest.courseId()));
     if (targetCourse.isEmpty()) {
@@ -162,7 +201,7 @@ public class QuizService {
           .build();
     }
 
-    Optional<Quiz> quizToModify = quizRepo.findQuizById(UUID.fromString(modifyQuizRequest.quizId()));
+    Optional<Quiz> quizToModify = quizRepo.findQuizByItemId(modifyQuizRequest.itemId());
     if (quizToModify.isEmpty()) {
       return resp
           .result(null)
@@ -193,7 +232,7 @@ public class QuizService {
     try {
       quizRepo.save(quizToModify.get());
 
-      CourseItemIdResponse quizItemId = new CourseItemIdResponse(quizToModify.get().getId());
+      ItemIdResponse quizItemId = new ItemIdResponse(quizToModify.get().getItemId());
       Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
       if (responseJson.isEmpty()) {
         return resp

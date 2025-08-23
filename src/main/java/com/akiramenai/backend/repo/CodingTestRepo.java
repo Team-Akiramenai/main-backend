@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface CodingTestRepo extends JpaRepository<CodingTest, UUID> {
   Optional<CodingTest> findCodingTestById(UUID id);
+
+  Optional<CodingTest> findCodingTestByItemId(String itemId);
 }

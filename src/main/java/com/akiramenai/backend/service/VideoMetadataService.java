@@ -3,6 +3,7 @@ package com.akiramenai.backend.service;
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.CourseRepo;
 import com.akiramenai.backend.repo.VideoMetadataRepo;
+import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,20 @@ public class VideoMetadataService {
     this.courseRepo = courseRepo;
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> addVideoMetadata(UploadVideoRequest uploadVideoRequest, UUID currentUserId) {
+  public ResultOrError<String, CourseItemOperationErrors> modifyVideoMetadata(ModifyVideoMetadataRequest modifyVideoMetadataRequest, UUID currentUserId) {
     var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
 
+    Optional<UUID> courseId = IdParser.parseId(modifyVideoMetadataRequest.getCourseId());
+    if (courseId.isEmpty()) {
+      return resp
+          .result(null)
+          .errorMessage("Failed to parse the provided courseId. Invalid courseId provided.")
+          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .build();
+    }
+
     Optional<Course> targetCourse = courseRepo.findCourseById(
-        UUID.fromString(uploadVideoRequest.getCourseId())
+        courseId.get()
     );
     if (targetCourse.isEmpty()) {
       return resp
@@ -50,7 +60,7 @@ public class VideoMetadataService {
     }
 
     Optional<VideoMetadata> targetVideoMetadata = videoMetadataRepo.findVideoMetadataById(
-        UUID.fromString(uploadVideoRequest.getVideoMetadataId())
+        UUID.fromString(modifyVideoMetadataRequest.getItemId())
     );
     if (targetVideoMetadata.isEmpty()) {
       return resp
@@ -60,14 +70,14 @@ public class VideoMetadataService {
           .build();
     }
 
-    targetVideoMetadata.get().setTitle(uploadVideoRequest.getTitle());
-    targetVideoMetadata.get().setDescription(uploadVideoRequest.getDescription());
+    targetVideoMetadata.get().setTitle(modifyVideoMetadataRequest.getTitle());
+    targetVideoMetadata.get().setDescription(modifyVideoMetadataRequest.getDescription());
     targetVideoMetadata.get().setLastModifiedDateTime(LocalDateTime.now());
 
     try {
       videoMetadataRepo.save(targetVideoMetadata.get());
 
-      CourseItemIdResponse responseObj = new CourseItemIdResponse(targetCourse.get().getId());
+      ItemIdResponse responseObj = new ItemIdResponse(targetVideoMetadata.get().getItemId());
       Optional<String> respJson = jsonSerializer.serialize(responseObj);
       if (respJson.isEmpty()) {
         return resp

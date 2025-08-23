@@ -36,7 +36,7 @@ public class Course {
   private UUID thumbnailImageName;
 
   @NotNull
-  private List<UUID> courseItemIds;
+  private List<String> courseItemIds;
 
   @DecimalMin("1.0")
   private double price;

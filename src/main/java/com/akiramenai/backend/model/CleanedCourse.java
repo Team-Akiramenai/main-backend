@@ -13,7 +13,7 @@ public record CleanedCourse(
     String title,
     String description,
     UUID thumbnailImageId,
-    List<UUID> courseItemIds,
+    List<String> courseItemIds,
     double price,
     double rating,
     String createdAt,

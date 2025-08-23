@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -138,8 +136,8 @@ public class CourseService {
           .build();
     }
 
-    CourseItemIdResponse courseItemIdResponse = new CourseItemIdResponse(courseToAdd.getId());
-    Optional<String> respJson = jsonSerializer.serialize(courseItemIdResponse);
+    ItemIdResponse itemIdResponse = new ItemIdResponse(courseToAdd.getId().toString());
+    Optional<String> respJson = jsonSerializer.serialize(itemIdResponse);
     if (respJson.isEmpty()) {
       return result
           .errorMessage("Failed to serialize response JSON.")
@@ -255,34 +253,19 @@ public class CourseService {
           .build();
     }
 
-    ArrayList<UUID> itemIds = new ArrayList<>();
-    try {
-      orderOfItemIds.forEach(idString -> {
-        itemIds.add(UUID.fromString(idString));
-      });
-    } catch (IllegalArgumentException e) {
-      log.error("Invalid course ID provided. Reason: {}", e.toString());
-
-      return res
-          .errorMessage("Invalid UUID provided for an item.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
-          .build();
-    }
-
-
-    if (targetCourse.get().getCourseItemIds().size() != itemIds.size()) {
+    if (targetCourse.get().getCourseItemIds().size() != orderOfItemIds.size()) {
       return res
           .errorMessage("The number of course item IDs don't match.")
           .errorType(CourseItemOperationErrors.InvalidRequest)
           .build();
     }
 
-    HashMap<UUID, Boolean> isUsed = new HashMap<>();
-    for (UUID itemId : targetCourse.get().getCourseItemIds()) {
+    HashMap<String, Boolean> isUsed = new HashMap<>();
+    for (String itemId : targetCourse.get().getCourseItemIds()) {
       isUsed.put(itemId, true);
     }
 
-    for (UUID itemId : itemIds) {
+    for (String itemId : orderOfItemIds) {
       if (!isUsed.containsKey(itemId)) {
         return res
             .errorMessage("The item ID does not exist in the provided course's item list.")
@@ -292,7 +275,7 @@ public class CourseService {
     }
 
     try {
-      targetCourse.get().setCourseItemIds(itemIds);
+      targetCourse.get().setCourseItemIds(orderOfItemIds);
       courseRepo.save(targetCourse.get());
     } catch (Exception e) {
       log.error("Failed to update the order of the course item IDs. Reason: {}", e.toString());
@@ -303,9 +286,9 @@ public class CourseService {
           .build();
     }
 
-    CourseItemIdResponse courseItemIdResponse = new CourseItemIdResponse(targetCourse.get().getId());
+    ItemIdResponse itemIdResponse = new ItemIdResponse(targetCourse.get().getId().toString());
 
-    Optional<String> respJson = jsonSerializer.serialize(courseItemIdResponse);
+    Optional<String> respJson = jsonSerializer.serialize(itemIdResponse);
     if (respJson.isEmpty()) {
       return res
           .errorMessage("Failed to serialize response JSON.")
