@@ -96,6 +96,8 @@ Response: HTTP 200 with confirmation text
 
 7) GET api/protected/get/user-info
 
+Get current user's account information.
+
 Response JSON:
 ```json
 {
