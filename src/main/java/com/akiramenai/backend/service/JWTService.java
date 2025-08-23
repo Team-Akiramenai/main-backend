@@ -1,14 +1,12 @@
 package com.akiramenai.backend.service;
 
 import com.akiramenai.backend.model.JwtErrorTypes;
-import com.akiramenai.backend.model.JwtErrorTypes;
 import com.akiramenai.backend.model.ResultOrError;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -154,14 +152,7 @@ public class JWTService {
         .build();
   }
 
-  public boolean validateToken(String token, UserDetails userDetails) {
-    final ResultOrError<String, JwtErrorTypes> usernameOrError = extractUserName(token);
-
-    final String userName = usernameOrError.result();
-    return (usernameOrError.errorMessage() == null) && (userName.equals(userDetails.getUsername()));
-  }
-
-  public Optional<String> isTokenExpired(String token) {
+  public Optional<String> isTokenValid(String token) {
     final ResultOrError<String, JwtErrorTypes> usernameOrError = extractUserName(token);
     if (usernameOrError.errorMessage() != null) {
       return Optional.of(usernameOrError.errorMessage());
@@ -171,7 +162,7 @@ public class JWTService {
   }
 
   public Optional<String> generateTokenUsingRefreshToken(String refreshToken, String username, String userId, String userType) {
-    if (isTokenExpired(refreshToken).isPresent()) {
+    if (isTokenValid(refreshToken).isPresent()) {
       return Optional.empty();
     }
 

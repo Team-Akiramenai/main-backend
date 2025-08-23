@@ -59,44 +59,58 @@ public class JwtFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
     String authHeader = request.getHeader("Authorization");
-
-    Optional<String> extractedJwtToken = JWTService.extractTokenFromAuthHeader(authHeader);
-    if (extractedJwtToken.isEmpty()) {
-      filterChain.doFilter(request, response);
-      return;
-    }
-
-    String token = extractedJwtToken.get();
     Optional<String> refreshToken = getRefreshTokenFromCookie(request);
 
-    ResultOrError<Claims, JwtErrorTypes> extracted = jwtService.extractClaim(token);
-    if ((extracted.errorMessage() != null) && (extracted.errorType() == JwtErrorTypes.JwtExpiredException) && (refreshToken.isPresent())) {
-      // try to use the refresh token to generate a new access token
-      Claims c = extracted.result();
-      Optional<String> newAccessToken = jwtService.generateTokenUsingRefreshToken(
-          refreshToken.get(), c.getSubject(), c.get("userId", String.class), c.get("accountType", String.class)
-      );
-      newAccessToken.ifPresent(newToken -> request.setAttribute("newAccessToken", newToken));
-      newAccessToken.ifPresent(newToken -> response.setHeader("Refreshed-Token", "Bearer " + newToken));
-    } else if ((extracted.errorMessage() != null)) {
-      sendAuthFailedResponse(response, "Authentication failed. Reason: " + extracted.errorMessage());
-      return;
+    Optional<Claims> refreshTokenClaims = Optional.empty();
+    if (refreshToken.isPresent()) {
+      ResultOrError<Claims, JwtErrorTypes> extractedClaims = jwtService.extractClaim(refreshToken.get());
+      if (extractedClaims.errorType() == null) {
+        refreshTokenClaims = Optional.of(extractedClaims.result());
+      }
     }
 
-    Claims claimsInToken = extracted.result();
-    request.setAttribute("userId", claimsInToken.get("userId", String.class));
-    request.setAttribute("userEmail", claimsInToken.getSubject());
-    request.setAttribute("accountType", claimsInToken.get("accountType", String.class));
+    Optional<Claims> accessTokenClaims = Optional.empty();
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      Optional<String> extractedJwtToken = JWTService.extractTokenFromAuthHeader(authHeader);
+      if (extractedJwtToken.isPresent()) {
+        ResultOrError<Claims, JwtErrorTypes> extracted = jwtService.extractClaim(extractedJwtToken.get());
+        if (extracted.errorType() == null) {
+          accessTokenClaims = Optional.of(extracted.result());
+        }
+      }
+    }
 
+    Claims validClaims = null;
+    if (accessTokenClaims.isEmpty()) {
+      if (refreshTokenClaims.isPresent()) {
+        Claims c = refreshTokenClaims.get();
+        Optional<String> newAccessToken = jwtService.generateTokenUsingRefreshToken(
+            refreshToken.get(), c.getSubject(), c.get("userId", String.class), c.get("accountType", String.class)
+        );
+        newAccessToken.ifPresent(newToken -> request.setAttribute("newAccessToken", newToken));
+        newAccessToken.ifPresent(newToken -> response.setHeader("Refreshed-Token", "Bearer " + newToken));
+
+        validClaims = c;
+      } else {
+        //sendAuthFailedResponse(response, "Authentication failed. No valid access or refresh token found.");
+        filterChain.doFilter(request, response);
+        return;
+      }
+    } else {
+      validClaims = accessTokenClaims.get();
+    }
+
+    request.setAttribute("userId", validClaims.get("userId", String.class));
+    request.setAttribute("userEmail", validClaims.getSubject());
+    request.setAttribute("accountType", validClaims.get("accountType", String.class));
+
+    String token = authHeader;
     if (SecurityContextHolder.getContext().getAuthentication() == null) {
       Object newAccessToken = request.getAttribute("newAccessToken");
       if (newAccessToken != null) {
-        logger.info("Refreshed the expired access token.");
+        logger.info("Generated new access token due to expired or missing access token.");
         token = newAccessToken.toString();
       }
-
-      Optional<String> failureReason = jwtService.isTokenExpired(token);
-      failureReason.ifPresent(reason -> sendAuthFailedResponse(response, "Authentication failed. Reason: " + reason));
 
       CustomAuthToken customAuthToken = new CustomAuthToken(null, null, token, true);
 
