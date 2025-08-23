@@ -160,6 +160,7 @@ c) sorting -> DESC <OR> ASC (default: ASC)
 So, the following requests are the same:
 
 GET api/public/get/courses
+
 GET api/public/get/courses?page=0&page-size=5&sorting=ASC
 
 Response JSON with HTTP 200 response code:
@@ -168,66 +169,71 @@ Response JSON with HTTP 200 response code:
     "retrievedCourseCount": 5,
     "retrievedCourses": [
         {
-            "id": "8080944b-2699-40fb-acbb-6ca9c56f695c",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #1",
             "description": "Course Description #1",
             "thumbnailImageId": null,
             "courseItemIds": [
-                "8080944b-2699-40fb-acbb-6ca9c56f695c"
+                "QZ_2bb1c9a4-33ba-4cc8-983c-a1a6d41402e1",
+                "QZ_e873ef10-5e29-4c82-b70a-5572b8cfa8b4",
+                "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
+                "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
+                "QZ_ac206c1a-19ea-4a09-974c-dbf674af82ba",
+                "QZ_00505192-b460-46aa-a572-a6525996561f"
             ],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.454424",
-            "lastModifiedAt": "2025-08-01T20:40:04.493686"
+            "createdAt": "2025-08-23T15:27:15.355931",
+            "lastModifiedAt": "2025-08-23T15:27:15.391495"
         },
         {
-            "id": "4f3a4d25-1681-475b-9f5c-7aad98d6dc6b",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "a77c0490-650f-4412-90a1-c416486876ee",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #2",
             "description": "Course Description #2",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.501373",
-            "lastModifiedAt": "2025-08-01T20:40:04.507690"
+            "createdAt": "2025-08-23T15:27:15.399178",
+            "lastModifiedAt": "2025-08-23T15:27:15.405334"
         },
         {
-            "id": "eb6ac21c-4810-4841-a3ac-de865fcae025",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "8810d20f-6261-4dc6-941a-2c1b38e4c64c",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #3",
             "description": "Course Description #3",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.511802",
-            "lastModifiedAt": "2025-08-01T20:40:04.518002"
+            "createdAt": "2025-08-23T15:27:15.408870",
+            "lastModifiedAt": "2025-08-23T15:27:15.414616"
         },
         {
-            "id": "8e940514-dcb5-4ca9-a88c-a76e31e710bf",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "fddd945f-e136-4906-92fb-517e84218075",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #4",
             "description": "Course Description #4",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.521873",
-            "lastModifiedAt": "2025-08-01T20:40:04.527570"
+            "createdAt": "2025-08-23T15:27:15.417930",
+            "lastModifiedAt": "2025-08-23T15:27:15.423536"
         },
         {
-            "id": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "659d9734-c0bc-46c4-9571-1d562fcfd9d1",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #5",
             "description": "Course Description #5",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.531566",
-            "lastModifiedAt": "2025-08-01T20:40:04.537549"
+            "createdAt": "2025-08-23T15:27:15.426569",
+            "lastModifiedAt": "2025-08-23T15:27:15.432221"
         }
     ],
     "pageNumber": 0,
@@ -257,66 +263,71 @@ Response JSON with HTTP 200 response:
     "retrievedCourseCount": 5,
     "retrievedCourses": [
         {
-            "id": "8080944b-2699-40fb-acbb-6ca9c56f695c",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #1",
             "description": "Course Description #1",
             "thumbnailImageId": null,
             "courseItemIds": [
-                "8080944b-2699-40fb-acbb-6ca9c56f695c"
+                "QZ_2bb1c9a4-33ba-4cc8-983c-a1a6d41402e1",
+                "QZ_e873ef10-5e29-4c82-b70a-5572b8cfa8b4",
+                "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
+                "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
+                "QZ_ac206c1a-19ea-4a09-974c-dbf674af82ba",
+                "QZ_00505192-b460-46aa-a572-a6525996561f"
             ],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.454424",
-            "lastModifiedAt": "2025-08-01T20:40:04.493686"
+            "createdAt": "2025-08-23T15:27:15.355931",
+            "lastModifiedAt": "2025-08-23T15:27:15.391495"
         },
         {
-            "id": "4f3a4d25-1681-475b-9f5c-7aad98d6dc6b",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "a77c0490-650f-4412-90a1-c416486876ee",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #2",
             "description": "Course Description #2",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.501373",
-            "lastModifiedAt": "2025-08-01T20:40:04.507690"
+            "createdAt": "2025-08-23T15:27:15.399178",
+            "lastModifiedAt": "2025-08-23T15:27:15.405334"
         },
         {
-            "id": "eb6ac21c-4810-4841-a3ac-de865fcae025",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "8810d20f-6261-4dc6-941a-2c1b38e4c64c",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #3",
             "description": "Course Description #3",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.511802",
-            "lastModifiedAt": "2025-08-01T20:40:04.518002"
+            "createdAt": "2025-08-23T15:27:15.408870",
+            "lastModifiedAt": "2025-08-23T15:27:15.414616"
         },
         {
-            "id": "8e940514-dcb5-4ca9-a88c-a76e31e710bf",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "fddd945f-e136-4906-92fb-517e84218075",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #4",
             "description": "Course Description #4",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.521873",
-            "lastModifiedAt": "2025-08-01T20:40:04.527570"
+            "createdAt": "2025-08-23T15:27:15.417930",
+            "lastModifiedAt": "2025-08-23T15:27:15.423536"
         },
         {
-            "id": "0c2023c3-0f6a-4eb5-a850-dc10c297e4fd",
-            "instructorId": "6f15dfbe-279b-480b-bb13-f88f4ea81899",
+            "id": "659d9734-c0bc-46c4-9571-1d562fcfd9d1",
+            "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
             "title": "Course Title #5",
             "description": "Course Description #5",
             "thumbnailImageId": null,
             "courseItemIds": [],
             "price": 4.2,
             "rating": 0.0,
-            "createdAt": "2025-08-01T20:40:04.531566",
-            "lastModifiedAt": "2025-08-01T20:40:04.537549"
+            "createdAt": "2025-08-23T15:27:15.426569",
+            "lastModifiedAt": "2025-08-23T15:27:15.432221"
         }
     ],
     "pageNumber": 0,
