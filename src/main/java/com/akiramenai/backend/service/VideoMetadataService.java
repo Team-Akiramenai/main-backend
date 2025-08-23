@@ -77,7 +77,7 @@ public class VideoMetadataService {
     try {
       videoMetadataRepo.save(targetVideoMetadata.get());
 
-      ItemIdResponse responseObj = new ItemIdResponse(targetVideoMetadata.get().getItemId());
+      ItemId responseObj = new ItemId(targetVideoMetadata.get().getItemId());
       Optional<String> respJson = jsonSerializer.serialize(responseObj);
       if (respJson.isEmpty()) {
         return resp

@@ -68,7 +68,7 @@ public class CodingTestService {
       targetCourse.get().getCourseItemIds().add(codingTestToAdd.getItemId());
       courseRepo.save(targetCourse.get());
 
-      ItemIdResponse responseObj = new ItemIdResponse(codingTestToAdd.getItemId());
+      ItemId responseObj = new ItemId(codingTestToAdd.getItemId());
       Optional<String> respJson = jsonSerializer.serialize(responseObj);
       if (respJson.isEmpty()) {
         return resp
@@ -145,7 +145,7 @@ public class CodingTestService {
           .build();
     }
 
-    ItemIdResponse responseObj = new ItemIdResponse(retrievedCodingTest.get().getItemId());
+    ItemId responseObj = new ItemId(retrievedCodingTest.get().getItemId());
     Optional<String> respJson = jsonSerializer.serialize(responseObj);
     if (respJson.isEmpty()) {
       return resp
@@ -218,7 +218,7 @@ public class CodingTestService {
           .build();
     }
 
-    ItemIdResponse codingTestId = new ItemIdResponse(codingTestToModify.get().getItemId());
+    ItemId codingTestId = new ItemId(codingTestToModify.get().getItemId());
     Optional<String> responseJson = jsonSerializer.serialize(codingTestId);
     if (responseJson.isEmpty()) {
       return resp

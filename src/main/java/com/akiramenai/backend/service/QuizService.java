@@ -73,7 +73,7 @@ public class QuizService {
       targetCourse.get().getCourseItemIds().add(quizToAdd.getItemId());
       courseRepo.save(targetCourse.get());
 
-      ItemIdResponse quizItemId = new ItemIdResponse(quizToAdd.getItemId());
+      ItemId quizItemId = new ItemId(quizToAdd.getItemId());
       Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
       if (responseJson.isEmpty()) {
         return resp
@@ -156,7 +156,7 @@ public class QuizService {
           .build();
     }
 
-    ItemIdResponse quizItemId = new ItemIdResponse(retrievedQuiz.get().getItemId());
+    ItemId quizItemId = new ItemId(retrievedQuiz.get().getItemId());
     Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
     if (responseJson.isEmpty()) {
       return resp
@@ -232,7 +232,7 @@ public class QuizService {
     try {
       quizRepo.save(quizToModify.get());
 
-      ItemIdResponse quizItemId = new ItemIdResponse(quizToModify.get().getItemId());
+      ItemId quizItemId = new ItemId(quizToModify.get().getItemId());
       Optional<String> responseJson = jsonSerializer.serialize(quizItemId);
       if (responseJson.isEmpty()) {
         return resp

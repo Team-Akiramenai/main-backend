@@ -136,8 +136,8 @@ public class CourseService {
           .build();
     }
 
-    ItemIdResponse itemIdResponse = new ItemIdResponse(courseToAdd.getId().toString());
-    Optional<String> respJson = jsonSerializer.serialize(itemIdResponse);
+    ItemId itemId = new ItemId(courseToAdd.getId().toString());
+    Optional<String> respJson = jsonSerializer.serialize(itemId);
     if (respJson.isEmpty()) {
       return result
           .errorMessage("Failed to serialize response JSON.")
@@ -286,9 +286,9 @@ public class CourseService {
           .build();
     }
 
-    ItemIdResponse itemIdResponse = new ItemIdResponse(targetCourse.get().getId().toString());
+    ItemId itemId = new ItemId(targetCourse.get().getId().toString());
 
-    Optional<String> respJson = jsonSerializer.serialize(itemIdResponse);
+    Optional<String> respJson = jsonSerializer.serialize(itemId);
     if (respJson.isEmpty()) {
       return res
           .errorMessage("Failed to serialize response JSON.")

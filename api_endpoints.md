@@ -504,6 +504,29 @@ Response JSON:
 }
 ```
 
+## Course Item Controller
+
+1) GET api/protected/get/course-item
+
+Retrieve all the information related to a course item (video metadata, quiz, coding test and terminal test).
+
+Requsest JSON:
+```json
+{
+    "itemId": "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368"
+}
+```
+
+Response JSON:
+```json
+{
+    "itemId": "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
+    "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
+    "question": "Which came before: Chicken? Or the egg?",
+    "expectedStdout": "The big beautiful bill..."
+}
+```
+
 ## Purchase Controller
 
 1) POST api/protected/purchase/course
