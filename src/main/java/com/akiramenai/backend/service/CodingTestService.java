@@ -23,8 +23,8 @@ public class CodingTestService {
     this.courseRepo = courseRepo;
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> addCodingTest(AddCodingTestRequest addCodingTestRequest, UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> addCodingTest(AddCodingTestRequest addCodingTestRequest, UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     UUID courseId;
     try {
@@ -34,7 +34,7 @@ public class CodingTestService {
 
       return resp
           .errorMessage("Failed to parse courseId. Invalid courseId provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -43,7 +43,7 @@ public class CodingTestService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve requested course.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
@@ -51,7 +51,7 @@ public class CodingTestService {
       return resp
           .result(null)
           .errorMessage("Can't upload coding test. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -73,7 +73,7 @@ public class CodingTestService {
       if (respJson.isEmpty()) {
         return resp
             .errorMessage("Failed to add the coding test to the course.")
-            .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+            .errorType(BackendOperationErrors.FailedToSerializeJson)
             .build();
       }
 
@@ -88,13 +88,13 @@ public class CodingTestService {
       return resp
           .result(null)
           .errorMessage("Failed to save coding test.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> deleteCodingTest(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> deleteCodingTest(DeleteCourseItemRequest deleteCourseItemRequest, UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     UUID courseId;
     try {
@@ -104,7 +104,7 @@ public class CodingTestService {
 
       return resp
           .errorMessage("Failed to parse courseId. Invalid courseId provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -112,14 +112,14 @@ public class CodingTestService {
     if (targetCourse.isEmpty()) {
       return resp
           .errorMessage("Requested course not found.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
     if (!targetCourse.get().getInstructorId().equals(currentUserId)) {
       return resp
           .errorMessage("Can't delete the course item. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -127,7 +127,7 @@ public class CodingTestService {
     if (retrievedCodingTest.isEmpty()) {
       return resp
           .errorMessage("Requested coding test not found.")
-          .errorType(CourseItemOperationErrors.ItemNotFound)
+          .errorType(BackendOperationErrors.ItemNotFound)
           .build();
     }
 
@@ -141,7 +141,7 @@ public class CodingTestService {
 
       return resp
           .errorMessage("Failed to delete the coding test requested for removal.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
 
@@ -150,7 +150,7 @@ public class CodingTestService {
     if (respJson.isEmpty()) {
       return resp
           .errorMessage("Failed to serialize JSON.")
-          .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
           .build();
     }
 
@@ -159,8 +159,8 @@ public class CodingTestService {
         .build();
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> modifyCodingTest(ModifyCodingTestRequest modifyCodingTestRequest, UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> modifyCodingTest(ModifyCodingTestRequest modifyCodingTestRequest, UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     UUID courseId;
     try {
@@ -170,7 +170,7 @@ public class CodingTestService {
 
       return resp
           .errorMessage("Failed to parse courseId. Invalid courseId provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -179,7 +179,7 @@ public class CodingTestService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve requested course.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
@@ -187,7 +187,7 @@ public class CodingTestService {
       return resp
           .result(null)
           .errorMessage("Can't modify the course item. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -196,7 +196,7 @@ public class CodingTestService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve the item requested for modification.")
-          .errorType(CourseItemOperationErrors.ItemNotFound)
+          .errorType(BackendOperationErrors.ItemNotFound)
           .build();
     }
 
@@ -214,7 +214,7 @@ public class CodingTestService {
 
       return resp
           .errorMessage("Failed to modify the coding test.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
 
@@ -223,7 +223,7 @@ public class CodingTestService {
     if (responseJson.isEmpty()) {
       return resp
           .errorMessage("Failed to serialize JSON response.")
-          .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
           .build();
     }
 

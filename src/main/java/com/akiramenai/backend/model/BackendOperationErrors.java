@@ -1,10 +1,10 @@
 package com.akiramenai.backend.model;
 
-public enum CourseItemOperationErrors {
+public enum BackendOperationErrors {
   CourseNotFound,
   ItemNotFound,
   InvalidRequest,
-  AttemptingToModifyOthersCourse,
+  AttemptingToModifyOthersItem,
   FailedToSerializeJson,
   FailedToSaveToDb,
   FailedToSaveFile,

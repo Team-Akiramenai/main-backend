@@ -87,25 +87,25 @@ public class CourseService {
     return Optional.empty();
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> addCourse(AddCourseRequest addCourseRequest, UUID currentUserId) {
-    var result = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> addCourse(AddCourseRequest addCourseRequest, UUID currentUserId) {
+    var result = ResultOrError.<String, BackendOperationErrors>builder();
 
     if (addCourseRequest.title() == null || addCourseRequest.title().isBlank()) {
       return result
           .errorMessage("Title can't be blank.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
     if (addCourseRequest.description() == null || addCourseRequest.description().isBlank()) {
       return result
           .errorMessage("Description can't be blank.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
     if (addCourseRequest.price() <= 1.0) {
       return result
           .errorMessage("Price has to be greater than 1.0 USD.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -132,7 +132,7 @@ public class CourseService {
 
       return result
           .errorMessage("Failed to save course.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
 
@@ -141,7 +141,7 @@ public class CourseService {
     if (respJson.isEmpty()) {
       return result
           .errorMessage("Failed to serialize response JSON.")
-          .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
           .build();
     }
 
@@ -206,23 +206,23 @@ public class CourseService {
     return purchaseCourse(courseId, buyerId, LocalDateTime.now());
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> updateCourseItemOrder(
+  public ResultOrError<String, BackendOperationErrors> updateCourseItemOrder(
       String courseId,
       List<String> orderOfItemIds,
       UUID currentUserId
   ) {
-    var res = ResultOrError.<String, CourseItemOperationErrors>builder();
+    var res = ResultOrError.<String, BackendOperationErrors>builder();
 
     if (courseId == null) {
       return res
           .errorMessage("No course ID provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
     if (orderOfItemIds == null) {
       return res
           .errorMessage("Did not provide order of item IDs.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -234,7 +234,7 @@ public class CourseService {
 
       return res
           .errorMessage("Provided course ID is an invalid UUID.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -242,21 +242,21 @@ public class CourseService {
     if (targetCourse.isEmpty()) {
       return res
           .errorMessage("No course with that ID exists.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
     if (!targetCourse.get().getInstructorId().equals(currentUserId)) {
       return res
           .errorMessage("Failed to update the ordering of course items. You're not the author of this course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
     if (targetCourse.get().getCourseItemIds().size() != orderOfItemIds.size()) {
       return res
           .errorMessage("The number of course item IDs don't match.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -269,7 +269,7 @@ public class CourseService {
       if (!isUsed.containsKey(itemId)) {
         return res
             .errorMessage("The item ID does not exist in the provided course's item list.")
-            .errorType(CourseItemOperationErrors.ItemNotFound)
+            .errorType(BackendOperationErrors.ItemNotFound)
             .build();
       }
     }
@@ -282,7 +282,7 @@ public class CourseService {
 
       return res
           .errorMessage("Failed to update the order of course items.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
 
@@ -292,7 +292,7 @@ public class CourseService {
     if (respJson.isEmpty()) {
       return res
           .errorMessage("Failed to serialize response JSON.")
-          .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
           .build();
     }
 

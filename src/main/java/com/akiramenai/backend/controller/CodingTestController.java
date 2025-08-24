@@ -42,7 +42,7 @@ public class CodingTestController {
       return;
     }
 
-    ResultOrError<String, CourseItemOperationErrors> resp = codingTestService.addCodingTest(
+    ResultOrError<String, BackendOperationErrors> resp = codingTestService.addCodingTest(
         addCodingTestRequest,
         UUID.fromString(request.getAttribute("userId").toString())
     );
@@ -60,7 +60,7 @@ public class CodingTestController {
         responseWriter.writeFailedResponse(response, resp.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return;
       }
-      case AttemptingToModifyOthersCourse -> {
+      case AttemptingToModifyOthersItem -> {
         responseWriter.writeFailedResponse(response, resp.errorMessage(), HttpStatus.UNAUTHORIZED);
         return;
       }
@@ -82,7 +82,7 @@ public class CodingTestController {
       return;
     }
 
-    ResultOrError<String, CourseItemOperationErrors> resp = codingTestService.modifyCodingTest(
+    ResultOrError<String, BackendOperationErrors> resp = codingTestService.modifyCodingTest(
         modifyCodingTestRequest,
         UUID.fromString(httpRequest.getAttribute("userId").toString())
     );
@@ -105,7 +105,7 @@ public class CodingTestController {
       return;
     }
 
-    ResultOrError<String, CourseItemOperationErrors> resp = codingTestService.deleteCodingTest(
+    ResultOrError<String, BackendOperationErrors> resp = codingTestService.deleteCodingTest(
         deleteCourseItemRequest,
         UUID.fromString(httpRequest.getAttribute("userId").toString())
     );

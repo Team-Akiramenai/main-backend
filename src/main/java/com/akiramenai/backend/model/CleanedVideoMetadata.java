@@ -1,6 +1,5 @@
 package com.akiramenai.backend.model;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record CleanedVideoMetadata(

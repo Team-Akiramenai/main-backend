@@ -28,15 +28,15 @@ public class VideoMetadataService {
     this.courseRepo = courseRepo;
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> modifyVideoMetadata(ModifyVideoMetadataRequest modifyVideoMetadataRequest, UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> modifyVideoMetadata(ModifyVideoMetadataRequest modifyVideoMetadataRequest, UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     Optional<UUID> courseId = IdParser.parseId(modifyVideoMetadataRequest.getCourseId());
     if (courseId.isEmpty()) {
       return resp
           .result(null)
           .errorMessage("Failed to parse the provided courseId. Invalid courseId provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -47,7 +47,7 @@ public class VideoMetadataService {
       return resp
           .result(null)
           .errorMessage("Failed to find the requested course.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
@@ -55,7 +55,7 @@ public class VideoMetadataService {
       return resp
           .result(null)
           .errorMessage("Can't upload video. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -66,7 +66,7 @@ public class VideoMetadataService {
       return resp
           .result(null)
           .errorMessage("Failed to find the requested video metadata.")
-          .errorType(CourseItemOperationErrors.ItemNotFound)
+          .errorType(BackendOperationErrors.ItemNotFound)
           .build();
     }
 
@@ -82,7 +82,7 @@ public class VideoMetadataService {
       if (respJson.isEmpty()) {
         return resp
             .errorMessage("Failed to serialize video metadata.")
-            .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+            .errorType(BackendOperationErrors.FailedToSerializeJson)
             .build();
       }
 
@@ -97,7 +97,7 @@ public class VideoMetadataService {
       return resp
           .result(null)
           .errorMessage("Failed to save video metadata.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
   }

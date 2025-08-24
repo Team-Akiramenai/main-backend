@@ -1,6 +1,6 @@
 package com.akiramenai.backend.utility;
 
-import com.akiramenai.backend.model.CourseItemOperationErrors;
+import com.akiramenai.backend.model.BackendOperationErrors;
 import com.akiramenai.backend.model.ResultOrError;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -10,11 +10,11 @@ import org.springframework.http.HttpStatus;
 public class HttpResponseWriter {
   public void handleDifferentResponses(
       HttpServletResponse response,
-      ResultOrError<String, CourseItemOperationErrors> result,
+      ResultOrError<String, BackendOperationErrors> result,
       HttpStatus onSuccessHttpStatus
   ) {
     switch (result.errorType()) {
-      case InvalidRequest, AttemptingToModifyOthersCourse -> {
+      case InvalidRequest, AttemptingToModifyOthersItem -> {
         writeFailedResponse(response, result.errorMessage(), HttpStatus.BAD_REQUEST);
         return;
       }

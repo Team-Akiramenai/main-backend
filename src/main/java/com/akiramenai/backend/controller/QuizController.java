@@ -29,7 +29,7 @@ public class QuizController {
       HttpServletResponse response,
       @RequestBody AddQuizRequest addQuizRequest
   ) {
-    ResultOrError<String, CourseItemOperationErrors> resp = quizService.addQuiz(
+    ResultOrError<String, BackendOperationErrors> resp = quizService.addQuiz(
         addQuizRequest,
         UUID.fromString(request.getAttribute("userId").toString())
     );
@@ -53,7 +53,7 @@ public class QuizController {
       return;
     }
 
-    ResultOrError<String, CourseItemOperationErrors> resp = quizService.modifyQuiz(
+    ResultOrError<String, BackendOperationErrors> resp = quizService.modifyQuiz(
         modifyQuizRequest,
         UUID.fromString(request.getAttribute("userId").toString())
     );
@@ -67,7 +67,7 @@ public class QuizController {
       HttpServletResponse response,
       @RequestBody DeleteCourseItemRequest deleteCourseItemRequest
   ) {
-    ResultOrError<String, CourseItemOperationErrors> resp = quizService.removeQuiz(
+    ResultOrError<String, BackendOperationErrors> resp = quizService.removeQuiz(
         deleteCourseItemRequest,
         UUID.fromString(request.getAttribute("userId").toString())
     );

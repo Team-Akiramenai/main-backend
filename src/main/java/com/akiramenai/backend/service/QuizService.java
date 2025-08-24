@@ -23,8 +23,8 @@ public class QuizService {
     this.courseRepo = courseRepo;
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> addQuiz(AddQuizRequest addQuizRequest, UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> addQuiz(AddQuizRequest addQuizRequest, UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     UUID courseId;
     try {
@@ -35,7 +35,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to parse courseId. Invalid courseId provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -44,7 +44,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve requested course.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
@@ -52,7 +52,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Can't upload quiz. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -78,7 +78,7 @@ public class QuizService {
       if (responseJson.isEmpty()) {
         return resp
             .errorMessage("Failed to serialize JSON response.")
-            .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+            .errorType(BackendOperationErrors.FailedToSerializeJson)
             .build();
       }
 
@@ -93,14 +93,14 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to add the quiz to the course.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> removeQuiz(DeleteCourseItemRequest deleteCourseItemRequest,
-                                                                     UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> removeQuiz(DeleteCourseItemRequest deleteCourseItemRequest,
+                                                                  UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     UUID courseId;
     try {
@@ -111,7 +111,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to parse provided courseId. Invalid courseId provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -120,7 +120,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve requested course. Course not found.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
@@ -128,7 +128,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Can't modify the course item. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -137,7 +137,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve the item requested for removal.")
-          .errorType(CourseItemOperationErrors.ItemNotFound)
+          .errorType(BackendOperationErrors.ItemNotFound)
           .build();
     }
 
@@ -152,7 +152,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to delete the quiz from the course.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
 
@@ -162,7 +162,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to serialize JSON response.")
-          .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
           .build();
     }
 
@@ -171,16 +171,16 @@ public class QuizService {
         .build();
   }
 
-  public ResultOrError<String, CourseItemOperationErrors> modifyQuiz(ModifyQuizRequest modifyQuizRequest,
-                                                                     UUID currentUserId) {
-    var resp = ResultOrError.<String, CourseItemOperationErrors>builder();
+  public ResultOrError<String, BackendOperationErrors> modifyQuiz(ModifyQuizRequest modifyQuizRequest,
+                                                                  UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     Optional<ParsedItemInfo> quizInfo = IdParser.parseItemId(modifyQuizRequest.itemId());
     if (quizInfo.isEmpty()) {
       return resp
           .result(null)
           .errorMessage("Failed to parse itemUUID. Invalid itemUUID provided.")
-          .errorType(CourseItemOperationErrors.InvalidRequest)
+          .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
 
@@ -189,7 +189,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve requested course.")
-          .errorType(CourseItemOperationErrors.CourseNotFound)
+          .errorType(BackendOperationErrors.CourseNotFound)
           .build();
     }
 
@@ -197,7 +197,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Can't modify the course item. You're not the author of the course.")
-          .errorType(CourseItemOperationErrors.AttemptingToModifyOthersCourse)
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
 
@@ -206,7 +206,7 @@ public class QuizService {
       return resp
           .result(null)
           .errorMessage("Failed to retrieve the item requested for modification.")
-          .errorType(CourseItemOperationErrors.ItemNotFound)
+          .errorType(BackendOperationErrors.ItemNotFound)
           .build();
     }
 
@@ -237,7 +237,7 @@ public class QuizService {
       if (responseJson.isEmpty()) {
         return resp
             .errorMessage("Failed to serialize JSON response.")
-            .errorType(CourseItemOperationErrors.FailedToSerializeJson)
+            .errorType(BackendOperationErrors.FailedToSerializeJson)
             .build();
       }
 
@@ -249,7 +249,7 @@ public class QuizService {
 
       return resp
           .errorMessage("Failed to save the modified quiz.")
-          .errorType(CourseItemOperationErrors.FailedToSaveToDb)
+          .errorType(BackendOperationErrors.FailedToSaveToDb)
           .build();
     }
   }

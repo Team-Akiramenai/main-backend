@@ -58,7 +58,7 @@ public class SeedController {
           4.20
       );
 
-      ResultOrError<String, CourseItemOperationErrors> resp = courseService.addCourse(
+      ResultOrError<String, BackendOperationErrors> resp = courseService.addCourse(
           addCourseRequest,
           instructorId
       );

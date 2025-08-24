@@ -52,7 +52,7 @@ public class VideoController {
       return;
     }
 
-    ResultOrError<String, CourseItemOperationErrors> addResp = videoMetadataService.modifyVideoMetadata(modifyVideoMetadataRequest, UUID.fromString(request.getAttribute("userId").toString()));
+    ResultOrError<String, BackendOperationErrors> addResp = videoMetadataService.modifyVideoMetadata(modifyVideoMetadataRequest, UUID.fromString(request.getAttribute("userId").toString()));
     httpResponseWriter.handleDifferentResponses(response, addResp, HttpStatus.CREATED);
   }
 }

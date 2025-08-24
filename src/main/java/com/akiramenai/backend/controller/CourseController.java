@@ -163,7 +163,7 @@ public class CourseController {
       HttpServletResponse response,
       @RequestBody AddCourseRequest addCourseRequest
   ) {
-    ResultOrError<String, CourseItemOperationErrors> addCourseResp = courseService.addCourse(
+    ResultOrError<String, BackendOperationErrors> addCourseResp = courseService.addCourse(
         addCourseRequest,
         UUID.fromString(request.getAttribute("userId").toString())
     );
@@ -177,7 +177,7 @@ public class CourseController {
       HttpServletResponse response,
       @RequestBody ItemOrderUpdateRequest itemOrderUpdateRequest
   ) {
-    ResultOrError<String, CourseItemOperationErrors> result = courseService.updateCourseItemOrder(
+    ResultOrError<String, BackendOperationErrors> result = courseService.updateCourseItemOrder(
         itemOrderUpdateRequest.courseId(),
         itemOrderUpdateRequest.orderOfItemIds(),
         UUID.fromString(request.getAttribute("userId").toString())
