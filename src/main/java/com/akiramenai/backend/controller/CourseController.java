@@ -126,49 +126,39 @@ public class CourseController {
     if (accountType.equals("Learner")) {
       Optional<List<CleanedCourse>> courseList = courseService.getLearnerCoursesPaginated(userId, pageSize, page, getSortDirection(sorting));
 
-      PaginatedCourses<CleanedCourse> paginatedCourses;
+      var paginatedCourses = PaginatedCourses.<CleanedCourse>builder();
       if (courseList.isEmpty()) {
-        paginatedCourses = PaginatedCourses
-            .<CleanedCourse>builder()
+        paginatedCourses
             .retrievedCourseCount(0)
-            .retrievedCourses(new ArrayList<>())
-            .pageNumber(page)
-            .pageSize(pageSize)
-            .build();
+            .retrievedCourses(new ArrayList<>());
       } else {
-        paginatedCourses = PaginatedCourses
-            .<CleanedCourse>builder()
+        paginatedCourses
             .retrievedCourseCount(courseList.get().size())
-            .retrievedCourses(courseList.get())
-            .pageNumber(page)
-            .pageSize(pageSize)
-            .build();
+            .retrievedCourses(courseList.get());
       }
+      paginatedCourses
+          .pageNumber(page)
+          .pageSize(pageSize);
 
-      respJson = jsonSerializer.serialize(paginatedCourses);
+      respJson = jsonSerializer.serialize(paginatedCourses.build());
     } else {
       Optional<List<CleanedCoursesForInstructors>> courseList = courseService.getInstructorCoursesPaginated(userId, pageSize, page, getSortDirection(sorting));
 
-      PaginatedCourses<CleanedCoursesForInstructors> paginatedCourses;
+      var paginatedCourses = PaginatedCourses.<CleanedCoursesForInstructors>builder();
       if (courseList.isEmpty()) {
-        paginatedCourses = PaginatedCourses
-            .<CleanedCoursesForInstructors>builder()
+        paginatedCourses
             .retrievedCourseCount(0)
-            .retrievedCourses(new ArrayList<>())
-            .pageNumber(page)
-            .pageSize(pageSize)
-            .build();
+            .retrievedCourses(new ArrayList<>());
       } else {
-        paginatedCourses = PaginatedCourses
-            .<CleanedCoursesForInstructors>builder()
+        paginatedCourses
             .retrievedCourseCount(courseList.get().size())
-            .retrievedCourses(courseList.get())
-            .pageNumber(page)
-            .pageSize(pageSize)
-            .build();
+            .retrievedCourses(courseList.get());
       }
+      paginatedCourses
+          .pageNumber(page)
+          .pageSize(pageSize);
 
-      respJson = jsonSerializer.serialize(paginatedCourses);
+      respJson = jsonSerializer.serialize(paginatedCourses.build());
     }
 
 
