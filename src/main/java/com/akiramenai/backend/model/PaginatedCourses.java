@@ -5,9 +5,9 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record PaginatedCourses(
+public record PaginatedCourses<T>(
     int retrievedCourseCount,
-    List<CleanedCourse> retrievedCourses,
+    List<T> retrievedCourses,
 
     int pageNumber,
     int pageSize

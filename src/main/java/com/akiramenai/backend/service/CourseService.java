@@ -414,7 +414,7 @@ public class CourseService {
     return Optional.of(content);
   }
 
-  public Optional<List<CleanedCourse>> getInstructorCoursesPaginated(String instructorId, int pageSize, int pageNumber, Sort.Direction sortingDirection) {
+  public Optional<List<CleanedCoursesForInstructors>> getInstructorCoursesPaginated(String instructorId, int pageSize, int pageNumber, Sort.Direction sortingDirection) {
     if (pageSize < 1) {
       return Optional.empty();
     }
@@ -424,10 +424,10 @@ public class CourseService {
         PageRequest.of(pageNumber, pageSize, Sort.by(sortingDirection, "createdAt"))
     );
 
-    List<CleanedCourse> content = new ArrayList<>();
+    List<CleanedCoursesForInstructors> content = new ArrayList<>();
 
     page.getContent().forEach(course -> {
-      content.add(new CleanedCourse(course));
+      content.add(new CleanedCoursesForInstructors(course));
     });
 
     return Optional.of(content);

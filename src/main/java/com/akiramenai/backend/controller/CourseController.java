@@ -85,7 +85,7 @@ public class CourseController {
   ) {
     Optional<List<CleanedCourse>> courseList = courseService.getAllCoursesPaginated(pageSize, page, getSortDirection(sorting));
 
-    var response = PaginatedCourses.builder();
+    var response = PaginatedCourses.<CleanedCourse>builder();
 
     if (courseList.isEmpty()) {
       response
@@ -122,33 +122,56 @@ public class CourseController {
     String userId = request.getAttribute("userId").toString();
     String accountType = request.getAttribute("accountType").toString();
 
-    Optional<List<CleanedCourse>> courseList;
+    Optional<String> respJson;
     if (accountType.equals("Learner")) {
-      courseList = courseService.getLearnerCoursesPaginated(userId, pageSize, page, getSortDirection(sorting));
+      Optional<List<CleanedCourse>> courseList = courseService.getLearnerCoursesPaginated(userId, pageSize, page, getSortDirection(sorting));
+
+      PaginatedCourses<CleanedCourse> paginatedCourses;
+      if (courseList.isEmpty()) {
+        paginatedCourses = PaginatedCourses
+            .<CleanedCourse>builder()
+            .retrievedCourseCount(0)
+            .retrievedCourses(new ArrayList<>())
+            .pageNumber(page)
+            .pageSize(pageSize)
+            .build();
+      } else {
+        paginatedCourses = PaginatedCourses
+            .<CleanedCourse>builder()
+            .retrievedCourseCount(courseList.get().size())
+            .retrievedCourses(courseList.get())
+            .pageNumber(page)
+            .pageSize(pageSize)
+            .build();
+      }
+
+      respJson = jsonSerializer.serialize(paginatedCourses);
     } else {
-      courseList = courseService.getInstructorCoursesPaginated(userId, pageSize, page, getSortDirection(sorting));
+      Optional<List<CleanedCoursesForInstructors>> courseList = courseService.getInstructorCoursesPaginated(userId, pageSize, page, getSortDirection(sorting));
+
+      PaginatedCourses<CleanedCoursesForInstructors> paginatedCourses;
+      if (courseList.isEmpty()) {
+        paginatedCourses = PaginatedCourses
+            .<CleanedCoursesForInstructors>builder()
+            .retrievedCourseCount(0)
+            .retrievedCourses(new ArrayList<>())
+            .pageNumber(page)
+            .pageSize(pageSize)
+            .build();
+      } else {
+        paginatedCourses = PaginatedCourses
+            .<CleanedCoursesForInstructors>builder()
+            .retrievedCourseCount(courseList.get().size())
+            .retrievedCourses(courseList.get())
+            .pageNumber(page)
+            .pageSize(pageSize)
+            .build();
+      }
+
+      respJson = jsonSerializer.serialize(paginatedCourses);
     }
 
-    PaginatedCourses paginatedCourses;
-    if (courseList.isEmpty()) {
-      paginatedCourses = PaginatedCourses
-          .builder()
-          .retrievedCourseCount(0)
-          .retrievedCourses(new ArrayList<>())
-          .pageNumber(page)
-          .pageSize(pageSize)
-          .build();
-    } else {
-      paginatedCourses = PaginatedCourses
-          .builder()
-          .retrievedCourseCount(courseList.get().size())
-          .retrievedCourses(courseList.get())
-          .pageNumber(page)
-          .pageSize(pageSize)
-          .build();
-    }
 
-    Optional<String> respJson = jsonSerializer.serialize(paginatedCourses);
     if (respJson.isEmpty()) {
       httpResponseWriter.writeFailedResponse(response, "Failed to serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
       return;
