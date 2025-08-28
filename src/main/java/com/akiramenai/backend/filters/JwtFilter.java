@@ -41,17 +41,6 @@ public class JwtFilter extends OncePerRequestFilter {
     return Optional.of(refreshCookie.get().getValue());
   }
 
-  private void sendAuthFailedResponse(HttpServletResponse response, String reason) {
-    response.setContentType("text/plain");
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    try {
-      response.getWriter().println(reason);
-      response.getWriter().flush();
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-    }
-  }
-
   @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,
@@ -92,7 +81,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         validClaims = c;
       } else {
-        //sendAuthFailedResponse(response, "Authentication failed. No valid access or refresh token found.");
         filterChain.doFilter(request, response);
         return;
       }
