@@ -111,6 +111,17 @@ Response JSON:
 }
 ```
 
+8) GET api/public/refresh-access-token
+
+Get a new access token using the refresh token stored in the HTTP-only cookie.
+
+Response JSON:
+```json
+{
+    "accessToken": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhbWFuZGFAZ21haWwuY29tIiwiaWF0IjoxNzU2Mzg1Njc5LCJleHAiOjE3NTYzODU5NzksImFjY291bnRUeXBlIjoiSW5zdHJ1Y3RvciIsInVzZXJJZCI6IjNjZWE0ZTM3LTc0MjEtNGMxMi1hY2EyLWU0ZGQ1NWU5MjYwOCJ9.DwNyQn_jrqFETl7J8V6e01428xQC0V8gzO8sgqtN9A951OIoy0w9yjFAVGrWU36U"
+}
+```
+
 ## Course Controller
 
 0) GET api/protected/get/course
