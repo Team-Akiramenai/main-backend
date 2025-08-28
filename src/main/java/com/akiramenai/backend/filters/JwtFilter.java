@@ -4,6 +4,7 @@ import com.akiramenai.backend.model.JwtErrorTypes;
 import com.akiramenai.backend.model.ResultOrError;
 import com.akiramenai.backend.service.JWTService;
 import com.akiramenai.backend.utility.CustomAuthToken;
+import com.akiramenai.backend.utility.RefreshTokenHandler;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,20 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
     this.jwtService = jwtService;
   }
 
-  private Optional<String> getRefreshTokenFromCookie(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies == null) {
-      return Optional.empty();
-    }
-
-    Optional<Cookie> refreshCookie = Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("REFRESH_TOKEN")).findFirst();
-    if (refreshCookie.isEmpty() || refreshCookie.get().getValue() == null || refreshCookie.get().getValue().isBlank()) {
-      return Optional.empty();
-    }
-
-    return Optional.of(refreshCookie.get().getValue());
-  }
-
   @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,
@@ -48,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
       @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
     String authHeader = request.getHeader("Authorization");
-    Optional<String> refreshToken = getRefreshTokenFromCookie(request);
+    Optional<String> refreshToken = RefreshTokenHandler.getFromCookie(request);
 
     Optional<Claims> refreshTokenClaims = Optional.empty();
     if (refreshToken.isPresent()) {

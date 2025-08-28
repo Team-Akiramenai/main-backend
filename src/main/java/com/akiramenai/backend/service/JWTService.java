@@ -85,27 +85,6 @@ public class JWTService {
         .build();
   }
 
-  public ResultOrError<String, JwtErrorTypes> extractUserId(String token) {
-    ResultOrError<Claims, JwtErrorTypes> resultOrError = extractClaim(token);
-    if (resultOrError.errorMessage() != null) {
-      return ResultOrError
-          .<String, JwtErrorTypes>builder()
-          .result(null)
-          .errorMessage(resultOrError.errorMessage())
-          .errorType(resultOrError.errorType())
-          .build();
-    }
-
-    String extractedUserId = usernameResolver(resultOrError.result(), (claims -> claims.get("userId", String.class)));
-
-    return ResultOrError
-        .<String, JwtErrorTypes>builder()
-        .result(extractedUserId)
-        .errorMessage(null)
-        .errorType(null)
-        .build();
-  }
-
   public ResultOrError<Claims, JwtErrorTypes> extractClaim(String token) {
     return extractAllClaims(token);
   }

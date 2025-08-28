@@ -1,11 +1,14 @@
 package com.akiramenai.backend.controller;
 
 import com.akiramenai.backend.model.*;
+import com.akiramenai.backend.service.JWTService;
 import com.akiramenai.backend.service.MediaStorageService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.JsonSerializer;
+import com.akiramenai.backend.utility.RefreshTokenHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,10 +26,12 @@ import java.util.UUID;
 @Slf4j
 @RestController
 public class UserController {
-  private final UserService userService;
-  private final MediaStorageService mediaStorageService;
   private final HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   private final JsonSerializer jsonSerializer = new JsonSerializer();
+
+  private final UserService userService;
+  private final MediaStorageService mediaStorageService;
+  private final JWTService jwtService;
 
   @Value("${application.security.jwt.refresh-token-validity-duration}")
   private String refreshTokenValidityDuration;
@@ -34,31 +39,10 @@ public class UserController {
   @Value("${application.security.jwt.https-only-cookie}")
   private String shouldCookieBeSentUsingHttpsOnly;
 
-  public UserController(UserService service, MediaStorageService mediaStorageService) {
+  public UserController(UserService service, MediaStorageService mediaStorageService, JWTService jwtService) {
     this.userService = service;
     this.mediaStorageService = mediaStorageService;
-  }
-
-  Cookie refreshTokenCookieBuilder(String cookieValue) {
-    Cookie refreshTokenCookie = new Cookie("REFRESH_TOKEN", cookieValue);
-    refreshTokenCookie.setHttpOnly(true);
-    refreshTokenCookie.setMaxAge(Integer.parseInt(refreshTokenValidityDuration) / 1000);
-    refreshTokenCookie.setPath("/");
-    if (Boolean.parseBoolean(shouldCookieBeSentUsingHttpsOnly)) {
-      refreshTokenCookie.setSecure(true);
-      log.warn("Refresh token cookie will ONLY be sent over HTTPS. This can changed in the `application.yaml` file.");
-    } else {
-      refreshTokenCookie.setSecure(false);
-      log.warn("Refresh token cookie will be sent over both HTTP and HTTPS. This can changed in the `application.yaml` file.");
-    }
-
-    return refreshTokenCookie;
-  }
-
-  void removeRefreshTokenCookie(HttpServletResponse response) {
-    Cookie cookieToRemove = refreshTokenCookieBuilder(null);
-    cookieToRemove.setMaxAge(0);
-    response.addCookie(cookieToRemove);
+    this.jwtService = jwtService;
   }
 
   @PostMapping("api/public/register")
@@ -89,7 +73,12 @@ public class UserController {
           .accountType(authResp.accountType())
           .build();
 
-      Cookie refreshTokenCookie = refreshTokenCookieBuilder(authResp.refreshToken());
+      //Cookie refreshTokenCookie = refreshTokenCookieBuilder(authResp.refreshToken());
+      Cookie refreshTokenCookie = RefreshTokenHandler.cookieBuilder(
+          authResp.refreshToken(),
+          Integer.parseInt(refreshTokenValidityDuration),
+          Boolean.parseBoolean(shouldCookieBeSentUsingHttpsOnly)
+      );
 
       response.setContentType("application/json");
       response.setStatus(HttpServletResponse.SC_OK);
@@ -130,7 +119,6 @@ public class UserController {
         .orElseGet(() -> new ResponseEntity<>("Successfully updated username.", HttpStatus.OK));
   }
 
-
   @PostMapping("api/protected/update-password")
   public void updatePassword(
       HttpServletRequest request,
@@ -151,13 +139,8 @@ public class UserController {
     Optional<String> resp = userService.changePassword(currentUserId, updatePasswordRequest.getOldPassword(), updatePasswordRequest.getNewPassword());
 
     if (resp.isPresent()) {
-      removeRefreshTokenCookie(response);
-      SecurityContextHolder.clearContext();
-      response.setHeader("Authorization", "");
-
       response.setContentType("text/plain");
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       try {
         response.getWriter().print(resp.get());
         response.getWriter().flush();
@@ -238,8 +221,8 @@ public class UserController {
   }
 
   @PostMapping("api/public/logout")
-  public void refreshToken(HttpServletResponse response) {
-    removeRefreshTokenCookie(response);
+  public void logout(HttpServletResponse response) {
+    RefreshTokenHandler.removeCookie(response, Boolean.parseBoolean(shouldCookieBeSentUsingHttpsOnly));
     SecurityContextHolder.clearContext();
 
     response.setStatus(HttpServletResponse.SC_OK);
@@ -248,5 +231,42 @@ public class UserController {
     } catch (Exception e) {
       log.error("Failed to write HTTP response for `/logout` request. Reason: {}", e.getMessage());
     }
+  }
+
+  @GetMapping("api/public/refresh-access-token")
+  public void refreshAccessToken(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse
+  ) {
+    Optional<String> refreshToken = RefreshTokenHandler.getFromCookie(httpRequest);
+    if (refreshToken.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "No refresh token provided.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    ResultOrError<Claims, JwtErrorTypes> extractedClaims = jwtService.extractClaim(refreshToken.get());
+    if (extractedClaims.errorType() != null) {
+      if (extractedClaims.errorType() == JwtErrorTypes.JwtExpiredException) {
+        httpResponseWriter.writeFailedResponse(httpResponse, "Refresh token expired.", HttpStatus.BAD_REQUEST);
+        return;
+      }
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid refresh token provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    String accessToken = jwtService.generateToken(
+        extractedClaims.result().getSubject(),
+        extractedClaims.result().get("userId", String.class),
+        extractedClaims.result().get("accountType", String.class),
+        JWTService.TokenType.AccessToken
+    );
+
+    Optional<String> accessTokenJson = jsonSerializer.serialize(new AccessTokenContainer(accessToken));
+    if (accessTokenJson.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    httpResponseWriter.writeOkResponse(httpResponse, accessTokenJson.get(), HttpStatus.OK);
   }
 }

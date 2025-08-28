@@ -146,7 +146,6 @@ public class UserService {
 
     try {
       Authentication authentication = authManager.authenticate(customAuthToken);
-
       if (!authentication.isAuthenticated()) {
         return authResult
             .errorMessage("Authentication failed. Please try again.")
