@@ -7,8 +7,6 @@ import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,15 +49,15 @@ public class CourseController {
   @GetMapping("api/public/get/course")
   public void getCourse(
       HttpServletResponse httpResponse,
-      @RequestBody ItemId courseToFetch
+      @RequestParam String courseId
   ) {
-    Optional<UUID> courseId = IdParser.parseId(courseToFetch.itemId());
-    if (courseId.isEmpty()) {
+    Optional<UUID> courseUUID = IdParser.parseId(courseId);
+    if (courseUUID.isEmpty()) {
       httpResponseWriter.writeFailedResponse(httpResponse, "Failed to parse the provided courseId. Invalid courseId provided.", HttpStatus.BAD_REQUEST);
       return;
     }
 
-    Optional<Course> targetCourse = courseService.getCourse(courseId.get());
+    Optional<Course> targetCourse = courseService.getCourse(courseUUID.get());
     if (targetCourse.isEmpty()) {
       httpResponseWriter.writeFailedResponse(httpResponse, "Failed to retrieve the course. Course not found.", HttpStatus.NOT_FOUND);
       return;

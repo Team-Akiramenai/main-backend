@@ -136,16 +136,14 @@ Response JSON:
 
 ## Course Controller
 
-0) GET api/public/get/course
+0) GET api/public/get/course?courseId=<<Item-ID>>
 
-Return the information about the specified course.
+Returns the information about the specified course.
 
-Request JSON:
+Example GET request:
 
-```json
-{
-  "itemId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207"
-}
+```
+GET api/public/get/course?courseId=cbdc0b4a-6f0b-4964-9964-24a7f4775207
 ```
 
 Response JSON:
