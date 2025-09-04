@@ -50,7 +50,7 @@ public class CourseController {
     return sortDirection;
   }
 
-  @GetMapping("api/protected/get/course")
+  @GetMapping("api/public/get/course")
   public void getCourse(
       HttpServletResponse httpResponse,
       @RequestBody ItemId courseToFetch
