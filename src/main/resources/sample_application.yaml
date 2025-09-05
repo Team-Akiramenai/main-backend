@@ -25,6 +25,18 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: <<GMAIL-ADDRESS>>
+    password: <<GOOGLE-ACCOUNT-APPLICATION-PASSWORD>>
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 application:
   stripe:
     secret-key: <<REPLACE-ME>>
@@ -32,9 +44,9 @@ application:
   default-values:
     default-storage-given: 1073741824 # 1GB (in bytes)
     media:
-      picture-directory: /home/twaha/Desktop/projects/java/my-security/auth_new/src/main/resources/media/pictures
-      video-directory: /home/twaha/Desktop/projects/java/my-security/auth_new/src/main/resources/media/videos
-      subtitles-directory: /home/twaha/Desktop/projects/java/my-security/auth_new/src/main/resources/media/subtitles
+      picture-directory: /home/SynapticLearn/media/pictures
+      video-directory: /home/SynapticLearn/media/videos
+      subtitles-directory: /home/SynapticLearn/media/subtitles
     user-profile-picture-filename: default-user-logo.png
   security:
     password:
