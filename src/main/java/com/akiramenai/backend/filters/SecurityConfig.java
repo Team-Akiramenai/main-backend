@@ -62,7 +62,7 @@ public class SecurityConfig {
   CorsConfigurationSource apiConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.addAllowedOriginPattern("http://localhost:[*]");  // allow all the ports from localhost
-    configuration.addAllowedOriginPattern("https://*");             // allow any orgin thats behind https
+    configuration.addAllowedOriginPattern("https://*");             // allow any origin that's behind https
 
     //configuration.setAllowedOrigins(Arrays.asList("*"));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
