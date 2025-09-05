@@ -49,7 +49,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
         throw new BadCredentialsException("Authentication failed. Reason: " + failureReason.get());
       }
 
-      return new CustomAuthToken(null, null, polyCreds.jwtToken());
+      return new CustomAuthToken(null, null, polyCreds.jwtToken(), true);
     }
 
     throw new BadCredentialsException("Authentication failed. Reason: Both user email and JWT token are null.");
