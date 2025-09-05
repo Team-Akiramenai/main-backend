@@ -10,6 +10,7 @@ public record PaginatedCourses<T>(
     List<T> retrievedCourses,
 
     int pageNumber,
-    int pageSize
+    int pageSize,
+    int totalPaginatedPages
 ) {
 }

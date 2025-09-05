@@ -396,9 +396,18 @@ public class CourseService {
     return invalidReason;
   }
 
-  public Optional<List<CleanedCourse>> getAllCoursesPaginated(int N, int pageNumber, Sort.Direction sorting) {
+  public PaginatedCourses<CleanedCourse> getAllCoursesPaginated(int N, int pageNumber, Sort.Direction sorting) {
+    var paginatedCourses = PaginatedCourses.<CleanedCourse>builder();
+
     if (N < 1) {
-      return Optional.empty();
+      paginatedCourses
+          .retrievedCourseCount(0)
+          .retrievedCourses(null)
+          .pageNumber(pageNumber)
+          .pageSize(N)
+          .totalPaginatedPages(0);
+
+      return paginatedCourses.build();
     }
 
     Page<Course> page = courseRepo.findAll(
@@ -406,17 +415,31 @@ public class CourseService {
     );
 
     List<CleanedCourse> content = new ArrayList<>();
-
     page.getContent().forEach(course -> {
       content.add(new CleanedCourse(course));
     });
 
-    return Optional.of(content);
+    paginatedCourses
+        .retrievedCourseCount(content.size())
+        .retrievedCourses(content)
+        .pageNumber(pageNumber)
+        .pageSize(N)
+        .totalPaginatedPages(page.getTotalPages());
+
+    return paginatedCourses.build();
   }
 
-  public Optional<List<CleanedCoursesForInstructors>> getInstructorCoursesPaginated(String instructorId, int pageSize, int pageNumber, Sort.Direction sortingDirection) {
+  public PaginatedCourses<CleanedCoursesForInstructors> getInstructorCoursesPaginated(String instructorId, int pageSize, int pageNumber, Sort.Direction sortingDirection) {
+    var paginatedCourses = PaginatedCourses.<CleanedCoursesForInstructors>builder();
     if (pageSize < 1) {
-      return Optional.empty();
+      paginatedCourses
+          .retrievedCourseCount(0)
+          .retrievedCourses(null)
+          .pageNumber(pageNumber)
+          .pageSize(pageSize)
+          .totalPaginatedPages(0);
+
+      return paginatedCourses.build();
     }
 
     Page<Course> page = courseRepo.findAllByInstructorId(
@@ -425,17 +448,32 @@ public class CourseService {
     );
 
     List<CleanedCoursesForInstructors> content = new ArrayList<>();
-
     page.getContent().forEach(course -> {
       content.add(new CleanedCoursesForInstructors(course));
     });
 
-    return Optional.of(content);
+    paginatedCourses
+        .retrievedCourseCount(content.size())
+        .retrievedCourses(content)
+        .pageNumber(pageNumber)
+        .pageSize(pageSize)
+        .totalPaginatedPages(page.getTotalPages());
+
+    return paginatedCourses.build();
   }
 
-  public Optional<List<CleanedCourse>> getLearnerCoursesPaginated(String userId, int pageSize, int pageNumber, Sort.Direction sortingDirection) {
+  public PaginatedCourses<CleanedCourse> getLearnerCoursesPaginated(String userId, int pageSize, int pageNumber, Sort.Direction sortingDirection) {
+    var paginatedCourses = PaginatedCourses.<CleanedCourse>builder();
+
     if (pageSize < 1) {
-      return Optional.empty();
+      paginatedCourses
+          .retrievedCourseCount(0)
+          .retrievedCourses(null)
+          .pageNumber(pageNumber)
+          .pageSize(pageSize)
+          .totalPaginatedPages(0);
+
+      return paginatedCourses.build();
     }
 
     Page<Purchase> userPurchases = purchaseRepo.findPurchaseByBuyerId(
@@ -443,7 +481,14 @@ public class CourseService {
         PageRequest.of(pageNumber, pageSize, Sort.by(sortingDirection, "purchaseTimestamp"))
     );
     if (userPurchases.isEmpty()) {
-      return Optional.empty();
+      paginatedCourses
+          .retrievedCourseCount(0)
+          .retrievedCourses(null)
+          .pageNumber(pageNumber)
+          .pageSize(pageSize)
+          .totalPaginatedPages(0);
+
+      return paginatedCourses.build();
     }
 
     ArrayList<CleanedCourse> purchasedCourses = new ArrayList<>();
@@ -454,6 +499,13 @@ public class CourseService {
       });
     });
 
-    return Optional.of(purchasedCourses);
+    paginatedCourses
+        .retrievedCourseCount(purchasedCourses.size())
+        .retrievedCourses(purchasedCourses)
+        .pageNumber(pageNumber)
+        .pageSize(pageSize)
+        .totalPaginatedPages(userPurchases.getTotalPages());
+
+    return paginatedCourses.build();
   }
 }
