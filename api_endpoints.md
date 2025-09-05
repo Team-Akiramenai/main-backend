@@ -260,7 +260,8 @@ Response JSON with HTTP 200 response code:
     }
   ],
   "pageNumber": 0,
-  "pageSize": 5
+  "pageSize": 5,
+  "totalPaginatedPages": 20
 }
 ```
 
@@ -355,7 +356,8 @@ Response JSON with HTTP 200 response:
     }
   ],
   "pageNumber": 0,
-  "pageSize": 5
+  "pageSize": 5,
+  "totalPaginatedPages": 20
 }
 ```
 
