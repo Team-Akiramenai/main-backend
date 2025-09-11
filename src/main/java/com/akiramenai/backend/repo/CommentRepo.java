@@ -14,9 +14,7 @@ import java.util.UUID;
 public interface CommentRepo extends JpaRepository<Comment, UUID> {
   Optional<Comment> findCommentById(UUID id);
 
-  Page<Comment> findAllByCourseId(UUID courseId, Pageable pageable);
+  Page<Comment> findAllByVideoMetadataId(String videoMetadataId, Pageable pageable);
 
-  Optional<Comment> findCommentByCourseId(UUID courseId);
-
-  Optional<Comment> findCommentByAuthorId(UUID authorId);
+  Page<Comment> findAllByAuthorId(UUID authorId, Pageable pageable);
 }

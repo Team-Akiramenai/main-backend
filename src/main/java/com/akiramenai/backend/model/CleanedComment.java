@@ -1,21 +1,14 @@
 package com.akiramenai.backend.model;
 
-import java.util.UUID;
+import lombok.Builder;
 
+@Builder
 public record CleanedComment(
-    UUID courseId,
-    UUID authorId,
+    String commentId,
+    String authorName,
+    String authorProfilePicture,
     String content,
     String createdAt,
     String lastModifiedAt
 ) {
-  public CleanedComment(Comment c) {
-    this(
-        c.getCourseId(),
-        c.getAuthorId(),
-        c.getContent(),
-        c.getCreatedAt().toString(),
-        c.getLastModifiedAt().toString()
-    );
-  }
 }

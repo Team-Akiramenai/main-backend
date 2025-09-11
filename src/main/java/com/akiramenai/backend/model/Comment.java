@@ -23,7 +23,7 @@ public class Comment {
   private UUID id;
 
   @NotNull
-  private UUID courseId;
+  private String videoMetadataId;
 
   @NotNull
   private UUID authorId;

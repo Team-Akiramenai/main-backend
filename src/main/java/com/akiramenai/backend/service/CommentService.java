@@ -2,7 +2,8 @@ package com.akiramenai.backend.service;
 
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.CommentRepo;
-import com.akiramenai.backend.repo.CourseRepo;
+import com.akiramenai.backend.repo.UserRepo;
+import com.akiramenai.backend.repo.VideoMetadataRepo;
 import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
 import lombok.extern.slf4j.Slf4j;
@@ -20,17 +21,23 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class CommentService {
+  private final VideoMetadataRepo videoMetadataRepo;
+  private final UserRepo userRepo;
   JsonSerializer jsonSerializer = new JsonSerializer();
 
-  private final CourseRepo courseRepo;
   private final CommentRepo commentRepo;
 
-  public CommentService(CourseRepo courseRepo, CommentRepo commentRepo) {
-    this.courseRepo = courseRepo;
+  public CommentService(CommentRepo commentRepo, VideoMetadataRepo videoMetadataRepo, UserRepo userRepo) {
     this.commentRepo = commentRepo;
+    this.videoMetadataRepo = videoMetadataRepo;
+    this.userRepo = userRepo;
   }
 
-  public ResultOrError<String, BackendOperationErrors> getPaginatedComments(String courseId, int N, int pageNumber, Sort.Direction sorting) {
+  public ResultOrError<String, BackendOperationErrors> getCommentsForVideo(
+      String videoMetadataId,
+      int N, int pageNumber,
+      Sort.Direction sorting
+  ) {
     var resp = ResultOrError.<String, BackendOperationErrors>builder();
     if (N < 1) {
       return resp
@@ -39,27 +46,41 @@ public class CommentService {
           .build();
     }
 
-    Optional<UUID> courseUUID = IdParser.parseId(courseId);
-    if (courseUUID.isEmpty()) {
+    Optional<VideoMetadata> targetVM = videoMetadataRepo.findVideoMetadataByItemId(videoMetadataId);
+    if (targetVM.isEmpty()) {
       return resp
-          .errorType(BackendOperationErrors.InvalidRequest)
-          .errorMessage("Failed to parse courseId. Invalid courseId provided.")
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .errorMessage("Video metadata not found for provided ID.")
           .build();
     }
 
-    Page<Comment> page = commentRepo.findAllByCourseId(
-        courseUUID.get(),
+    Page<Comment> page = commentRepo.findAllByVideoMetadataId(
+        videoMetadataId,
         PageRequest.of(pageNumber, N, Sort.by(sorting, "createdAt"))
     );
 
     List<CleanedComment> comments = new ArrayList<>();
     page.getContent().forEach(comment -> {
-      comments.add(new CleanedComment(comment));
+      Optional<Users> targetUser = userRepo.findUsersById(comment.getAuthorId());
+      if (targetUser.isEmpty()) {
+        return;
+      }
+
+      var cc = CleanedComment
+          .builder()
+          .commentId(comment.getId().toString())
+          .authorName(targetUser.get().getUsername())
+          .authorProfilePicture(targetUser.get().getPfpPath())
+          .content(comment.getContent())
+          .createdAt(comment.getCreatedAt().toString())
+          .lastModifiedAt(comment.getLastModifiedAt().toString());
+
+      comments.add(cc.build());
     });
 
     PaginatedComments pagedComments = PaginatedComments
         .builder()
-        .retrievedCommentCount(page.getSize())
+        .retrievedCommentCount(page.getNumberOfElements())
         .retrievedComments(comments)
         .pageNumber(pageNumber)
         .pageSize(page.getSize())
@@ -77,31 +98,91 @@ public class CommentService {
         .build();
   }
 
-  public ResultOrError<String, BackendOperationErrors> addComment(AddCommentRequest request, UUID userId) {
-    var res = ResultOrError.<String, BackendOperationErrors>builder();
 
-    Optional<UUID> courseId = IdParser.parseId(request.courseId());
-    if (courseId.isEmpty()) {
-      return res
+  public ResultOrError<String, BackendOperationErrors> getCommentsByAuthor(
+      UUID authorId,
+      int N, int pageNumber,
+      Sort.Direction sorting
+  ) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
+    if (N < 1) {
+      return resp
           .errorType(BackendOperationErrors.InvalidRequest)
-          .errorMessage("Failed to parse courseId. Invalid courseId provided.")
+          .errorMessage("Invalid page size. Page size can't be less than one.")
           .build();
     }
 
-    Optional<Course> targetCourse = courseRepo.findCourseById(courseId.get());
-    if (targetCourse.isEmpty()) {
+    Page<Comment> page = commentRepo.findAllByAuthorId(
+        authorId,
+        PageRequest.of(pageNumber, N, Sort.by(sorting, "createdAt"))
+    );
+
+    List<CleanedComment> comments = new ArrayList<>();
+    page.getContent().forEach(comment -> {
+      Optional<Users> targetUser = userRepo.findUsersById(comment.getAuthorId());
+      if (targetUser.isEmpty()) {
+        return;
+      }
+
+      var cc = CleanedComment
+          .builder()
+          .commentId(comment.getId().toString())
+          .authorName(targetUser.get().getUsername())
+          .authorProfilePicture(targetUser.get().getPfpPath())
+          .content(comment.getContent())
+          .createdAt(comment.getCreatedAt().toString())
+          .lastModifiedAt(comment.getLastModifiedAt().toString());
+
+      comments.add(cc.build());
+    });
+
+    PaginatedComments pagedComments = PaginatedComments
+        .builder()
+        .retrievedCommentCount(page.getNumberOfElements())
+        .retrievedComments(comments)
+        .pageNumber(pageNumber)
+        .pageSize(page.getSize())
+        .build();
+    Optional<String> commentsJson = jsonSerializer.serialize(pagedComments);
+    if (commentsJson.isEmpty()) {
+      return resp
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
+          .errorMessage("Failed to serialize response JSON.")
+          .build();
+    }
+
+    return resp
+        .result(commentsJson.get())
+        .build();
+  }
+
+  public ResultOrError<String, BackendOperationErrors> addComment(
+      AddCommentRequest request,
+      UUID userId
+  ) {
+    var res = ResultOrError.<String, BackendOperationErrors>builder();
+
+    Optional<Users> targetUser = userRepo.findUsersById(userId);
+    if (targetUser.isEmpty()) {
       return res
           .errorType(BackendOperationErrors.CourseNotFound)
-          .errorMessage("Course not found.")
+          .errorMessage("User not found.")
+          .build();
+    }
+
+    Optional<VideoMetadata> targetVM = videoMetadataRepo.findVideoMetadataByItemId(request.videoMetadataId());
+    if (targetVM.isEmpty()) {
+      return res
+          .errorType(BackendOperationErrors.CourseNotFound)
+          .errorMessage("Video not found.")
           .build();
     }
 
     LocalDateTime ldtNow = LocalDateTime.now();
-
     Comment commentToSave = Comment
         .builder()
         .authorId(userId)
-        .courseId(courseId.get())
+        .videoMetadataId(request.videoMetadataId())
         .content(request.content())
         .createdAt(ldtNow)
         .lastModifiedAt(ldtNow)
@@ -183,7 +264,10 @@ public class CommentService {
     }
   }
 
-  public ResultOrError<String, BackendOperationErrors> deleteComment(ModifyCommentRequest request, UUID userId) {
+  public ResultOrError<String, BackendOperationErrors> deleteComment(
+      DeleteCommentRequest request,
+      UUID userId
+  ) {
     var res = ResultOrError.<String, BackendOperationErrors>builder();
 
     Optional<UUID> commentId = IdParser.parseId(request.commentId());

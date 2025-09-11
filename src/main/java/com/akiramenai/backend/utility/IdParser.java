@@ -22,19 +22,13 @@ public class IdParser {
       return Optional.empty();
     }
 
-    switch (itemTypeString) {
-      case "VM":
-        return Optional.of(new ParsedItemInfo(CourseItems.Video, uuidString));
-      case "QZ":
-        return Optional.of(new ParsedItemInfo(CourseItems.Quiz, uuidString));
-      case "CT":
-        return Optional.of(new ParsedItemInfo(CourseItems.CodingTest, uuidString));
-      case "TT":
-        return Optional.of(new ParsedItemInfo(CourseItems.TerminalTest, uuidString));
-
-      default:
-        return Optional.empty();
-    }
+    return switch (itemTypeString) {
+      case "VM" -> Optional.of(new ParsedItemInfo(CourseItems.Video, uuidString));
+      case "QZ" -> Optional.of(new ParsedItemInfo(CourseItems.Quiz, uuidString));
+      case "CT" -> Optional.of(new ParsedItemInfo(CourseItems.CodingTest, uuidString));
+      case "TT" -> Optional.of(new ParsedItemInfo(CourseItems.TerminalTest, uuidString));
+      default -> Optional.empty();
+    };
   }
 
   public static Optional<UUID> parseId(String stringId) {
