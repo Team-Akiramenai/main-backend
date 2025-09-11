@@ -529,7 +529,7 @@ Response JSON:
 
 Add a coding test challenge.
 
-Requsest JSON:
+Request JSON:
 
 ```json
 {
@@ -593,16 +593,14 @@ Response JSON:
 
 ## Course Item Controller
 
-1) GET api/protected/get/course-item
+1) GET api/protected/get/course-item?itemId=<courseItemId>
 
 Retrieve all the information related to a course item (video metadata, quiz, coding test and terminal test).
 
-Requsest JSON:
+Example request:
 
-```json
-{
-  "itemId": "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368"
-}
+```
+GET api/protected/get/course-item?itemId=CT_90a22596-4ce0-41c8-94d0-bd3cb2487368
 ```
 
 Response JSON:
@@ -626,7 +624,7 @@ Upon successful purchase, Stripe will redirect the user to the pre-configured li
 the learner's account
 if the purchase was successful indicated by Stripe's web hook events.
 
-Requsest JSON:
+Request JSON:
 
 ```json
 {
@@ -656,7 +654,7 @@ pre-configured link.
 The backend will add the storage purchased to the instructor's account if the purchase was successful indicated by
 Stripe's web hook events.
 
-Requsest JSON:
+Request JSON:
 
 ```json
 {

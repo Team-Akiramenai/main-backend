@@ -49,7 +49,7 @@ public class CourseController {
   @GetMapping("api/public/get/course")
   public void getCourse(
       HttpServletResponse httpResponse,
-      @RequestParam String courseId
+      @RequestParam(required = true) String courseId
   ) {
     Optional<UUID> courseUUID = IdParser.parseId(courseId);
     if (courseUUID.isEmpty()) {

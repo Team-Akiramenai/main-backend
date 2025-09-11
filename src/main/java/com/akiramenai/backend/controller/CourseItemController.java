@@ -31,12 +31,13 @@ public class CourseItemController {
   }
 
   @GetMapping("get/course-item")
-  public void purchaseStorage(
+  public void getCourseItem(
       HttpServletRequest httpRequest,
       HttpServletResponse httpResponse,
-      @RequestBody ItemId courseItem
+
+      @RequestParam(required = true) String itemId
   ) {
-    Optional<ParsedItemInfo> itemInfo = IdParser.parseItemId(courseItem.itemId());
+    Optional<ParsedItemInfo> itemInfo = IdParser.parseItemId(itemId);
     if (itemInfo.isEmpty()) {
       httpResponseWriter.writeFailedResponse(httpResponse, "Failed to parse provided itemId.", HttpStatus.BAD_REQUEST);
       return;
@@ -44,7 +45,7 @@ public class CourseItemController {
 
     switch (itemInfo.get().itemType()) {
       case Quiz -> {
-        Optional<Quiz> targetItem = quizRepo.findQuizByItemId(courseItem.itemId());
+        Optional<Quiz> targetItem = quizRepo.findQuizByItemId(itemId);
         if (targetItem.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find course item.", HttpStatus.NOT_FOUND);
           return;
@@ -59,7 +60,7 @@ public class CourseItemController {
         httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
       }
       case Video -> {
-        Optional<VideoMetadata> targetItem = videoMetadataRepo.findVideoMetadataByItemId(courseItem.itemId());
+        Optional<VideoMetadata> targetItem = videoMetadataRepo.findVideoMetadataByItemId(itemId);
         if (targetItem.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find course item.", HttpStatus.NOT_FOUND);
           return;
@@ -74,7 +75,7 @@ public class CourseItemController {
         httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
       }
       case CodingTest -> {
-        Optional<CodingTest> targetItem = codingTestRepo.findCodingTestByItemId(courseItem.itemId());
+        Optional<CodingTest> targetItem = codingTestRepo.findCodingTestByItemId(itemId);
         if (targetItem.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find course item.", HttpStatus.NOT_FOUND);
           return;
