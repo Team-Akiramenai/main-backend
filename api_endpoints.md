@@ -614,6 +614,146 @@ Response JSON:
 }
 ```
 
+## Comments Controller
+
+1) GET api/protected/get/video/comments?video-id=<item-id>&page=<int>&page-size=<int>&sorting=<String>
+
+This endpoint can be used to get the comments of a video.
+
+Example request:
+
+```
+GET api/protected/get/video/comments?video-id=VM_b932066d-c18f-4f8f-804d-f97c9d44e609&page-size=2&page=0&sorting=DESC
+```
+
+JSON Response:
+
+```json
+{
+  "retrievedCommentCount": 2,
+  "retrievedComments": [
+    {
+      "commentId": "5c0a91a4-bb09-4fd0-b988-5b497ff4782d",
+      "authorName": "Amanda",
+      "authorProfilePicture": "default-user-logo.png",
+      "content": "Just a simple test comment to see if it works...",
+      "createdAt": "2025-09-11T14:35:51.677726",
+      "lastModifiedAt": "2025-09-11T14:35:51.677726"
+    },
+    {
+      "commentId": "267330c4-734a-4983-9c0c-a405f0beb703",
+      "authorName": "Amanda",
+      "authorProfilePicture": "default-user-logo.png",
+      "content": "Just a simple test comment to see if it works...",
+      "createdAt": "2025-09-11T13:52:44.448964",
+      "lastModifiedAt": "2025-09-11T13:52:44.448964"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 2
+}
+```
+
+2) GET api/protected/get/my/comments?page=<int>&page-size=<int>&sorting=<String>
+
+This endpoint can be used to get the comments of a user.
+
+Example request:
+
+```
+GET api/protected/get/my/comments?page-size=2&page=0&sorting=DESC
+```
+
+JSON Response:
+
+```json
+{
+  "retrievedCommentCount": 2,
+  "retrievedComments": [
+    {
+      "commentId": "5c0a91a4-bb09-4fd0-b988-5b497ff4782d",
+      "authorName": "Amanda",
+      "authorProfilePicture": "default-user-logo.png",
+      "content": "Just a simple test comment to see if it works...",
+      "createdAt": "2025-09-11T14:35:51.677726",
+      "lastModifiedAt": "2025-09-11T14:35:51.677726"
+    },
+    {
+      "commentId": "267330c4-734a-4983-9c0c-a405f0beb703",
+      "authorName": "Amanda",
+      "authorProfilePicture": "default-user-logo.png",
+      "content": "Just a simple test comment to see if it works...",
+      "createdAt": "2025-09-11T13:52:44.448964",
+      "lastModifiedAt": "2025-09-11T13:52:44.448964"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 2
+}
+```
+
+3) POST api/protected/set/comment
+
+This endpoint can be used to add comments for a specific video.
+
+Example request:
+
+```json
+{
+  "videoMetadataId": "VM_b932066d-c18f-4f8f-804d-f97c9d44e609",
+  "content": "Just a simple test comment to see if it works..."
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "5c0a91a4-bb09-4fd0-b988-5b497ff4782d"
+}
+```
+
+4) POST api/protected/modify/comment
+
+This endpoint can be used to modify the contents of a previously added comment.
+
+Example request:
+
+```json
+{
+  "commentId": "48bd7040-c2fe-40b2-965c-d1ffbcfdf563",
+  "content": "FYI, it works!"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "48bd7040-c2fe-40b2-965c-d1ffbcfdf563"
+}
+```
+
+5) POST api/protected/remove/comment
+
+This endpoint can be used to remove/delete a previously added comment.
+
+Example request:
+
+```json
+{
+  "commentId": "48bd7040-c2fe-40b2-965c-d1ffbcfdf563"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "48bd7040-c2fe-40b2-965c-d1ffbcfdf563"
+}
+```
+
 ## Purchase Controller
 
 1) POST api/protected/purchase/course
