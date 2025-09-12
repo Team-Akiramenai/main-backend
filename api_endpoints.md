@@ -535,6 +535,7 @@ Request JSON:
 {
   "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
   "question": "Which came before: Chicken? Or the egg?",
+  "description": "Lorem ipsum dolores....",
   "expectedStdout": "The big beautiful bill..."
 }
 ```
@@ -610,6 +611,7 @@ Response JSON:
   "itemId": "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
   "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
   "question": "Which came before: Chicken? Or the egg?",
+  "description": "Lorem ipsum dolores....",
   "expectedStdout": "The big beautiful bill..."
 }
 ```
