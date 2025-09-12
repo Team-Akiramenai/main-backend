@@ -41,6 +41,9 @@ dependencies {
 
     implementation("com.google.genai:google-genai:1.0.0")
 
+    implementation("com.meilisearch.sdk:meilisearch-java:0.15.0")
+    implementation("org.json:json:20250107")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

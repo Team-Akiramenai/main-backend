@@ -19,18 +19,20 @@ import java.util.*;
 public class CourseService {
   private final LearnerInfosRepo learnerInfosRepo;
   private final UserService userService;
+  private final MeiliService meiliService;
   JsonSerializer jsonSerializer = new JsonSerializer();
 
   private final CourseRepo courseRepo;
   private final PurchaseRepo purchaseRepo;
   private final InstructorInfosService instructorInfosService;
 
-  public CourseService(CourseRepo courseRepo, PurchaseRepo purchaseRepo, InstructorInfosService instructorInfosService, LearnerInfosRepo learnerInfosRepo, UserService userService) {
+  public CourseService(CourseRepo courseRepo, PurchaseRepo purchaseRepo, InstructorInfosService instructorInfosService, LearnerInfosRepo learnerInfosRepo, UserService userService, MeiliService meiliService) {
     this.courseRepo = courseRepo;
     this.purchaseRepo = purchaseRepo;
     this.instructorInfosService = instructorInfosService;
     this.learnerInfosRepo = learnerInfosRepo;
     this.userService = userService;
+    this.meiliService = meiliService;
   }
 
   private Optional<String> basicCourseValidation(Course course) {
@@ -127,6 +129,8 @@ public class CourseService {
 
     try {
       courseRepo.save(courseToAdd);
+
+      meiliService.addCourseToIndex(courseToAdd);
     } catch (Exception e) {
       log.error("Error saving course. Reason: ", e);
 

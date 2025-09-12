@@ -812,3 +812,40 @@ Response JSON:
   "sessionUrl": "https://checkout.stripe.com/c/pay/cs_test_a1NSq9HDa9bGyCmqUUK5CXCpOS4uTTYNVGbFSmd3TjxmOuX89dDftGg4h8#fidkdWxOYHwnPyd1blpxYHZxWjA0V2xcU11NY2E9Y19ET1Vmc1R8cDZAQE5rRFJJf39BcEhKXUQyVTV9Z3BucG9DNmdiXGdGRlAwSkZzS39hQDZMdldjYldgQXBmMDJjTWF%2FMlFmSjxjU1BNNTVPfDV1a3BjVCcpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
 }
 ```
+
+## Search Controller
+
+1) GET api/public/search/courses?query=\<string\>&page-size=\<int\>&page-number=\<int\>
+
+This endpoint can be used to search for courses. The search is done over the course title and description.
+(This endpoints also searches over tags. But, tags haven't been added yet.)
+
+Also, the `page-number` uses 1-based indexing.
+
+Example request: GET api/public/search/courses?query=DevOps&page-size=1&page-number=2
+
+Response JSON:
+
+```json
+{
+  "totalHits": 2,
+  "hitsPerPage": 1,
+  "page": 2,
+  "totalPages": 2,
+  "hits": [
+    {
+      "id": "3",
+      "title": "Kubernetes - Beginner to Advanced",
+      "tags": [
+        "K8s",
+        "DevOps",
+        "SRE"
+      ]
+    }
+  ],
+  "facetDistribution": null,
+  "facetStats": null,
+  "processingTimeMs": 0,
+  "query": "DevOps"
+}
+```
