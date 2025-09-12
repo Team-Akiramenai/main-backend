@@ -38,6 +38,8 @@ spring:
             enable: true
 
 application:
+  google:
+    api-key: <<REPLACE-ME>>
   stripe:
     secret-key: <<REPLACE-ME>>
     webhook-secret: <<REPLACE-ME>>

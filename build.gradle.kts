@@ -39,6 +39,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
 
+    implementation("com.google.genai:google-genai:1.0.0")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
