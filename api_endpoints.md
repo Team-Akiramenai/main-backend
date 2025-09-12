@@ -385,6 +385,49 @@ Response JSON with HTTP 201 response:
 
 This is the ID of the course that just got added.
 
+4) POST api/protected/modify/course
+
+Modifies the requested course. You can omit the fields that you don't want to modify.
+You can update the title, description and price fields.
+
+Example request:
+
+```json
+{
+  "courseId": "2a8f9641-9b78-4f0a-8bb1-52e549f5b730",
+  "title": "A much more saner title"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "2a8f9641-9b78-4f0a-8bb1-52e549f5b730"
+}
+```
+
+5) POST api/protected/remove/course
+
+Removes/deletes the provided course given it hasn't been published yet.
+Published courses can't be deleted.
+
+Example request:
+
+```json
+{
+  "courseId": "2a8f9641-9b78-4f0a-8bb1-52e549f5b730"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "2a8f9641-9b78-4f0a-8bb1-52e549f5b730"
+}
+```
+
 4) POST api/protected/set/publish-course
 
 Publishes the provided course. An instructor can only publish their unreleased course.

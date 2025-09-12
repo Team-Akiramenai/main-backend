@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -131,6 +130,58 @@ public class CourseController {
     );
 
     httpResponseWriter.handleDifferentResponses(response, addCourseResp, HttpStatus.CREATED);
+  }
+
+  @PostMapping("api/protected/modify/course")
+  public void modifyCourse(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestBody CourseModificationRequest courseModificationRequest
+  ) {
+    Optional<BackendOperationErrors> modifyOpErr = courseService.updateCourse(
+        courseModificationRequest,
+        UUID.fromString(request.getAttribute("userId").toString())
+    );
+
+    if (modifyOpErr.isEmpty()) {
+      ItemId courseId = new ItemId(courseModificationRequest.getCourseId().toString());
+      Optional<String> respJson = jsonSerializer.serialize(courseId);
+      if (respJson.isEmpty()) {
+        httpResponseWriter.writeFailedResponse(response, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
+        return;
+      }
+      httpResponseWriter.writeOkResponse(response, respJson.get(), HttpStatus.OK);
+      return;
+    }
+
+    switch (modifyOpErr.get()) {
+      case CourseNotFound ->
+          httpResponseWriter.writeFailedResponse(response, "Course not found.", HttpStatus.NOT_FOUND);
+      case AttemptingToModifyOthersItem ->
+          httpResponseWriter.writeFailedResponse(response, "Attempting to modify other user's items.", HttpStatus.BAD_REQUEST);
+      case InvalidRequest ->
+          httpResponseWriter.writeFailedResponse(response, "Invalid request sent. Please make sure the request follows the guidelines.", HttpStatus.BAD_REQUEST);
+      default -> httpResponseWriter.writeFailedResponse(response, "Internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("api/protected/remove/course")
+  public void removeCourse(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestBody CourseDeletionRequest courseDeletionRequest
+  ) {
+    Optional<UUID> courseId = IdParser.parseId(courseDeletionRequest.courseId());
+    if (courseId.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(response, "Invalid item id.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    ResultOrError<String, BackendOperationErrors> deleteOpErr = courseService.deleteCourse(
+        courseId.get(),
+        UUID.fromString(request.getAttribute("userId").toString())
+    );
+    httpResponseWriter.handleDifferentResponses(response, deleteOpErr, HttpStatus.OK);
   }
 
   @PostMapping("api/protected/set/course-item-order")

@@ -62,26 +62,26 @@ public class CourseService {
     return Optional.empty();
   }
 
-  private Optional<String> basicCourseModificationValidation(CourseModifications courseModifications) {
-    if (courseModifications.getId() == null) {
+  private Optional<String> basicCourseModificationRequestValidation(CourseModificationRequest courseModificationRequest) {
+    if (courseModificationRequest.getCourseId() == null) {
       return Optional.of("Course ID must be provided to modify a course");
     }
 
-    if (courseModifications.getTitle() != null) {
-      courseModifications.setTitle(courseModifications.getTitle().trim());
-      if (courseModifications.getTitle().length() > 200) {
+    if (courseModificationRequest.getTitle() != null) {
+      courseModificationRequest.setTitle(courseModificationRequest.getTitle().trim());
+      if (courseModificationRequest.getTitle().length() > 200) {
         return Optional.of("Course title can't have more than 200 characters");
       }
     }
-    if (courseModifications.getDescription() != null) {
-      courseModifications.setDescription(courseModifications.getDescription().trim());
-      if (courseModifications.getDescription().length() > 2000) {
+    if (courseModificationRequest.getDescription() != null) {
+      courseModificationRequest.setDescription(courseModificationRequest.getDescription().trim());
+      if (courseModificationRequest.getDescription().length() > 2000) {
         return Optional.of("Course description can't have more than 2000 characters");
       }
     }
 
-    if (courseModifications.getPrice() != null) {
-      if (courseModifications.getPrice() < 1.0) {
+    if (courseModificationRequest.getPrice() != null) {
+      if (courseModificationRequest.getPrice() < 1.0) {
         return Optional.of("A course must have a minimum price of 1 dollar (USD)");
       }
     }
@@ -317,33 +317,75 @@ public class CourseService {
   // Instructors can update everything except the following:
   // totalStars, usersWhoRated, createdAt, lastModifiedAt
   // Also, they can only publish a course, they can't undo it
-  public Optional<String> updateCourse(CourseModifications courseModifications, UUID currentUserId) {
-    Optional<String> invalidReason = this.basicCourseModificationValidation(courseModifications);
+  public Optional<BackendOperationErrors> updateCourse(CourseModificationRequest courseModificationRequest, UUID currentUserId) {
+    Optional<String> invalidReason = this.basicCourseModificationRequestValidation(courseModificationRequest);
     if (invalidReason.isPresent()) {
-      return invalidReason;
+      return Optional.of(BackendOperationErrors.InvalidRequest);
     }
 
-    Optional<Course> courseToBeModified = courseRepo.findCourseById(courseModifications.getId());
+    Optional<Course> courseToBeModified = courseRepo.findCourseById(courseModificationRequest.getCourseId());
     if (courseToBeModified.isEmpty()) {
-      return Optional.of("Course by that id does not exist");
+      return Optional.of(BackendOperationErrors.CourseNotFound);
+    }
+    if (!courseToBeModified.get().getInstructorId().equals(currentUserId)) {
+      log.info("Course Instructor: {}\nCurrent User: {}", courseToBeModified.get().getInstructorId(), currentUserId);
+      return Optional.of(BackendOperationErrors.AttemptingToModifyOthersItem);
     }
 
-    if (courseToBeModified.get().getInstructorId() != currentUserId) {
-      return Optional.of("Current user isn't the author of the course they are trying to modify");
+    if (courseModificationRequest.getTitle() != null) {
+      courseToBeModified.get().setTitle(courseModificationRequest.getTitle().trim());
     }
-
-    if (courseModifications.getTitle() != null) {
-      courseToBeModified.get().setTitle(courseModifications.getTitle());
+    if (courseModificationRequest.getDescription() != null) {
+      courseToBeModified.get().setDescription(courseModificationRequest.getDescription().trim());
     }
-    if (courseModifications.getDescription() != null) {
-      courseToBeModified.get().setDescription(courseModifications.getDescription());
+    if (courseModificationRequest.getPrice() != null) {
+      courseToBeModified.get().setPrice(courseModificationRequest.getPrice());
     }
-    if (courseModifications.getPrice() != null) {
-      courseToBeModified.get().setPrice(courseModifications.getPrice());
-    }
+    courseToBeModified.get().setLastModifiedAt(LocalDateTime.now());
 
     courseRepo.save(courseToBeModified.get());
     return Optional.empty();
+  }
+
+  public ResultOrError<String, BackendOperationErrors> deleteCourse(UUID courseToDelete, UUID currentUserId) {
+    var resp = ResultOrError.<String, BackendOperationErrors>builder();
+
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseToDelete);
+    if (targetCourse.isEmpty()) {
+      return resp
+          .errorMessage("Course with provided ID not found.")
+          .errorType(BackendOperationErrors.CourseNotFound)
+          .build();
+    }
+
+    if (!targetCourse.get().getInstructorId().equals(currentUserId)) {
+      return resp
+          .errorMessage("Attempting to delete the course that does not belong to the user.")
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
+          .build();
+    }
+
+    if (targetCourse.get().getIsPublished()) {
+      return resp
+          .errorMessage("Can't remove an already published course.")
+          .errorType(BackendOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    courseRepo.deleteById(courseToDelete);
+
+    ItemId deletedCourseId = new ItemId(targetCourse.get().getId().toString());
+    Optional<String> respJson = jsonSerializer.serialize(deletedCourseId);
+    if (respJson.isEmpty()) {
+      return resp
+          .errorMessage("Failed to serialize response JSON.")
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
+          .build();
+    }
+
+    return resp
+        .result(respJson.get())
+        .build();
   }
 
   public Optional<String> publishCourse(UUID courseId, UUID currentUserId) {
