@@ -17,7 +17,7 @@ public record CleanedUserInfo(
         user.getUsername(),
         user.getEmail(),
         user.getUserType(),
-        user.getPfpPath(),
+        user.getPfpFileName(),
         user.getTotalStorageInBytes(),
         user.getUsedStorageInBytes()
     );

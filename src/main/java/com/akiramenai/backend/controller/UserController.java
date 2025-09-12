@@ -246,12 +246,12 @@ public class UserController {
     Path pictureDirPath = Paths.get(pictureDirectory);
     InputStream is = null;
     try {
-      if (targetUser.get().getPfpPath() == null) {
+      if (targetUser.get().getPfpFileName() == null) {
         // return the default profile pic
         is = new FileInputStream(pictureDirPath.resolve(defaultPictureFilename).toFile());
       } else {
         is = new FileInputStream(
-            pictureDirPath.resolve(targetUser.get().getPfpPath()).toFile()
+            pictureDirPath.resolve(targetUser.get().getPfpFileName()).toFile()
         );
       }
     } catch (Exception e) {

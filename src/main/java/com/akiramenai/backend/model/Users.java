@@ -5,10 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.util.UUID;
 
@@ -41,8 +39,7 @@ public class Users {
   @Column(nullable = false)
   private String password;
 
-  @NotBlank
-  private String pfpPath;
+  private String pfpFileName;
 
   @NotNull(message = "Account type cannot be null")
   @Enumerated(EnumType.STRING)

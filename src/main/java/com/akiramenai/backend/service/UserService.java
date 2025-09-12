@@ -7,19 +7,11 @@ import com.akiramenai.backend.repo.UserRepo;
 import com.akiramenai.backend.utility.CustomAuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,7 +104,7 @@ public class UserService {
     userToRegister.setPassword(passwordHashingService.getEncodedPassword(registerRequest.getPassword()));
     userToRegister.setUserType(registerRequest.getAccountType());
     userToRegister.setEmail(registerRequest.getEmail());
-    userToRegister.setPfpPath(defaultProfilePictureFilename);
+    userToRegister.setPfpFileName(defaultProfilePictureFilename);
     userToRegister.setTotalStorageInBytes(Long.parseLong(defaultStorageGiven));
     userToRegister.setUsedStorageInBytes(0);
 
@@ -240,8 +232,8 @@ public class UserService {
       return Optional.of("Failed to retrieve current user information.");
     }
 
-    String oldPictureFilename = currentUser.get().getPfpPath();
-    currentUser.get().setPfpPath(newProfilePicturePath);
+    String oldPictureFilename = currentUser.get().getPfpFileName();
+    currentUser.get().setPfpFileName(newProfilePicturePath);
 
     // if the old profile picture wasn't the default one, delete it after saving the new one's path
     if (!oldPictureFilename.equals(defaultProfilePictureFilename)) {

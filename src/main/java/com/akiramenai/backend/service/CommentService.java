@@ -70,7 +70,7 @@ public class CommentService {
           .builder()
           .commentId(comment.getId().toString())
           .authorName(targetUser.get().getUsername())
-          .authorProfilePicture(targetUser.get().getPfpPath())
+          .authorProfilePicture(targetUser.get().getPfpFileName())
           .content(comment.getContent())
           .createdAt(comment.getCreatedAt().toString())
           .lastModifiedAt(comment.getLastModifiedAt().toString());
@@ -128,7 +128,7 @@ public class CommentService {
           .builder()
           .commentId(comment.getId().toString())
           .authorName(targetUser.get().getUsername())
-          .authorProfilePicture(targetUser.get().getPfpPath())
+          .authorProfilePicture(targetUser.get().getPfpFileName())
           .content(comment.getContent())
           .createdAt(comment.getCreatedAt().toString())
           .lastModifiedAt(comment.getLastModifiedAt().toString());
