@@ -60,6 +60,7 @@ public class CodingTestService {
         .courseId(courseId)
         .itemId("CT_" + UUID.randomUUID())
         .question(addCodingTestRequest.question())
+        .description(addCodingTestRequest.description())
         .expectedStdout(addCodingTestRequest.expectedStdout())
         .build();
 
@@ -202,6 +203,9 @@ public class CodingTestService {
 
     if (modifyCodingTestRequest.question() != null) {
       codingTestToModify.get().setQuestion(modifyCodingTestRequest.question().trim());
+    }
+    if (modifyCodingTestRequest.description() != null) {
+      codingTestToModify.get().setDescription(modifyCodingTestRequest.description().trim());
     }
     if (modifyCodingTestRequest.expectedStdout() != null) {
       codingTestToModify.get().setExpectedStdout(modifyCodingTestRequest.expectedStdout().trim());

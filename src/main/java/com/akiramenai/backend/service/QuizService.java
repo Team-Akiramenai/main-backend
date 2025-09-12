@@ -61,10 +61,10 @@ public class QuizService {
         .courseId(courseId)
         .itemId("QZ_" + UUID.randomUUID())
         .question(addQuizRequest.question())
-        .option1(addQuizRequest.o1())
-        .option2(addQuizRequest.o2())
-        .option3(addQuizRequest.o3())
-        .option4(addQuizRequest.o4())
+        .o1(addQuizRequest.o1())
+        .o2(addQuizRequest.o2())
+        .o3(addQuizRequest.o3())
+        .o4(addQuizRequest.o4())
         .correctOption(addQuizRequest.correctOption())
         .build();
 
@@ -214,16 +214,16 @@ public class QuizService {
       quizToModify.get().setQuestion(modifyQuizRequest.question().trim());
     }
     if (modifyQuizRequest.o1() != null) {
-      quizToModify.get().setOption1(modifyQuizRequest.o1().trim());
+      quizToModify.get().setO1(modifyQuizRequest.o1().trim());
     }
     if (modifyQuizRequest.o2() != null) {
-      quizToModify.get().setOption2(modifyQuizRequest.o2().trim());
+      quizToModify.get().setO2(modifyQuizRequest.o2().trim());
     }
     if (modifyQuizRequest.o3() != null) {
-      quizToModify.get().setOption3(modifyQuizRequest.o3().trim());
+      quizToModify.get().setO3(modifyQuizRequest.o3().trim());
     }
     if (modifyQuizRequest.o4() != null) {
-      quizToModify.get().setOption4(modifyQuizRequest.o4().trim());
+      quizToModify.get().setO4(modifyQuizRequest.o4().trim());
     }
     if (modifyQuizRequest.correctOption() != null) {
       quizToModify.get().setCorrectOption(modifyQuizRequest.correctOption());

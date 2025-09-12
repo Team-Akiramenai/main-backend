@@ -29,5 +29,8 @@ public class CodingTest {
   private String question;
 
   @NotBlank
+  private String description;
+
+  @NotBlank
   private String expectedStdout;
 }

@@ -31,16 +31,16 @@ public class Quiz {
   private String question;
 
   @NotBlank
-  private String option1;
+  private String o1;
 
   @NotBlank
-  private String option2;
+  private String o2;
 
   @NotBlank
-  private String option3;
+  private String o3;
 
   @NotBlank
-  private String option4;
+  private String o4;
 
   @Min(1)
   @Max(4)

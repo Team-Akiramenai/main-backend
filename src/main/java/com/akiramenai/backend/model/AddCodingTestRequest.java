@@ -4,9 +4,8 @@ import java.util.UUID;
 
 public record AddCodingTestRequest(
     String courseId,
-
     String question,
-
+    String description,
     String expectedStdout
 ) {
 }

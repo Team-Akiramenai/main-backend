@@ -4,10 +4,10 @@ public record CleanedQuiz(
     String itemId,
     String courseId,
     String question,
-    String option1,
-    String option2,
-    String option3,
-    String option4,
+    String o1,
+    String o2,
+    String o3,
+    String o4,
     int correctOption
 ) {
   public CleanedQuiz(Quiz q) {
@@ -15,10 +15,10 @@ public record CleanedQuiz(
         q.getItemId(),
         q.getCourseId().toString(),
         q.getQuestion(),
-        q.getOption1(),
-        q.getOption2(),
-        q.getOption3(),
-        q.getOption4(),
+        q.getO1(),
+        q.getO2(),
+        q.getO3(),
+        q.getO4(),
         q.getCorrectOption()
     );
   }
