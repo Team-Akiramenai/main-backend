@@ -21,10 +21,13 @@ public class MeiliService {
   @Value("${application.meili-search.master-key}")
   private String meiliSearchMasterKey;
 
-  private final Client meiliClient;
-  private final Index coursesIndex;
+  private Client meiliClient = null;
+  private Index coursesIndex = null;
 
   public MeiliService() {
+  }
+
+  private void initConnection() {
     this.meiliClient = new Client(
         new Config(
             "http://localhost:7700",
@@ -36,6 +39,10 @@ public class MeiliService {
   }
 
   public Optional<SearchResultPaginated> searchCourses(String query, int pageNumber, int pageSize) {
+    if (meiliClient == null) {
+      initConnection();
+    }
+
     try {
       SearchResultPaginated results = (SearchResultPaginated) coursesIndex.search(
           new SearchRequest(query)
@@ -50,6 +57,10 @@ public class MeiliService {
   }
 
   public boolean addCourseToIndex(Course course) {
+    if (meiliClient == null) {
+      initConnection();
+    }
+
     JSONObject toAdd = new JSONObject()
         .put("id", course.getId())
         .put("title", course.getTitle())

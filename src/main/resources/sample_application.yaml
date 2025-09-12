@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: backend
@@ -17,7 +20,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-only
-    #ddl-auto: create-drop
+      #ddl-auto: create-drop
     #show-sql: true
     properties:
       hibernate:
@@ -28,8 +31,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: <<GMAIL-ADDRESS>>
-    password: <<GOOGLE-ACCOUNT-APPLICATION-PASSWORD>>
+    username: <<REPLACE-ME>>
+    password: <<REPLACE-ME>>
     properties:
       mail:
         smtp:
@@ -40,15 +43,19 @@ spring:
 application:
   google:
     api-key: <<REPLACE-ME>>
+  meili-search:
+    master-key: <<REPLACE-ME>>
   stripe:
     secret-key: <<REPLACE-ME>>
     webhook-secret: <<REPLACE-ME>>
   default-values:
     default-storage-given: 1073741824 # 1GB (in bytes)
     media:
-      picture-directory: /home/SynapticLearn/media/pictures
-      video-directory: /home/SynapticLearn/media/videos
-      subtitles-directory: /home/SynapticLearn/media/subtitles
+      picture-directory: ${HOME}/SynapticLearn/media/pictures
+      video-directory: ${HOME}/SynapticLearn/media/videos
+      subtitles-directory: ${HOME}/SynapticLearn/media/subtitles
+      whisper-cpp-cli-path: ${HOME}/cloned/whisper.cpp/build/bin/whisper-cli
+      whisper-cpp-model-path: ${HOME}/cloned/whisper.cpp/models/ggml-large-v3-turbo.bin
     user-profile-picture-filename: default-user-logo.png
   security:
     password:
