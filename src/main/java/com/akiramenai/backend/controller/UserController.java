@@ -14,12 +14,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,6 +44,12 @@ public class UserController {
 
   @Value("${application.security.jwt.https-only-cookie}")
   private String shouldCookieBeSentUsingHttpsOnly;
+
+  @Value("${application.default-values.media.picture-directory}")
+  private String pictureDirectory;
+
+  @Value("${application.default-values.user-profile-picture-filename}")
+  private String defaultPictureFilename;
 
   public UserController(UserService service, MediaStorageService mediaStorageService, JWTService jwtService) {
     this.userService = service;
@@ -218,6 +230,41 @@ public class UserController {
     }
 
     httpResponseWriter.writeOkResponse(httpResponse, userInfoJson.get(), HttpStatus.OK);
+  }
+
+  @GetMapping("api/public/get/user-profile-picture/{user-id}")
+  public ResponseEntity<InputStreamResource> getUserProfilePicture(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+      @PathVariable(name = "user-id") String userId
+  ) {
+    Optional<Users> targetUser = userService.findUserById(UUID.fromString(userId));
+    if (targetUser.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+    Path pictureDirPath = Paths.get(pictureDirectory);
+    InputStream is = null;
+    try {
+      if (targetUser.get().getPfpPath() == null) {
+        // return the default profile pic
+        is = new FileInputStream(pictureDirPath.resolve(defaultPictureFilename).toFile());
+      } else {
+        is = new FileInputStream(
+            pictureDirPath.resolve(targetUser.get().getPfpPath()).toFile()
+        );
+      }
+    } catch (Exception e) {
+      log.error("Failed to get user's profile picture. Reason: {}", e.getMessage());
+
+      return ResponseEntity.internalServerError().build();
+    }
+
+    // return their specific profile pic
+    return ResponseEntity
+        .ok()
+        .contentType(MediaType.IMAGE_PNG)
+        .body(new InputStreamResource(is));
   }
 
   @PostMapping("api/public/logout")
