@@ -61,10 +61,18 @@ public class MeiliService {
       initConnection();
     }
 
+    double rating = course.getTotalStars() / (double) course.getUsersWhoRatedCount();
+    String truncatedRating = (course.getUsersWhoRatedCount() == 0) ? "0.0" : String.format("%.2f", rating);
+
     JSONObject toAdd = new JSONObject()
         .put("id", course.getId())
         .put("title", course.getTitle())
         .put("description", course.getDescription())
+        .put("thumbnailImageId", course.getThumbnailImageName())
+        .put("price", course.getPrice())
+        .put("rating", truncatedRating)
+        .put("createdAt", course.getCreatedAt())
+        .put("lastModifiedAt", course.getLastModifiedAt())
         .put("tags", new JSONArray("[\"CS\", \"Computer Science\"]"));
 
     try {

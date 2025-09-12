@@ -26,7 +26,14 @@ public class CourseService {
   private final PurchaseRepo purchaseRepo;
   private final InstructorInfosService instructorInfosService;
 
-  public CourseService(CourseRepo courseRepo, PurchaseRepo purchaseRepo, InstructorInfosService instructorInfosService, LearnerInfosRepo learnerInfosRepo, UserService userService, MeiliService meiliService) {
+  public CourseService(
+      CourseRepo courseRepo,
+      PurchaseRepo purchaseRepo,
+      InstructorInfosService instructorInfosService,
+      LearnerInfosRepo learnerInfosRepo,
+      UserService userService,
+      MeiliService meiliService
+  ) {
     this.courseRepo = courseRepo;
     this.purchaseRepo = purchaseRepo;
     this.instructorInfosService = instructorInfosService;
@@ -129,8 +136,6 @@ public class CourseService {
 
     try {
       courseRepo.save(courseToAdd);
-
-      meiliService.addCourseToIndex(courseToAdd);
     } catch (Exception e) {
       log.error("Error saving course. Reason: ", e);
 
@@ -411,6 +416,8 @@ public class CourseService {
     courseToPublish.get().setIsPublished(true);
     courseToPublish.get().setLastModifiedAt(LocalDateTime.now());
     courseRepo.save(courseToPublish.get());
+
+    meiliService.addCourseToIndex(courseToPublish.get());
 
     return Optional.empty();
   }
