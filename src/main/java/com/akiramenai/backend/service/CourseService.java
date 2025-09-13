@@ -42,33 +42,6 @@ public class CourseService {
     this.meiliService = meiliService;
   }
 
-  private Optional<String> basicCourseValidation(Course course) {
-    course.setTitle(course.getTitle().trim());
-    course.setDescription(course.getDescription().trim());
-
-    if (
-        course.getTitle() == null || course.getDescription() == null
-            || course.getTitle().isBlank() || course.getDescription().isBlank()
-    ) {
-      return Optional.of("Course title and description must be provided to add a course");
-    }
-
-    if (course.getTitle().length() > 200) {
-      return Optional.of("Course title can't have more than 200 characters");
-    }
-    if (course.getDescription().length() > 2000) {
-      return Optional.of("Course description can't have more than 2000 characters");
-    }
-    if (course.getPrice() < 1.0) {
-      return Optional.of("A course must have a minimum price of 1 dollar (USD)");
-    }
-    if (course.getCreatedAt() == null || course.getLastModifiedAt() == null) {
-      return Optional.of("A course must have a `createdAt` and `lastModified` timestamp");
-    }
-
-    return Optional.empty();
-  }
-
   private Optional<String> basicCourseModificationRequestValidation(CourseModificationRequest courseModificationRequest) {
     if (courseModificationRequest.getCourseId() == null) {
       return Optional.of("Course ID must be provided to modify a course");
@@ -327,7 +300,7 @@ public class CourseService {
 
   // Instructors can update everything except the following:
   // totalStars, usersWhoRated, createdAt, lastModifiedAt
-  // Also, they can only publish a course, they can't undo it
+  // Also, they can only publish a course. Once published, they can't undo it.
   public Optional<BackendOperationErrors> updateCourse(CourseModificationRequest courseModificationRequest, UUID currentUserId) {
     Optional<String> invalidReason = this.basicCourseModificationRequestValidation(courseModificationRequest);
     if (invalidReason.isPresent()) {
