@@ -190,19 +190,20 @@ public class UserController {
       }
     }
 
-    ResultOrError<String, FileUploadErrorTypes> savedFilePath = mediaStorageService.saveImage(newProfilePicture);
-    if (savedFilePath.errorType() != null) {
-      switch (savedFilePath.errorType()) {
+    ResultOrError<String, FileUploadErrorTypes> savedFilename = mediaStorageService.saveImage(newProfilePicture);
+    if (savedFilename.errorType() != null) {
+      switch (savedFilename.errorType()) {
         case FileIsEmpty -> {
-          return new ResponseEntity<>(savedFilePath.errorMessage(), HttpStatus.BAD_REQUEST);
+          return new ResponseEntity<>(savedFilename.errorMessage(), HttpStatus.BAD_REQUEST);
         }
         case InvalidUploadDir, FailedToCreateUploadDir, FailedToSaveFile -> {
-          return new ResponseEntity<>(savedFilePath.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+          return new ResponseEntity<>(savedFilename.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
     }
 
-    Optional<String> resp = userService.updateProfilePicturePath(request.getAttribute("userId").toString(), savedFilePath.result());
+    UUID userId = UUID.fromString(request.getAttribute("userId").toString());
+    Optional<String> resp = userService.updatePfp(userId, savedFilename.result());
     return resp
         .map(errorReason -> new ResponseEntity<>(errorReason, HttpStatus.INTERNAL_SERVER_ERROR))
         .orElseGet(() -> new ResponseEntity<>("Successfully updated user's profile picture.", HttpStatus.OK));
@@ -243,16 +244,18 @@ public class UserController {
       return ResponseEntity.notFound().build();
     }
 
-    Path pictureDirPath = Paths.get(pictureDirectory);
     InputStream is = null;
+    MediaType imageType = null;
     try {
+      // if the user has no pfp, return the default pfp. Otherwise, return their pfp
       if (targetUser.get().getPfpFileName() == null) {
-        // return the default profile pic
-        is = new FileInputStream(pictureDirPath.resolve(defaultPictureFilename).toFile());
+        Path defaultPicturePath = Paths.get(pictureDirectory, defaultPictureFilename);
+        is = new FileInputStream(defaultPicturePath.toFile());
+        imageType = MediaStorageService.getFileType(defaultPicturePath);
       } else {
-        is = new FileInputStream(
-            pictureDirPath.resolve(targetUser.get().getPfpFileName()).toFile()
-        );
+        Path pfpFilePath = Paths.get(pictureDirectory, targetUser.get().getPfpFileName());
+        is = new FileInputStream(pfpFilePath.toFile());
+        imageType = MediaStorageService.getFileType(pfpFilePath);
       }
     } catch (Exception e) {
       log.error("Failed to get user's profile picture. Reason: {}", e.getMessage());
@@ -260,10 +263,13 @@ public class UserController {
       return ResponseEntity.internalServerError().build();
     }
 
-    // return their specific profile pic
+    if (!imageType.equals(MediaType.IMAGE_JPEG) && !imageType.equals(MediaType.IMAGE_PNG)) {
+      return ResponseEntity.internalServerError().build();
+    }
+
     return ResponseEntity
         .ok()
-        .contentType(MediaType.IMAGE_PNG)
+        .contentType(imageType)
         .body(new InputStreamResource(is));
   }
 

@@ -226,14 +226,14 @@ public class UserService {
     }
   }
 
-  public Optional<String> updateProfilePicturePath(String userId, String newProfilePicturePath) {
-    Optional<Users> currentUser = userRepo.findUsersById(UUID.fromString(userId));
+  public Optional<String> updatePfp(UUID userId, String newPfpFilename) {
+    Optional<Users> currentUser = userRepo.findUsersById(userId);
     if (currentUser.isEmpty()) {
       return Optional.of("Failed to retrieve current user information.");
     }
 
     String oldPictureFilename = currentUser.get().getPfpFileName();
-    currentUser.get().setPfpFileName(newProfilePicturePath);
+    currentUser.get().setPfpFileName(newPfpFilename);
 
     // if the old profile picture wasn't the default one, delete it after saving the new one's path
     if (!oldPictureFilename.equals(defaultProfilePictureFilename)) {
@@ -254,7 +254,7 @@ public class UserService {
     try {
       userRepo.save(currentUser.get());
     } catch (Exception e) {
-      logger.error("ERROR in `updateProfilePicturePath()`: {}", e.getMessage());
+      logger.error("ERROR in `updatePfp()`: {}", e.getMessage());
 
       return Optional.of("Failed to save the changed profile picture path.");
     }

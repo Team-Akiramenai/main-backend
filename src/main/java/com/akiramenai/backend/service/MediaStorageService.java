@@ -5,9 +5,11 @@ import com.akiramenai.backend.model.ResultOrError;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
@@ -21,6 +23,22 @@ public class MediaStorageService {
   @Value("${application.default-values.media.video-directory}")
   private String videoDirectoryString;
 
+  public static MediaType getFileType(MultipartFile file) {
+    if (file.getContentType() == null) {
+      return MediaType.APPLICATION_OCTET_STREAM;
+    }
+    return MediaType.parseMediaType(file.getContentType());
+  }
+
+  public static MediaType getFileType(Path filepath) {
+    try {
+      String mimeType = Files.probeContentType(filepath);
+      return MediaType.parseMediaType(mimeType);
+    } catch (Exception e) {
+      return MediaType.APPLICATION_OCTET_STREAM;
+    }
+  }
+
   public ResultOrError<String, FileUploadErrorTypes> saveImage(MultipartFile file) {
     var resp = ResultOrError.<String, FileUploadErrorTypes>builder();
     if (file.isEmpty()) {
@@ -28,6 +46,12 @@ public class MediaStorageService {
           .errorMessage("Uploaded file is empty.")
           .errorType(FileUploadErrorTypes.FileIsEmpty)
           .result(null)
+          .build();
+    }
+    if ((!getFileType(file).equals(MediaType.IMAGE_PNG)) && (!getFileType(file).equals(MediaType.IMAGE_JPEG))) {
+      return resp
+          .errorMessage("Unsupported image file format. We only support PNG and JPEG.")
+          .errorType(FileUploadErrorTypes.UnsupportedFileType)
           .build();
     }
 
@@ -43,7 +67,7 @@ public class MediaStorageService {
 
       return ResultOrError
           .<String, FileUploadErrorTypes>builder()
-          .result(filePath.toString())
+          .result(filePath.getFileName().toString())
           .errorMessage(null)
           .errorType(null)
           .build();
