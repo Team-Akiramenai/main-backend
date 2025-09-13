@@ -181,8 +181,14 @@ public class CourseService {
     if (learnerInfos.isEmpty()) {
       return Optional.of("Learner's associated information was not found");
     }
-    learnerInfos.get().getMyPurchasedCourses().add(targetCourse.getId());
 
+    // check whether the learner has already purchased this course
+    boolean isAlreadyPurchased = learnerInfos.get().getMyPurchasedCourses().contains(targetCourse.getId());
+    if (isAlreadyPurchased) {
+      return Optional.of("Learner's has already purchased this course.");
+    }
+
+    learnerInfos.get().getMyPurchasedCourses().add(targetCourse.getId());
     Purchase purchase = Purchase
         .builder()
         .courseId(UUID.fromString(courseId))
