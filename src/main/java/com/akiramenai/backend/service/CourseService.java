@@ -429,7 +429,12 @@ public class CourseService {
     courseToPublish.get().setLastModifiedAt(LocalDateTime.now());
     courseRepo.save(courseToPublish.get());
 
-    meiliService.addCourseToIndex(courseToPublish.get());
+    Optional<Users> instructor = userService.findUserById(courseToPublish.get().getInstructorId());
+    if (instructor.isEmpty()) {
+      return Optional.of("Failed to retrieve instructor account info.");
+    }
+
+    meiliService.addCourseToIndex(courseToPublish.get(), instructor.get().getUsername());
 
     return Optional.empty();
   }

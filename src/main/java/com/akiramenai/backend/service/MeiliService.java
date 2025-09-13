@@ -7,6 +7,7 @@ import com.meilisearch.sdk.Index;
 import com.meilisearch.sdk.SearchRequest;
 import com.meilisearch.sdk.model.SearchResultPaginated;
 import com.meilisearch.sdk.model.TaskInfo;
+import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -38,7 +40,7 @@ public class MeiliService {
     this.coursesIndex = meiliClient.index("courses");
   }
 
-  private JSONObject getExtractedCourseJson(Course course) {
+  private JSONObject getExtractedCourseJson(Course course, @Nullable String instructorName) {
     double rating = course.getTotalStars() / (double) course.getUsersWhoRatedCount();
     String truncatedRating = (course.getUsersWhoRatedCount() == 0) ? "0.0" : String.format("%.2f", rating);
 
@@ -52,6 +54,10 @@ public class MeiliService {
         .put("createdAt", course.getCreatedAt())
         .put("lastModifiedAt", course.getLastModifiedAt())
         .put("tags", new JSONArray("[\"CS\", \"Computer Science\"]"));
+
+    if (instructorName != null) {
+      toAdd.put("instructor", instructorName);
+    }
 
     return toAdd;
   }
@@ -74,15 +80,15 @@ public class MeiliService {
     }
   }
 
-  public boolean addCourseToIndex(Course course) {
+  public boolean addCourseToIndex(Course course, String instructorName) {
     if (meiliClient == null) {
       initConnection();
     }
 
-    JSONObject courseJsonToAdd = getExtractedCourseJson(course);
+    JSONObject courseJsonToAdd = getExtractedCourseJson(course, instructorName);
 
     try {
-      TaskInfo ti = this.coursesIndex.addDocuments(courseJsonToAdd.toString(), "id");
+      this.coursesIndex.addDocuments(courseJsonToAdd.toString(), "id");
     } catch (Exception e) {
       log.error("Couldn't add course: {}", course.getId());
       return false;
@@ -96,10 +102,10 @@ public class MeiliService {
       initConnection();
     }
 
-    JSONObject courseJsonToUpdate = getExtractedCourseJson(course);
+    JSONObject courseJsonToUpdate = getExtractedCourseJson(course, null);
 
     try {
-      TaskInfo ti = this.coursesIndex.updateDocuments(courseJsonToUpdate.toString(), "id");
+      this.coursesIndex.updateDocuments(courseJsonToUpdate.toString(), "id");
     } catch (Exception e) {
       log.error("Couldn't update course: {}", course.getId());
       return false;
