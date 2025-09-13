@@ -67,13 +67,21 @@ Logs out the user by removing the JWT refresh token storing HTTP-only cookie. Th
 token stored
 in memory too.
 
-4) POST api/protected/change-profile-picture
+4) GET api/public/get/user-profile-picture/52ccb25e-930d-4036-b4b0-c6dad8d45084
+
+Fetches the profile picture of the associated user.
+
+Example request:
+`GET api/public/get/user-profile-picture/52ccb25e-930d-4036-b4b0-c6dad8d45084`
+
+Response: User's profile picture (PNG or JPEG).
+
+5) POST api/protected/change-profile-picture
 
 Changes the profile picture with the uploaded picture.
 
-The picture needs to be uploaded as a form-data with the name `new-profile-picture`. We accept PNG for now. Make sure to
-set the content type
-to `image/png`.
+The picture needs to be uploaded as a form-data with the name `new-profile-picture`. We accept PNG and JPEG for now.
+Make sure to set the appropriate content type for them.
 
 5) POST api/protected/update-password
 
@@ -170,7 +178,36 @@ Response JSON:
 }
 ```
 
-1) GET api/public/get/courses?page=0&page-size=1&sorting=DESC
+### 1) GET api/public/get/course-thumbnail/<<User-ID>>
+
+Returns associated course thumbnail (PNG or JPEG).
+
+Example request:
+
+`GET /api/public/get/course-thumbnail/5c9f3cf4-f0af-462b-84f6-9f5bdba2b03e`
+
+Response: Course thumbnail (PNG or JPEG)
+
+### 2) POST api/protected/change-course-thumbnail
+
+Updates/changes the course's thumbnail.
+
+Example request:
+
+`POST api/protected/change-course-thumbnail`
+
+**The POST request must use form-data to send both `course-id` and `new-thumbnail` for it to be a valid request.
+We accept PNG or JPEG images. Make sure to set the appropriate `Content-Type` for them.**
+
+Response JSON:
+
+```json
+{
+  "itemId": "2eceef0e-0e76-409b-98df-ba72bbe6d8d9"
+}
+```
+
+### 3) GET api/public/get/courses?page=0&page-size=1&sorting=DESC
 
 Returns a paginated list of published courses in JSON.
 
@@ -428,7 +465,7 @@ Response JSON:
 }
 ```
 
-4) POST api/protected/set/publish-course
+6) POST api/protected/set/publish-course
 
 Publishes the provided course. An instructor can only publish their unreleased course.
 
@@ -442,7 +479,7 @@ Request body's JSON:
 
 Response: HTTP 200.
 
-5) POST api/protected/rate-course
+7) POST api/protected/rate-course
 
 Casts a vote that counts towards the rating of the course. A rating can be any integer between 1 and 5 (including).
 
@@ -457,7 +494,7 @@ Request body's JSON:
 
 Response: HTTP 200.
 
-6) POST api/protected/set/course-item-order
+8) POST api/protected/set/course-item-order
 
 Reorganize the ordering of the course items (videos, quizzes, coding tests, terminal tests).
 
