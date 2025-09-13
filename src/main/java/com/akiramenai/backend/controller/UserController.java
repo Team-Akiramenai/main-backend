@@ -48,8 +48,8 @@ public class UserController {
   @Value("${application.default-values.media.picture-directory}")
   private String pictureDirectory;
 
-  @Value("${application.default-values.user-profile-picture-filename}")
-  private String defaultPictureFilename;
+  @Value("${application.default-values.default-user-pfp-filename}")
+  private String defaultPfpFilename;
 
   public UserController(UserService service, MediaStorageService mediaStorageService, JWTService jwtService) {
     this.userService = service;
@@ -174,39 +174,38 @@ public class UserController {
   }
 
   @PostMapping("api/protected/change-profile-picture")
-  public ResponseEntity<String> changeProfilePicture(
+  public void changeProfilePicture(
       HttpServletRequest request,
       HttpServletResponse response,
       @RequestParam("new-profile-picture") MultipartFile newProfilePicture
   ) {
-    if (newProfilePicture.isEmpty()) {
-      response.setContentType("text/plain");
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      try {
-        response.getWriter().print("No profile picture provided.");
-        response.getWriter().flush();
-      } catch (Exception e) {
-        log.error("Failed to send response after profile picture change request. Reason: {}", e.getMessage());
-      }
+    if (newProfilePicture == null || newProfilePicture.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(response, "Provided file is empty.", HttpStatus.BAD_REQUEST);
+      return;
     }
 
     ResultOrError<String, FileUploadErrorTypes> savedFilename = mediaStorageService.saveImage(newProfilePicture);
     if (savedFilename.errorType() != null) {
       switch (savedFilename.errorType()) {
-        case FileIsEmpty -> {
-          return new ResponseEntity<>(savedFilename.errorMessage(), HttpStatus.BAD_REQUEST);
+        case UnsupportedFileType, FileIsEmpty -> {
+          httpResponseWriter.writeFailedResponse(response, savedFilename.errorMessage(), HttpStatus.BAD_REQUEST);
+          return;
         }
         case InvalidUploadDir, FailedToCreateUploadDir, FailedToSaveFile -> {
-          return new ResponseEntity<>(savedFilename.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+          httpResponseWriter.writeFailedResponse(response, savedFilename.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+          return;
         }
       }
     }
 
     UUID userId = UUID.fromString(request.getAttribute("userId").toString());
     Optional<String> resp = userService.updatePfp(userId, savedFilename.result());
-    return resp
-        .map(errorReason -> new ResponseEntity<>(errorReason, HttpStatus.INTERNAL_SERVER_ERROR))
-        .orElseGet(() -> new ResponseEntity<>("Successfully updated user's profile picture.", HttpStatus.OK));
+    if (resp.isPresent()) {
+      httpResponseWriter.writeFailedResponse(response, resp.get(), HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    httpResponseWriter.writeIdResponse(response, userId.toString(), HttpStatus.OK);
   }
 
   @GetMapping("api/protected/get/user-info")
@@ -249,7 +248,7 @@ public class UserController {
     try {
       // if the user has no pfp, return the default pfp. Otherwise, return their pfp
       if (targetUser.get().getPfpFileName() == null) {
-        Path defaultPicturePath = Paths.get(pictureDirectory, defaultPictureFilename);
+        Path defaultPicturePath = Paths.get(pictureDirectory, defaultPfpFilename);
         is = new FileInputStream(defaultPicturePath.toFile());
         imageType = MediaStorageService.getFileType(defaultPicturePath);
       } else {

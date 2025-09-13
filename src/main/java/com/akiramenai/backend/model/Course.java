@@ -33,7 +33,7 @@ public class Course {
   @Size(max = 2000)
   private String description;
 
-  private UUID thumbnailImageName;
+  private String thumbnailImageName;
 
   @NotNull
   private List<String> courseItemIds;

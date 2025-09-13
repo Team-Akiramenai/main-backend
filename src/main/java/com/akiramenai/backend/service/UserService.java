@@ -33,7 +33,7 @@ public class UserService {
   private final LearnerInfosRepo learnerInfosRepo;
   private final InstructorInfosRepo instructorInfosRepo;
 
-  @Value("${application.default-values.user-profile-picture-filename}")
+  @Value("${application.default-values.default-user-pfp-filename}")
   private String defaultProfilePictureFilename;
 
   @Value("${application.default-values.default-storage-given}")

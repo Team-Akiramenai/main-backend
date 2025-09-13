@@ -3,6 +3,7 @@ package com.akiramenai.backend.controller;
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.LearnerInfosRepo;
 import com.akiramenai.backend.service.CourseService;
+import com.akiramenai.backend.service.MediaStorageService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.IdParser;
@@ -10,12 +11,19 @@ import com.akiramenai.backend.utility.JsonSerializer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,17 +31,25 @@ import java.util.UUID;
 @Slf4j
 @RestController
 public class CourseController {
+  private final MediaStorageService mediaStorageService;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
+
+  @Value("${application.default-values.media.picture-directory}")
+  private String pictureDirectory;
+
+  @Value("${application.default-values.default-course-thumbnail-filename}")
+  private String defaultCourseThumbnailFilename;
 
   private final UserService userService;
   private final LearnerInfosRepo learnerInfosRepo;
   private final CourseService courseService;
 
-  public CourseController(CourseService courseService, UserService userService, LearnerInfosRepo learnerInfosRepo) {
+  public CourseController(CourseService courseService, UserService userService, LearnerInfosRepo learnerInfosRepo, MediaStorageService mediaStorageService) {
     this.courseService = courseService;
     this.userService = userService;
     this.learnerInfosRepo = learnerInfosRepo;
+    this.mediaStorageService = mediaStorageService;
   }
 
   private Sort.Direction getSortDirection(String sorting) {
@@ -69,6 +85,52 @@ public class CourseController {
     }
 
     httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
+  }
+
+  @GetMapping("api/public/get/course-thumbnail/{course-id}")
+  public ResponseEntity<InputStreamResource> getCourseThumbnail(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+      @PathVariable(name = "course-id") String courseId
+  ) {
+    Optional<UUID> courseUUID = IdParser.parseId(courseId);
+    if (courseUUID.isEmpty()) {
+      return ResponseEntity.internalServerError().build();
+    }
+    Optional<Course> targetCourse = courseService.getCourse(courseUUID.get());
+    if (targetCourse.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+
+    InputStream is = null;
+    MediaType imageType = null;
+    try {
+      // if the course has no thumbnail, return the default thumbnail. Otherwise, return the
+      // course's thumbnail
+      if (targetCourse.get().getThumbnailImageName() == null) {
+        Path defaultPicturePath = Paths.get(pictureDirectory, defaultCourseThumbnailFilename);
+        is = new FileInputStream(defaultPicturePath.toFile());
+        imageType = MediaStorageService.getFileType(defaultPicturePath);
+      } else {
+        Path pfpFilePath = Paths.get(pictureDirectory, targetCourse.get().getThumbnailImageName());
+        is = new FileInputStream(pfpFilePath.toFile());
+        imageType = MediaStorageService.getFileType(pfpFilePath);
+      }
+    } catch (Exception e) {
+      log.error("Failed to get the thumbnail of the course. Reason: {}", e.getMessage());
+
+      return ResponseEntity.internalServerError().build();
+    }
+
+    if (!imageType.equals(MediaType.IMAGE_JPEG) && !imageType.equals(MediaType.IMAGE_PNG)) {
+      return ResponseEntity.internalServerError().build();
+    }
+
+    return ResponseEntity
+        .ok()
+        .contentType(imageType)
+        .body(new InputStreamResource(is));
   }
 
   @GetMapping("api/public/get/courses")
@@ -163,6 +225,64 @@ public class CourseController {
           httpResponseWriter.writeFailedResponse(response, "Invalid request sent. Please make sure the request follows the guidelines.", HttpStatus.BAD_REQUEST);
       default -> httpResponseWriter.writeFailedResponse(response, "Internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @PostMapping("api/protected/change-course-thumbnail")
+  public void changeCourseThumbnail(
+      HttpServletRequest request,
+      HttpServletResponse response,
+
+      @RequestParam(name = "course-id") String courseId,
+      @RequestParam("new-thumbnail") MultipartFile newThumbnail
+  ) {
+    if (newThumbnail.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(response, "Provided file is empty.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    ResultOrError<String, FileUploadErrorTypes> savedThumbnail = mediaStorageService.saveImage(newThumbnail);
+    if (savedThumbnail.errorType() != null) {
+      switch (savedThumbnail.errorType()) {
+        case UnsupportedFileType, FileIsEmpty ->
+            httpResponseWriter.writeFailedResponse(response, savedThumbnail.errorMessage(), HttpStatus.BAD_REQUEST);
+        case InvalidUploadDir, FailedToCreateUploadDir, FailedToSaveFile ->
+            httpResponseWriter.writeFailedResponse(response, savedThumbnail.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+
+    Optional<UUID> userId = IdParser.parseId(request.getAttribute("userId").toString());
+    if (userId.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(response, "Invalid userId provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    Optional<UUID> courseUUID = IdParser.parseId(courseId);
+    if (courseUUID.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(response, "Invalid course ID provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    Optional<Course> targetCourse = courseService.getCourse(courseUUID.get());
+    if (targetCourse.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(response, "Course not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    ResultOrError<Boolean, BackendOperationErrors> res = courseService.updateCourseThumbnail(
+        courseUUID.get(),
+        userId.get(),
+        savedThumbnail.result()
+    );
+    if (res.errorType() != null) {
+      switch (res.errorType()) {
+        case CourseNotFound ->
+            httpResponseWriter.writeFailedResponse(response, res.errorMessage(), HttpStatus.NOT_FOUND);
+        case AttemptingToModifyOthersItem ->
+            httpResponseWriter.writeFailedResponse(response, res.errorMessage(), HttpStatus.BAD_REQUEST);
+      }
+    }
+
+    httpResponseWriter.writeIdResponse(response, targetCourse.get().getId().toString(), HttpStatus.OK);
   }
 
   @PostMapping("api/protected/remove/course")

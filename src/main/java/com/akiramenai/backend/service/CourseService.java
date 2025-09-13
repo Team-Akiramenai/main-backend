@@ -17,11 +17,11 @@ import java.util.*;
 @Slf4j
 @Service
 public class CourseService {
+  JsonSerializer jsonSerializer = new JsonSerializer();
+
   private final LearnerInfosRepo learnerInfosRepo;
   private final UserService userService;
   private final MeiliService meiliService;
-  JsonSerializer jsonSerializer = new JsonSerializer();
-
   private final CourseRepo courseRepo;
   private final PurchaseRepo purchaseRepo;
   private final InstructorInfosService instructorInfosService;
@@ -350,6 +350,39 @@ public class CourseService {
 
     courseRepo.save(courseToBeModified.get());
     return Optional.empty();
+  }
+
+  public ResultOrError<Boolean, BackendOperationErrors> updateCourseThumbnail(
+      UUID courseId,
+      UUID userId,
+      String newThumbnailFilename
+  ) {
+    var res = ResultOrError.<Boolean, BackendOperationErrors>builder();
+
+    Optional<Course> courseToBeModified = courseRepo.findCourseById(courseId);
+    if (courseToBeModified.isEmpty()) {
+      return res
+          .result(false)
+          .errorMessage("Course not found.")
+          .errorType(BackendOperationErrors.CourseNotFound)
+          .build();
+    }
+    if (!courseToBeModified.get().getInstructorId().equals(userId)) {
+      return res
+          .result(false)
+          .errorMessage("You can't change the thumbnail of the course because you're not the author of this course.")
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
+          .build();
+    }
+
+    courseToBeModified.get().setThumbnailImageName(newThumbnailFilename);
+    courseToBeModified.get().setLastModifiedAt(LocalDateTime.now());
+    meiliService.updateCourseInDocument(courseToBeModified.get());
+    courseRepo.save(courseToBeModified.get());
+
+    return res
+        .result(true)
+        .build();
   }
 
   public ResultOrError<String, BackendOperationErrors> deleteCourse(UUID courseToDelete, UUID currentUserId) {

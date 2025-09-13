@@ -11,7 +11,7 @@ public record CleanedCoursesForInstructors(
     UUID instructorId,
     String title,
     String description,
-    UUID thumbnailImageId,
+    String thumbnailImageName,
     List<String> courseItemIds,
     double price,
     double rating,

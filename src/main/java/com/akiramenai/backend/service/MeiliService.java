@@ -38,6 +38,24 @@ public class MeiliService {
     this.coursesIndex = meiliClient.index("courses");
   }
 
+  private JSONObject getExtractedCourseJson(Course course) {
+    double rating = course.getTotalStars() / (double) course.getUsersWhoRatedCount();
+    String truncatedRating = (course.getUsersWhoRatedCount() == 0) ? "0.0" : String.format("%.2f", rating);
+
+    JSONObject toAdd = new JSONObject()
+        .put("id", course.getId())
+        .put("title", course.getTitle())
+        .put("description", course.getDescription())
+        .put("thumbnailImageName", course.getThumbnailImageName())
+        .put("price", course.getPrice())
+        .put("rating", truncatedRating)
+        .put("createdAt", course.getCreatedAt())
+        .put("lastModifiedAt", course.getLastModifiedAt())
+        .put("tags", new JSONArray("[\"CS\", \"Computer Science\"]"));
+
+    return toAdd;
+  }
+
   public Optional<SearchResultPaginated> searchCourses(String query, int pageNumber, int pageSize) {
     if (meiliClient == null) {
       initConnection();
@@ -61,27 +79,29 @@ public class MeiliService {
       initConnection();
     }
 
-    double rating = course.getTotalStars() / (double) course.getUsersWhoRatedCount();
-    String truncatedRating = (course.getUsersWhoRatedCount() == 0) ? "0.0" : String.format("%.2f", rating);
-
-    JSONObject toAdd = new JSONObject()
-        .put("id", course.getId())
-        .put("title", course.getTitle())
-        .put("description", course.getDescription())
-        .put("thumbnailImageId", course.getThumbnailImageName())
-        .put("price", course.getPrice())
-        .put("rating", truncatedRating)
-        .put("createdAt", course.getCreatedAt())
-        .put("lastModifiedAt", course.getLastModifiedAt())
-        .put("tags", new JSONArray("[\"CS\", \"Computer Science\"]"));
+    JSONObject courseJsonToAdd = getExtractedCourseJson(course);
 
     try {
-      TaskInfo ti = this.coursesIndex.addDocuments(toAdd.toString(), "id");
-      if (ti.getStatus().equals("canceled") || ti.getStatus().equals("failed")) {
-        throw new IllegalStateException("Couldn't add course: " + course.getId());
-      }
+      TaskInfo ti = this.coursesIndex.addDocuments(courseJsonToAdd.toString(), "id");
     } catch (Exception e) {
       log.error("Couldn't add course: {}", course.getId());
+      return false;
+    }
+
+    return true;
+  }
+
+  public boolean updateCourseInDocument(Course course) {
+    if (meiliClient == null) {
+      initConnection();
+    }
+
+    JSONObject courseJsonToUpdate = getExtractedCourseJson(course);
+
+    try {
+      TaskInfo ti = this.coursesIndex.updateDocuments(courseJsonToUpdate.toString(), "id");
+    } catch (Exception e) {
+      log.error("Couldn't update course: {}", course.getId());
       return false;
     }
 
