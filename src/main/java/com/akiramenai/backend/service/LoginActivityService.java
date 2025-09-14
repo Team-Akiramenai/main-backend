@@ -26,7 +26,9 @@ public class LoginActivityService {
     if (loginActivity.isEmpty()) {
       // No login activity in this year, so create one
       ArrayList<Integer> initialActivityArray = new ArrayList<>(Collections.nCopies(367, 0));
-      if (!date.isLeapYear()) {
+      if (date.isLeapYear()) {
+        initialActivityArray.set(366, -1);
+      } else {
         initialActivityArray.set(60, -1);
       }
 
