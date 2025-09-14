@@ -40,7 +40,11 @@ public class LoginActivityService {
       loginActivity = Optional.of(newLoginActivity);
     }
 
-    loginActivity.get().getActivity().set(date.getDayOfYear(), 1);
+    int indexToMark = date.getDayOfYear();
+    if ((!date.isLeapYear()) && (date.getDayOfYear() >= 60)) {
+      indexToMark += 1;
+    }
+    loginActivity.get().getActivity().set(indexToMark, 1);
     loginActivityRepo.save(loginActivity.get());
   }
 
@@ -55,15 +59,15 @@ public class LoginActivityService {
 
 
     LocalDate requestedMonthBeginning = requestedMonth.withDayOfMonth(1);
-    YearMonth reqMonth = YearMonth.from(requestedMonthBeginning);
     int startIdx = requestedMonthBeginning.getDayOfYear();
-    int endIdx = requestedMonthBeginning.plusDays(reqMonth.lengthOfMonth()).getDayOfYear();
+    int endIdx = startIdx + requestedMonth.lengthOfMonth();
     if (!requestedMonth.isLeapYear()) {
       if (requestedMonth.getMonthValue() == 2) {
         endIdx += 1;
       }
       if (requestedMonth.getMonthValue() > 2) {
         startIdx += 1;
+        endIdx += 1;
       }
     }
     List<Integer> monthActivity = loginActivity.get().getActivity().subList(startIdx, endIdx);
