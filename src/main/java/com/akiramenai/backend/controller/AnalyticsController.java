@@ -76,6 +76,7 @@ public class AnalyticsController {
     InstructorAnalyticsResponse responseObj =
         InstructorAnalyticsResponse
             .builder()
+            .loginStreak(instructorUser.get().getLoginStreak())
             .totalCoursesSold(currentInstructor.get().getTotalCoursesSold())
             .accountBalance(currentInstructor.get().getAccountBalance())
             .build();
