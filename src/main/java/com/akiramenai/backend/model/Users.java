@@ -54,10 +54,6 @@ public class Users {
   @NotNull
   private long usedStorageInBytes;
 
-  // One-to-many: a user (instructor) can author many courses
-  @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Course> courses;
-
   public void setUserType(String accType) {
     if (accType.equalsIgnoreCase("Learner")) {
       this.userType = UserType.Learner;
