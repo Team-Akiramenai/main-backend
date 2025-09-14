@@ -5,6 +5,7 @@ import com.akiramenai.backend.repo.InstructorInfosRepo;
 import com.akiramenai.backend.repo.LearnerInfosRepo;
 import com.akiramenai.backend.repo.PurchaseRepo;
 import com.akiramenai.backend.service.CourseService;
+import com.akiramenai.backend.service.LoginActivityService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.JsonSerializer;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -27,6 +29,7 @@ import java.util.*;
 @Slf4j
 @RestController
 public class AnalyticsController {
+  private final LoginActivityService loginActivityService;
   HttpResponseWriter responseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
 
@@ -37,11 +40,12 @@ public class AnalyticsController {
   public AnalyticsController(
       UserService userService,
       InstructorInfosRepo instructorInfosRepo,
-      PurchaseRepo purchaseRepo
-  ) {
+      PurchaseRepo purchaseRepo,
+      LoginActivityService loginActivityService) {
     this.userService = userService;
     this.instructorInfosRepo = instructorInfosRepo;
     this.purchaseRepo = purchaseRepo;
+    this.loginActivityService = loginActivityService;
   }
 
   @GetMapping("api/protected/get/instructor-analytics")
@@ -90,7 +94,7 @@ public class AnalyticsController {
   public void getCoursesSold(
       HttpServletRequest request,
       HttpServletResponse response,
-      @RequestParam(value = "last-N-days", required = false, defaultValue = "7") int lastNDays
+      @RequestParam(name = "last-N-days", required = false, defaultValue = "7") int lastNDays
   ) {
     if (lastNDays <= 0) {
       responseWriter.writeFailedResponse(response, "The number of last days must be greater than zero.", HttpStatus.BAD_REQUEST);
@@ -161,6 +165,79 @@ public class AnalyticsController {
             .build();
 
     Optional<String> responseJson = jsonSerializer.serialize(res);
+    if (responseJson.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Failed to serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    responseWriter.writeOkResponse(response, responseJson.get(), HttpStatus.OK);
+  }
+
+  @GetMapping("api/protected/get/learner-analytics")
+  public void getLearnerAnalytics(
+      HttpServletRequest request,
+      HttpServletResponse response
+  ) {
+    UUID userId = UUID.fromString(request.getAttribute("userId").toString());
+
+    Optional<Users> targetUser = userService.findUserById(userId);
+    if (targetUser.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "User not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    Optional<List<Integer>> activitiesThisMonth = loginActivityService.getLoginActivityForMonth(userId, LocalDate.now());
+    if (activitiesThisMonth.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Login activity for this month not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    LearnerAnalyticsResponse resp = LearnerAnalyticsResponse
+        .builder()
+        .loginStreak(targetUser.get().getLoginStreak())
+        .activityThisMonth(activitiesThisMonth.get())
+        .build();
+
+    Optional<String> responseJson = jsonSerializer.serialize(resp);
+    if (responseJson.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Failed to serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    responseWriter.writeOkResponse(response, responseJson.get(), HttpStatus.OK);
+  }
+
+
+  @GetMapping("api/protected/get/user/login-activity")
+  public void getLoginActivityMonth(
+      HttpServletRequest request,
+      HttpServletResponse response,
+
+      @RequestParam(name = "year", required = true) int year,
+      @RequestParam(name = "month", required = false) Integer monthNumber
+  ) {
+    UUID userId = UUID.fromString(request.getAttribute("userId").toString());
+
+    Optional<List<Integer>> activitiesToReturn;
+    if (monthNumber == null) {
+      activitiesToReturn = loginActivityService.getLoginActivityForYear(
+          userId,
+          LocalDate.of(year, 1, 1)
+      );
+    } else {
+      activitiesToReturn = loginActivityService.getLoginActivityForMonth(
+          userId,
+          LocalDate.of(year, monthNumber, 1)
+      );
+    }
+
+    if (activitiesToReturn.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Login activity for this month not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    MonthActivityResponse resp = new MonthActivityResponse(activitiesToReturn.get());
+    Optional<String> responseJson = jsonSerializer.serialize(resp);
     if (responseJson.isEmpty()) {
       responseWriter.writeFailedResponse(response, "Failed to serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
       return;

@@ -3,6 +3,7 @@ package com.akiramenai.backend.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -42,27 +43,28 @@ public class Course {
 
   private String thumbnailImageName;
 
-  // ⚠️ check this later → you probably need @ElementCollection or a join table
   private List<String> courseItemIds;
 
   @DecimalMin("1.0")
+  @ColumnDefault("0.0")
   private double price;
 
   @NotNull
+  @ColumnDefault("0")
   private Long totalStars;
 
   @NotNull
+  @ColumnDefault("0")
   private Long usersWhoRatedCount;
 
   @CreatedDate
-  @NotNull
-  @Column(updatable = false)
+  @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @LastModifiedDate
-  @NotNull
+  @Column(nullable = false)
   private LocalDateTime lastModifiedAt;
 
-  @NotNull
+  @ColumnDefault("false")
   private Boolean isPublished;
 }

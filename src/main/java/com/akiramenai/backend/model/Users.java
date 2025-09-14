@@ -7,7 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,6 +56,14 @@ public class Users {
 
   @NotNull
   private long usedStorageInBytes;
+
+  @UpdateTimestamp
+  @Column(nullable = false)
+  private LocalDate lastLoginDate;
+
+  @NotNull
+  @ColumnDefault("0")
+  private int loginStreak;
 
   public void setUserType(String accType) {
     if (accType.equalsIgnoreCase("Learner")) {

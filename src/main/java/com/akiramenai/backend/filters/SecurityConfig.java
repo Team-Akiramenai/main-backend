@@ -40,7 +40,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, ActivityFilter activityFilter) throws Exception {
     return http
         .cors(AbstractHttpConfigurer::disable)
         .securityMatcher("/api/**")
@@ -56,6 +56,7 @@ public class SecurityConfig {
         )
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(activityFilter, jwtFilter.getClass())
         .build();
   }
 
