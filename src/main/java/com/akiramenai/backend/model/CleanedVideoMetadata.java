@@ -13,9 +13,10 @@ public record CleanedVideoMetadata(
     boolean isProcessing,
     String subtitleFileName,
     String uploadDateTime,
-    String lastModifiedDateTime
+    String lastModifiedDateTime,
+    boolean isCompleted
 ) {
-  public CleanedVideoMetadata(VideoMetadata vm) {
+  public CleanedVideoMetadata(VideoMetadata vm, boolean isCompleted) {
     this(
         vm.getItemId(),
         vm.getCourseId(),
@@ -26,7 +27,8 @@ public record CleanedVideoMetadata(
         vm.isProcessing(),
         vm.getSubtitleFileName(),
         vm.getUploadDateTime().toString(),
-        vm.getLastModifiedDateTime().toString()
+        vm.getLastModifiedDateTime().toString(),
+        isCompleted
     );
   }
 }

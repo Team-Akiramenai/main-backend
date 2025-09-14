@@ -7,9 +7,17 @@ public record CleanedCodingTest(
     UUID courseId,
     String question,
     String description,
-    String expectedStdout
+    String expectedStdout,
+    boolean isCompleted
 ) {
-  public CleanedCodingTest(CodingTest ct) {
-    this(ct.getItemId(), ct.getCourseId(), ct.getQuestion(), ct.getDescription(), ct.getExpectedStdout());
+  public CleanedCodingTest(CodingTest ct, boolean isCompleted) {
+    this(
+        ct.getItemId(),
+        ct.getCourseId(),
+        ct.getQuestion(),
+        ct.getDescription(),
+        ct.getExpectedStdout(),
+        isCompleted
+    );
   }
 }

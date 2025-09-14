@@ -40,6 +40,7 @@ public class CourseItemController {
 
       @RequestParam(required = true) String itemId
   ) {
+    UUID userId = UUID.fromString(httpRequest.getAttribute("userId").toString());
     Optional<ParsedItemInfo> itemInfo = IdParser.parseItemId(itemId);
     if (itemInfo.isEmpty()) {
       httpResponseWriter.writeFailedResponse(httpResponse, "Failed to parse provided itemId.", HttpStatus.BAD_REQUEST);
@@ -54,7 +55,8 @@ public class CourseItemController {
           return;
         }
 
-        Optional<String> respJson = jsonSerializer.serialize(new CleanedQuiz(targetItem.get()));
+        boolean isItemCompleted = completedCourseItemsRepo.existsByLearnerIdAndItemId(userId, itemId);
+        Optional<String> respJson = jsonSerializer.serialize(new CleanedQuiz(targetItem.get(), isItemCompleted));
         if (respJson.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
           return;
@@ -69,7 +71,8 @@ public class CourseItemController {
           return;
         }
 
-        Optional<String> respJson = jsonSerializer.serialize(new CleanedVideoMetadata(targetItem.get()));
+        boolean isItemCompleted = completedCourseItemsRepo.existsByLearnerIdAndItemId(userId, itemId);
+        Optional<String> respJson = jsonSerializer.serialize(new CleanedVideoMetadata(targetItem.get(), isItemCompleted));
         if (respJson.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
           return;
@@ -84,7 +87,8 @@ public class CourseItemController {
           return;
         }
 
-        Optional<String> respJson = jsonSerializer.serialize(new CleanedCodingTest(targetItem.get()));
+        boolean isItemCompleted = completedCourseItemsRepo.existsByLearnerIdAndItemId(userId, itemId);
+        Optional<String> respJson = jsonSerializer.serialize(new CleanedCodingTest(targetItem.get(), isItemCompleted));
         if (respJson.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
           return;

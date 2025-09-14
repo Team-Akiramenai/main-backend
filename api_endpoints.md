@@ -692,7 +692,8 @@ Response JSON:
   "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
   "question": "Which came before: Chicken? Or the egg?",
   "description": "Lorem ipsum dolores....",
-  "expectedStdout": "The big beautiful bill..."
+  "expectedStdout": "The big beautiful bill...",
+  "isCompleted": false
 }
 ```
 

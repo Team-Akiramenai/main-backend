@@ -8,9 +8,10 @@ public record CleanedQuiz(
     String o2,
     String o3,
     String o4,
-    int correctOption
+    int correctOption,
+    boolean isCompleted
 ) {
-  public CleanedQuiz(Quiz q) {
+  public CleanedQuiz(Quiz q, boolean isCompleted) {
     this(
         q.getItemId(),
         q.getCourseId().toString(),
@@ -19,7 +20,8 @@ public record CleanedQuiz(
         q.getO2(),
         q.getO3(),
         q.getO4(),
-        q.getCorrectOption()
+        q.getCorrectOption(),
+        isCompleted
     );
   }
 }
