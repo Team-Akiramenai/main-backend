@@ -193,7 +193,7 @@ public class QuizService {
           .build();
     }
 
-    if (targetCourse.get().getInstructorId().equals(currentUserId)) {
+    if (!targetCourse.get().getInstructorId().equals(currentUserId)) {
       return resp
           .result(null)
           .errorMessage("Can't modify the course item. You're not the author of the course.")
