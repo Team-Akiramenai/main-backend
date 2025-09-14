@@ -158,7 +158,7 @@ public class CourseService {
     // check whether the learner has already purchased this course
     boolean isAlreadyPurchased = learnerInfos.get().getMyPurchasedCourses().contains(targetCourse.getId());
     if (isAlreadyPurchased) {
-      return Optional.of("Learner's has already purchased this course.");
+      return Optional.of("Learner has already purchased this course.");
     }
 
     learnerInfos.get().getMyPurchasedCourses().add(targetCourse.getId());

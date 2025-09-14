@@ -128,9 +128,10 @@ public class SeedController {
     Random random = new Random();
     int randomNumber = random.nextInt(max - min + 1) + min;
 
-    for (int i = 1; i <= randomNumber; i++) {
+    // we'll buy 5 courses
+    for (int i = 1; i <= 5; i++) {
       resp = courseService.purchaseCourse(
-          publishedCourses.get(random.nextInt(max - min + 1) + min).toString(),
+          publishedCourses.get(randomNumber + i).toString(),
           learnerId.toString(),
           LocalDateTime.now().minusDays(random.nextInt(random.nextInt(max - min + 1) + min))
       );

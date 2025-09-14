@@ -9,6 +9,7 @@ import java.util.UUID;
 public record CleanedCourse(
     UUID id,
     UUID instructorId,
+    String instructorName,
     String title,
     String description,
     String thumbnailImageName,
@@ -22,6 +23,7 @@ public record CleanedCourse(
     this(
         course.getId(),
         course.getInstructorId(),
+        course.getInstructor().getUsername(),
         course.getTitle(),
         course.getDescription(),
         course.getThumbnailImageName(),

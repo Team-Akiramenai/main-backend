@@ -8,12 +8,15 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
-@Setter
-@Getter
 @Entity
+@Table(name = "users")
+@Getter
+@Setter
 public class Users {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
@@ -25,23 +28,23 @@ public class Users {
   private UUID instructorForeignKey;
 
   @NotBlank(message = "Username cannot be blank or whitespace only")
-  @Size(min = 1, max = 100, message = "Username must be between 5 and 100 characters")
+  @Size(min = 1, max = 100)
   @Column(nullable = false, unique = true)
   private String username;
 
   @NotBlank(message = "E-mail cannot be blank or whitespace only")
-  @Size(min = 5, max = 100, message = "E-mail must be between 5 and 100 characters")
+  @Size(min = 5, max = 100)
   @Column(nullable = false, unique = true)
   private String email;
 
   @NotBlank(message = "Password cannot be blank or whitespace only")
-  @Size(min = 8, max = 256, message = "Username must be between 5 and 100 characters")
+  @Size(min = 8, max = 256)
   @Column(nullable = false)
   private String password;
 
   private String pfpFileName;
 
-  @NotNull(message = "Account type cannot be null")
+  @NotNull(message = "UserType needs to be provided")
   @Enumerated(EnumType.STRING)
   private UserType userType;
 
@@ -50,6 +53,10 @@ public class Users {
 
   @NotNull
   private long usedStorageInBytes;
+
+  // One-to-many: a user (instructor) can author many courses
+  @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Course> courses;
 
   public void setUserType(String accType) {
     if (accType.equalsIgnoreCase("Learner")) {
@@ -63,8 +70,6 @@ public class Users {
     if (this.userType.equals(UserType.Learner)) {
       return "Learner";
     }
-
     return "Instructor";
   }
-
 }

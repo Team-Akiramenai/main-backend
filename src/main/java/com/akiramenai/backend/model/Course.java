@@ -10,20 +10,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Entity
+@Table(name = "courses")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "courses")
 public class Course {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @NotNull
+  // raw foreign key field
+  @Column(name = "instructor_id", nullable = false)
   private UUID instructorId;
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "instructor_id", referencedColumnName = "id", insertable = false, updatable = false)
+  private Users instructor; // We don't need to specify this during insertion. This get automatically handled
+  // using the `instructorId` attribute declared above
 
   @NotBlank
   @Size(max = 200)
@@ -35,7 +42,7 @@ public class Course {
 
   private String thumbnailImageName;
 
-  @NotNull
+  // ⚠️ check this later → you probably need @ElementCollection or a join table
   private List<String> courseItemIds;
 
   @DecimalMin("1.0")
