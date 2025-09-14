@@ -696,6 +696,27 @@ Response JSON:
 }
 ```
 
+2) POST api/protected/add/completed/course-item
+
+Mark a course item as completed.
+
+Example request:
+
+```json
+{
+  "courseId": "b4a362a9-5294-47f0-b90c-584e1fd54a0b",
+  "itemId": "CT_b7a30066-7f0d-4733-a9e3-f716ecb9a795"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "CT_b7a30066-7f0d-4733-a9e3-f716ecb9a795"
+}
+```
+
 ## Comments Controller
 
 1) GET api/protected/get/video/comments?video-id=<item-id>&page=<int>&page-size=<int>&sorting=<String>
@@ -929,5 +950,171 @@ Response JSON:
   "facetStats": null,
   "processingTimeMs": 0,
   "query": "DevOps"
+}
+```
+
+## Analytics Controller
+
+### 1) GET api/protected/get/learner-analytics
+
+Used to receive learner account analytics.
+
+The `loginStreak` tells the number of consecutive days the user visited the site logged in.
+
+The `activityThisMonth` array tells indicates the days user logged in.
+Three values are used (0, 1, -1) in the array and their explanation is given below:
+
+```
+0 -> Didn't log in that day (or it could also mean that that day is in the future)
+1 -> User logged in that day
+-1 -> This is usually the last day in February in non-leap years. This indicates that this day is invalid.
+```
+
+Example request: `GET api/protected/get/learner-analytics`
+
+Response JSON:
+
+```json
+{
+  "loginStreak": 1,
+  "activityThisMonth": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -1
+  ]
+}
+```
+
+### 2) GET api/protected/get/user/login-activity?year=\<int\>&month=\<int\>
+
+Used to receive learner account login activity for the specific month + year combo. You can omit the month and
+only send the year to get the login activity of that year.
+
+Example request:
+
+`GET api/protected/get/user/login-activity?year=2025&month=12`
+
+Response JSON:
+
+```json
+{
+  "activityInMonth": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+```
+
+### 2) GET api/protected/get/instructor-analytics
+
+Used to receive learner account analytics.
+
+The `loginStreak` tells the number of consecutive days the user visited the site logged in.
+
+The `activityThisMonth` array tells indicates the days user logged in.
+Three values are used (0, 1, -1) in the array and their explanation is given below:
+
+```
+0 -> Didn't log in that day (or it could also mean that that day is in the future)
+1 -> User logged in that day
+-1 -> This is usually the last day in February in non-leap years. This indicates that this day is invalid.
+```
+
+Example request: `GET api/protected/get/instructor-analytics`
+
+Response JSON:
+
+```json
+{
+  "loginStreak": 1,
+  "loginActivity": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "accountBalance": 21.0,
+  "totalCoursesSold": 5
 }
 ```

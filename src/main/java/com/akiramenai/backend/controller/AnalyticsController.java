@@ -53,7 +53,7 @@ public class AnalyticsController {
       HttpServletRequest request,
       HttpServletResponse response
   ) {
-    String userId = request.getAttribute("userId").toString();
+    UUID userId = UUID.fromString(request.getAttribute("userId").toString());
     String accountType = request.getAttribute("accountType").toString();
 
     if (!accountType.equals("Instructor")) {
@@ -61,7 +61,7 @@ public class AnalyticsController {
       return;
     }
 
-    Optional<Users> instructorUser = userService.findUserById(UUID.fromString(userId));
+    Optional<Users> instructorUser = userService.findUserById(userId);
     if (instructorUser.isEmpty()) {
       responseWriter.writeFailedResponse(response, "Failed to get instructor account details.", HttpStatus.INTERNAL_SERVER_ERROR);
       return;
@@ -73,10 +73,17 @@ public class AnalyticsController {
       return;
     }
 
+    Optional<List<Integer>> activitiesThisMonth = loginActivityService.getLoginActivityForMonth(userId, LocalDate.now());
+    if (activitiesThisMonth.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Login activity for this month not found.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
     InstructorAnalyticsResponse responseObj =
         InstructorAnalyticsResponse
             .builder()
             .loginStreak(instructorUser.get().getLoginStreak())
+            .loginActivity(activitiesThisMonth.get())
             .totalCoursesSold(currentInstructor.get().getTotalCoursesSold())
             .accountBalance(currentInstructor.get().getAccountBalance())
             .build();
@@ -180,6 +187,12 @@ public class AnalyticsController {
       HttpServletResponse response
   ) {
     UUID userId = UUID.fromString(request.getAttribute("userId").toString());
+    String accountType = request.getAttribute("accountType").toString();
+
+    if (!accountType.equals("Learner")) {
+      responseWriter.writeFailedResponse(response, "Only learners can access this API endpoint.", HttpStatus.NOT_FOUND);
+      return;
+    }
 
     Optional<Users> targetUser = userService.findUserById(userId);
     if (targetUser.isEmpty()) {
