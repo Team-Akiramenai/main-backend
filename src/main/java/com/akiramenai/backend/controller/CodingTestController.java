@@ -30,9 +30,11 @@ public class CodingTestController {
       HttpServletResponse response,
       @RequestBody AddCodingTestRequest addCodingTestRequest
   ) {
-    if (addCodingTestRequest.courseId() == null
-        || addCodingTestRequest.question() == null
-        || addCodingTestRequest.expectedStdout() == null
+    if (
+        addCodingTestRequest.courseId() == null
+            || addCodingTestRequest.question() == null
+            || addCodingTestRequest.description() == null
+            || addCodingTestRequest.expectedStdout() == null
     ) {
       responseWriter.writeFailedResponse(
           response,
