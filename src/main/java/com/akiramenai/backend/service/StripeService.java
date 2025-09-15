@@ -1,5 +1,6 @@
 package com.akiramenai.backend.service;
 
+import com.akiramenai.backend.model.PurchaseTypes;
 import org.springframework.stereotype.Service;
 
 import com.stripe.exception.StripeException;
@@ -34,9 +35,22 @@ public class StripeService {
         )
         .build();
 
+    String successRedirectUrl = null;
+    String cancelRedirectUrl = "http://localhost:3000/purchase/failure";
+    switch (stripeRequest.itemType()) {
+      case PurchaseTypes.Course -> {
+        successRedirectUrl = "http://localhost:3000/course/details/" + stripeRequest.courseId();
+        cancelRedirectUrl += "?course-id=" + stripeRequest.courseId();
+      }
+      case PurchaseTypes.Storage -> {
+        successRedirectUrl = "http://localhost:3000/profile";
+        cancelRedirectUrl += "?storage-amount=" + stripeRequest.courseId();
+      }
+    }
+
     SessionCreateParams params = SessionCreateParams.builder()
-        .setSuccessUrl("http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}")
-        .setCancelUrl("http://localhost:3000/cancel")
+        .setSuccessUrl(successRedirectUrl)
+        .setCancelUrl(cancelRedirectUrl + "&item-type=" + stripeRequest.itemType())
         .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
         .setMode(SessionCreateParams.Mode.PAYMENT)
         .addLineItem(lineItem)
