@@ -1119,3 +1119,48 @@ Response JSON:
   "totalCoursesSold": 5
 }
 ```
+
+## Transcription Controller
+
+### 1) GET api/protected/get/transcription/{video-metadata-id}
+
+Used to retrieve a video's transcription. The `Content-Type` of the file sent will be `text/vtt`.
+
+Example request: `GET api/protected/get/transcription/VM_1c52b153-b875-417b-9ba9-2ae3d61fac5d`
+
+Response VTT:
+
+```vtt
+WEBVTT
+
+NOTE
+This is from a talk Silvia gave about WebVTT.
+
+Slide 1
+00:00:00.000 --> 00:00:10.700
+Title Slide
+
+Slide 2
+00:00:10.700 --> 00:00:47.600
+Introduction by Naomi Black
+
+Slide 3
+00:00:47.600 --> 00:01:50.100
+Impact of Captions on the Web
+
+Slide 4
+00:01:50.100 --> 00:03:33.000
+Requirements of a Video text format
+
+```
+
+### 2) POST api/protected/modify/transcription/{video-metadata-id}
+
+Used to update/modify a video's VTT transcription.
+
+Example request: `POST api/protected/modify/transcription/VM_1c52b153-b875-417b-9ba9-2ae3d61fac5d`
+
+The request body will have to be in `form-data` and there will have to be a VTT file with the name `modified-vtt`
+attached to the request.
+
+HTTP response code: `HTTP 201`
