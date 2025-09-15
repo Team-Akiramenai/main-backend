@@ -103,6 +103,7 @@ public class CourseService {
         .totalStars(0L)
         .usersWhoRatedCount(0L)
         .createdAt(LocalDateTime.now())
+        .lastModifiedAt(LocalDateTime.now())
         .isPublished(false)
         .build();
 
