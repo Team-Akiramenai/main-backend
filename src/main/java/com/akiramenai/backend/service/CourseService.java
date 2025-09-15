@@ -298,6 +298,10 @@ public class CourseService {
     return targetCourse;
   }
 
+  public Optional<Long> getCourseSoldCount(UUID courseId) {
+    return purchaseRepo.countByCourseId(courseId);
+  }
+
   // Instructors can update everything except the following:
   // totalStars, usersWhoRated, createdAt, lastModifiedAt
   // Also, they can only publish a course. Once published, they can't undo it.

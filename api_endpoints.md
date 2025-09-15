@@ -173,6 +173,7 @@ Response JSON:
   ],
   "price": 4.2,
   "rating": 0.0,
+  "courseSoldCount": 1,
   "createdAt": "2025-08-23T15:27:15.355931",
   "lastModifiedAt": "2025-08-23T15:27:15.391495"
 }
@@ -1137,7 +1138,7 @@ Response JSON:
 }
 ```
 
-### 2) GET api/protected/get/instructor-analytics
+### 3) GET api/protected/get/instructor-analytics
 
 Used to receive learner account analytics.
 
@@ -1197,6 +1198,42 @@ Response JSON:
   "totalCoursesSold": 5,
   "totalAvailableStorage": 1073741824,
   "usedStorage": 109853229
+}
+```
+
+### 3) GET api/protected/get/courses-sold/in?year=\<int\>&month=\<int\>
+
+Used to retrieve the logged in instructor's number of courses sold in a given period and the revenue it generated.
+The courses sold and revenues generated is also broken down to each date for precise analytics.
+
+Usage patterns by setting different combos of URL parameters:
+
+1) If you only set the `month`, then the data for the *specified month* of the **current year** will be sent.
+1) If you only set the `year`, then the data for the *specified year* will be sent.
+1) If you set both the `month` and `year`, then the data for the *specified month* of the *specified year* will be sent.
+1) If you set none, then the data for the **current month** of the *current year* will be sent.
+
+Example request: `/api/protected/get/courses-sold/in?year=2025&month=9`
+
+Response JSON:
+
+```json
+{
+  "daysCovered": 30,
+  "startDate": "2025-09-01",
+  "endDate": "2025-09-30",
+  "datapoints": [
+    {
+      "date": "2025-09-15",
+      "coursesSold": 1,
+      "revenueGenerated": 4.2
+    },
+    {
+      "date": "2025-09-09",
+      "coursesSold": 1,
+      "revenueGenerated": 4.2
+    }
+  ]
 }
 ```
 

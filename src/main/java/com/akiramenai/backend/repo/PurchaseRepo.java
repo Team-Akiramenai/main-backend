@@ -22,6 +22,8 @@ public interface PurchaseRepo extends JpaRepository<Purchase, UUID> {
 
   long countByAuthorIdAndPurchaseTimestampBetween(UUID authorId, LocalDateTime purchaseTimestampLdtAfter, LocalDateTime purchaseTimestampLdtBefore);
 
+  Optional<Long> countByCourseId(UUID courseId);
+
   List<Purchase> findAllByAuthorIdAndPurchaseTimestampBetween(UUID authorId, LocalDateTime purchaseTimestampLdtAfter, LocalDateTime purchaseTimestampLdtBefore);
 
   List<Purchase> findAllByAuthorIdAndPurchaseDate(UUID authorId, LocalDate purchaseDate);

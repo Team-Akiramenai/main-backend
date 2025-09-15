@@ -2,6 +2,7 @@ package com.akiramenai.backend.controller;
 
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.LearnerInfosRepo;
+import com.akiramenai.backend.repo.PurchaseRepo;
 import com.akiramenai.backend.service.CourseService;
 import com.akiramenai.backend.service.MediaStorageService;
 import com.akiramenai.backend.service.UserService;
@@ -32,6 +33,7 @@ import java.util.UUID;
 @RestController
 public class CourseController {
   private final MediaStorageService mediaStorageService;
+  private final PurchaseRepo purchaseRepo;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
 
@@ -45,11 +47,12 @@ public class CourseController {
   private final LearnerInfosRepo learnerInfosRepo;
   private final CourseService courseService;
 
-  public CourseController(CourseService courseService, UserService userService, LearnerInfosRepo learnerInfosRepo, MediaStorageService mediaStorageService) {
+  public CourseController(CourseService courseService, UserService userService, LearnerInfosRepo learnerInfosRepo, MediaStorageService mediaStorageService, PurchaseRepo purchaseRepo) {
     this.courseService = courseService;
     this.userService = userService;
     this.learnerInfosRepo = learnerInfosRepo;
     this.mediaStorageService = mediaStorageService;
+    this.purchaseRepo = purchaseRepo;
   }
 
   private Sort.Direction getSortDirection(String sorting) {
@@ -78,7 +81,13 @@ public class CourseController {
       return;
     }
 
-    Optional<String> respJson = jsonSerializer.serialize(new CleanedCourse(targetCourse.get()));
+    Optional<Long> coursePurchaseCount = purchaseRepo.countByCourseId(courseUUID.get());
+    if (coursePurchaseCount.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed retrieve purchase info.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    Optional<String> respJson = jsonSerializer.serialize(new DetailedCourse(targetCourse.get(), coursePurchaseCount.get()));
     if (respJson.isEmpty()) {
       httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
       return;

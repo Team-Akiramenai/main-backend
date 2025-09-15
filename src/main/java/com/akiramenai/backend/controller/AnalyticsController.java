@@ -8,6 +8,7 @@ import com.akiramenai.backend.service.CourseService;
 import com.akiramenai.backend.service.LoginActivityService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
+import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -99,16 +100,34 @@ public class AnalyticsController {
     responseWriter.writeOkResponse(response, responseJson.get(), HttpStatus.OK);
   }
 
-
-  @GetMapping("api/protected/get/courses-sold")
+  @GetMapping("api/protected/get/courses-sold/in")
   public void getCoursesSold(
       HttpServletRequest request,
       HttpServletResponse response,
-      @RequestParam(name = "last-N-days", required = false, defaultValue = "7") int lastNDays
+
+      @RequestParam(name = "year", required = false) Optional<Integer> year,
+      @RequestParam(name = "month", required = false) Optional<Integer> month
   ) {
-    if (lastNDays <= 0) {
-      responseWriter.writeFailedResponse(response, "The number of last days must be greater than zero.", HttpStatus.BAD_REQUEST);
-      return;
+
+    LocalDateTime ldtNow = LocalDateTime.now();
+    LocalDateTime ldtStart = null;
+    LocalDateTime ldtEnd = null;
+    if (year.isEmpty() && month.isEmpty()) {
+      // data for this month
+      ldtStart = ldtNow.withDayOfMonth(1);
+      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
+    } else if (month.isEmpty()) {
+      // data for provided year
+      ldtStart = LocalDateTime.of(year.get(), 1, 1, 0, 0, 0);
+      ldtEnd = ldtStart.plusYears(1).minusDays(1);
+    } else if (year.isEmpty()) {
+      // data for provided month of this year
+      ldtStart = LocalDateTime.of(ldtNow.getYear(), month.get(), 1, 0, 0, 0);
+      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
+    } else {
+      // data of provided month of the provided year
+      ldtStart = LocalDateTime.of(year.get(), month.get(), 1, 0, 0, 0);
+      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
     }
 
     String userId = request.getAttribute("userId").toString();
@@ -119,19 +138,10 @@ public class AnalyticsController {
       return;
     }
 
-    LocalDateTime ldtNow = LocalDateTime.now();
-    LocalDateTime ldtBefore = LocalDateTime.now().minusDays(lastNDays + 1);
-
-    long coursesSoldInPeriod = purchaseRepo.countByAuthorIdAndPurchaseTimestampBetween(
-        UUID.fromString(userId),
-        ldtBefore,
-        ldtNow
-    );
-
     List<Purchase> purchasesMade = purchaseRepo.findAllByAuthorIdAndPurchaseTimestampBetween(
         UUID.fromString(userId),
-        ldtBefore,
-        ldtNow
+        ldtStart,
+        ldtEnd
     );
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -162,16 +172,16 @@ public class AnalyticsController {
     CourseAnalyticsResponse res =
         CourseAnalyticsResponse
             .builder()
-            .daysCovered(Duration.between(ldtBefore, ldtNow).toDays())
-            .startDate(ldtBefore.format(formatter))
-            .endDate(ldtNow.format(formatter))
+            .daysCovered(Duration.between(ldtStart, ldtEnd).toDays() + 1)
+            .startDate(ldtStart.format(formatter))
+            .endDate(ldtEnd.format(formatter))
             .datapoints(generatedDatapoints)
             .build();
 
     CoursesSoldResponse responseObj =
         CoursesSoldResponse
             .builder()
-            .coursesSold(coursesSoldInPeriod)
+            .coursesSold(purchasesMade.size())
             .build();
 
     Optional<String> responseJson = jsonSerializer.serialize(res);
