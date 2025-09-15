@@ -433,10 +433,10 @@ public class CourseController {
       return;
     }
 
-    ResultOrError<String, BackendOperationErrors> res = courseService.modifyTags(
+    ResultOrError<String, BackendOperationErrors> res = courseService.modifyTagsList(
         userId,
         courseId.get(),
-        modifyTagsRequest.tagsToBeModified()
+        modifyTagsRequest.modifiedTagList()
     );
     httpResponseWriter.handleDifferentResponses(httpResponse, res, HttpStatus.OK);
   }

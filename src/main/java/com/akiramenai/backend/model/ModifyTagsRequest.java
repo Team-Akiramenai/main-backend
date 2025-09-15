@@ -4,6 +4,6 @@ import java.util.List;
 
 public record ModifyTagsRequest(
     String courseId,
-    List<String> tagsToBeModified
+    List<String> modifiedTagList
 ) {
 }

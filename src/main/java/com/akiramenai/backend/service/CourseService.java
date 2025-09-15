@@ -621,7 +621,7 @@ public class CourseService {
         .build();
   }
 
-  public ResultOrError<String, BackendOperationErrors> modifyTags(UUID userId, UUID courseId, List<String> modifiedTagList) {
+  public ResultOrError<String, BackendOperationErrors> modifyTagsList(UUID userId, UUID courseId, List<String> modifiedTagList) {
     var res = ResultOrError.<String, BackendOperationErrors>builder();
     Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
     if (targetCourse.isEmpty()) {

@@ -526,6 +526,82 @@ Response JSON:
 
 In the above request, the 3 course items have been reordered in the sequence provided.
 
+### 9) POST api/protected/add/tags
+
+Use it to set tag(s) to a course.
+
+Example request:
+
+```json
+{
+  "courseId": "a213577f-a23f-4c86-aa8e-15ace1f2aa53",
+  "tagsToBeAdded": [
+    "DSA",
+    "Algo",
+    "CS",
+    "CSE"
+  ]
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "a213577f-a23f-4c86-aa8e-15ace1f2aa53"
+}
+```
+
+### 10) POST api/protected/modify/tags
+
+Use it to rename the tags or set the ordering of the tags of a course.
+
+Example request:
+
+```json
+{
+  "courseId": "a213577f-a23f-4c86-aa8e-15ace1f2aa53",
+  "modifiedTagList": [
+    "Computer Science",
+    "DSA",
+    "CompSci",
+    "CS"
+  ]
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "a213577f-a23f-4c86-aa8e-15ace1f2aa53"
+}
+```
+
+### 11) POST api/protected/delete/tags
+
+Use it to delete tag(s) of a course.
+
+Example request:
+
+```json
+{
+  "courseId": "a213577f-a23f-4c86-aa8e-15ace1f2aa53",
+  "tagsToBeDeleted": [
+    "SWE",
+    "Algo"
+  ]
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "a213577f-a23f-4c86-aa8e-15ace1f2aa53"
+}
+```
+
 ## Quiz Controller
 
 1) POST api/protected/add/quiz
