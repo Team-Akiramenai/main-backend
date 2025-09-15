@@ -92,53 +92,6 @@ public class MediaStorageService {
     }
   }
 
-  public ResultOrError<String, FileUploadErrorTypes> saveVideo(MultipartFile file) {
-    var resp = ResultOrError.<String, FileUploadErrorTypes>builder();
-    if (file.isEmpty()) {
-      return resp
-          .errorMessage("Uploaded file is empty.")
-          .errorType(FileUploadErrorTypes.FileIsEmpty)
-          .result(null)
-          .build();
-    }
-
-    try {
-      Path uploadPath = Paths.get(this.videoDirectoryString);
-      if (!Files.exists(uploadPath)) {
-        Files.createDirectories(uploadPath);
-      }
-
-      String fileName = getGeneratedFileName(file.getOriginalFilename());
-      Path filePath = uploadPath.resolve(fileName);
-      Files.copy(file.getInputStream(), filePath);
-
-      return ResultOrError
-          .<String, FileUploadErrorTypes>builder()
-          .result(filePath.toString())
-          .errorMessage(null)
-          .errorType(null)
-          .build();
-    } catch (InvalidPathException e) {
-      return resp
-          .errorMessage(e.getMessage())
-          .errorType(FileUploadErrorTypes.InvalidUploadDir)
-          .result(null)
-          .build();
-    } catch (UnsupportedOperationException e) {
-      return resp
-          .errorMessage(e.getMessage())
-          .errorType(FileUploadErrorTypes.FailedToCreateUploadDir)
-          .result(null)
-          .build();
-    } catch (IOException e) {
-      return resp
-          .errorMessage(e.getMessage())
-          .errorType(FileUploadErrorTypes.FailedToSaveFile)
-          .result(null)
-          .build();
-    }
-  }
-
   private String getFileExtension(@NotNull String filename) {
     int dotIndex = filename.lastIndexOf(".");
     if (dotIndex >= 0) {
