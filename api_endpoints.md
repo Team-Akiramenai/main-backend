@@ -230,71 +230,79 @@ Response JSON with HTTP 200 response code:
   "retrievedCourseCount": 5,
   "retrievedCourses": [
     {
-      "id": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #1",
-      "description": "Course Description #1",
-      "thumbnailImageId": null,
-      "courseItemIds": [
-        "QZ_2bb1c9a4-33ba-4cc8-983c-a1a6d41402e1",
-        "QZ_e873ef10-5e29-4c82-b70a-5572b8cfa8b4",
-        "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
-        "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
-        "QZ_ac206c1a-19ea-4a09-974c-dbf674af82ba",
-        "QZ_00505192-b460-46aa-a572-a6525996561f"
-      ],
-      "price": 4.2,
-      "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.355931",
-      "lastModifiedAt": "2025-08-23T15:27:15.391495"
-    },
-    {
-      "id": "a77c0490-650f-4412-90a1-c416486876ee",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #2",
-      "description": "Course Description #2",
-      "thumbnailImageId": null,
+      "id": "6c11c50d-78c3-4615-9f0a-099c2a0b939f",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "instructorName": "Amanda",
+      "title": "Course Title #100",
+      "description": "Course Description #100",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.399178",
-      "lastModifiedAt": "2025-08-23T15:27:15.405334"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.929306",
+      "lastModifiedAt": "2025-09-15T22:55:31.935687"
     },
     {
-      "id": "8810d20f-6261-4dc6-941a-2c1b38e4c64c",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #3",
-      "description": "Course Description #3",
-      "thumbnailImageId": null,
+      "id": "7f1c6451-a84e-433a-a71b-e40b3285cf60",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "instructorName": "Amanda",
+      "title": "Course Title #99",
+      "description": "Course Description #99",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.408870",
-      "lastModifiedAt": "2025-08-23T15:27:15.414616"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.908999",
+      "lastModifiedAt": "2025-09-15T22:55:31.913674"
     },
     {
-      "id": "fddd945f-e136-4906-92fb-517e84218075",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #4",
-      "description": "Course Description #4",
-      "thumbnailImageId": null,
+      "id": "93e1caab-86d3-4a19-bf40-4b328b44f86f",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "instructorName": "Amanda",
+      "title": "Course Title #98",
+      "description": "Course Description #98",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.417930",
-      "lastModifiedAt": "2025-08-23T15:27:15.423536"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.893885",
+      "lastModifiedAt": "2025-09-15T22:55:31.898259"
     },
     {
-      "id": "659d9734-c0bc-46c4-9571-1d562fcfd9d1",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #5",
-      "description": "Course Description #5",
-      "thumbnailImageId": null,
+      "id": "004e9bdb-03e6-492f-b0aa-97046b9581bd",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "instructorName": "Amanda",
+      "title": "Course Title #97",
+      "description": "Course Description #97",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.426569",
-      "lastModifiedAt": "2025-08-23T15:27:15.432221"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.878225",
+      "lastModifiedAt": "2025-09-15T22:55:31.882930"
+    },
+    {
+      "id": "af2727be-6c8a-4537-b4d2-6dea9a154124",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "instructorName": "Amanda",
+      "title": "Course Title #96",
+      "description": "Course Description #96",
+      "thumbnailImageName": null,
+      "tags": [],
+      "courseItemIds": [],
+      "price": 4.2,
+      "rating": 0.0,
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.859383",
+      "lastModifiedAt": "2025-09-15T22:55:31.866478"
     }
   ],
   "pageNumber": 0,
@@ -326,71 +334,79 @@ Response JSON with HTTP 200 response:
   "retrievedCourseCount": 5,
   "retrievedCourses": [
     {
-      "id": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #1",
-      "description": "Course Description #1",
-      "thumbnailImageId": null,
-      "courseItemIds": [
-        "QZ_2bb1c9a4-33ba-4cc8-983c-a1a6d41402e1",
-        "QZ_e873ef10-5e29-4c82-b70a-5572b8cfa8b4",
-        "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
-        "CT_26cc5297-4aa4-4a6c-b179-b8563df21766",
-        "QZ_ac206c1a-19ea-4a09-974c-dbf674af82ba",
-        "QZ_00505192-b460-46aa-a572-a6525996561f"
-      ],
-      "price": 4.2,
-      "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.355931",
-      "lastModifiedAt": "2025-08-23T15:27:15.391495"
-    },
-    {
-      "id": "a77c0490-650f-4412-90a1-c416486876ee",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #2",
-      "description": "Course Description #2",
-      "thumbnailImageId": null,
+      "id": "6c11c50d-78c3-4615-9f0a-099c2a0b939f",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "title": "Course Title #100",
+      "description": "Course Description #100",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.399178",
-      "lastModifiedAt": "2025-08-23T15:27:15.405334"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.929306",
+      "lastModifiedAt": "2025-09-15T22:55:31.935687",
+      "isPublished": true
     },
     {
-      "id": "8810d20f-6261-4dc6-941a-2c1b38e4c64c",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #3",
-      "description": "Course Description #3",
-      "thumbnailImageId": null,
+      "id": "7f1c6451-a84e-433a-a71b-e40b3285cf60",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "title": "Course Title #99",
+      "description": "Course Description #99",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.408870",
-      "lastModifiedAt": "2025-08-23T15:27:15.414616"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.908999",
+      "lastModifiedAt": "2025-09-15T22:55:31.913674",
+      "isPublished": true
     },
     {
-      "id": "fddd945f-e136-4906-92fb-517e84218075",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #4",
-      "description": "Course Description #4",
-      "thumbnailImageId": null,
+      "id": "93e1caab-86d3-4a19-bf40-4b328b44f86f",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "title": "Course Title #98",
+      "description": "Course Description #98",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.417930",
-      "lastModifiedAt": "2025-08-23T15:27:15.423536"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.893885",
+      "lastModifiedAt": "2025-09-15T22:55:31.898259",
+      "isPublished": true
     },
     {
-      "id": "659d9734-c0bc-46c4-9571-1d562fcfd9d1",
-      "instructorId": "3cea4e37-7421-4c12-aca2-e4dd55e92608",
-      "title": "Course Title #5",
-      "description": "Course Description #5",
-      "thumbnailImageId": null,
+      "id": "004e9bdb-03e6-492f-b0aa-97046b9581bd",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "title": "Course Title #97",
+      "description": "Course Description #97",
+      "thumbnailImageName": null,
+      "tags": [],
       "courseItemIds": [],
       "price": 4.2,
       "rating": 0.0,
-      "createdAt": "2025-08-23T15:27:15.426569",
-      "lastModifiedAt": "2025-08-23T15:27:15.432221"
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.878225",
+      "lastModifiedAt": "2025-09-15T22:55:31.882930",
+      "isPublished": true
+    },
+    {
+      "id": "af2727be-6c8a-4537-b4d2-6dea9a154124",
+      "instructorId": "4ca01da0-4010-42b7-9f0e-a1ca354397ef",
+      "title": "Course Title #96",
+      "description": "Course Description #96",
+      "thumbnailImageName": null,
+      "tags": [],
+      "courseItemIds": [],
+      "price": 4.2,
+      "rating": 0.0,
+      "voterCount": 0,
+      "createdAt": "2025-09-15T22:55:31.859383",
+      "lastModifiedAt": "2025-09-15T22:55:31.866478",
+      "isPublished": true
     }
   ],
   "pageNumber": 0,
@@ -1003,31 +1019,34 @@ This endpoint can be used to search for courses. The search is done over the cou
 
 Also, the `page-number` uses 1-based indexing.
 
-Example request: GET api/public/search/courses?query=DevOps&page-size=1&page-number=2
+Example request: GET api/public/search/courses?query=course&page-size=1&page-number=1
 
 Response JSON:
 
 ```json
 {
-  "totalHits": 2,
+  "totalHits": 100,
   "hitsPerPage": 1,
-  "page": 2,
-  "totalPages": 2,
+  "page": 1,
+  "totalPages": 100,
   "hits": [
     {
-      "id": "3",
-      "title": "Kubernetes - Beginner to Advanced",
-      "tags": [
-        "K8s",
-        "DevOps",
-        "SRE"
-      ]
+      "createdAt": "2025-09-15T22:55:29.893193030",
+      "lastModifiedAt": "2025-09-15T22:55:29.929018872",
+      "instructor": "Amanda",
+      "price": 4.2,
+      "voterCount": 0.0,
+      "rating": "0.0",
+      "description": "Course Description #1",
+      "id": "ba3d007f-eb4e-47ef-b6b5-13de68276a4f",
+      "title": "Course Title #1",
+      "tags": []
     }
   ],
   "facetDistribution": null,
   "facetStats": null,
   "processingTimeMs": 0,
-  "query": "DevOps"
+  "query": "course"
 }
 ```
 
