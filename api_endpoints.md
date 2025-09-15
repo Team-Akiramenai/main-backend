@@ -1201,7 +1201,7 @@ Response JSON:
 }
 ```
 
-### 3) GET api/protected/get/courses-sold/in?year=\<int\>&month=\<int\>
+### 4) GET api/protected/get/courses-sold/in?year=\<int\>&month=\<int\>
 
 Used to retrieve the logged in instructor's number of courses sold in a given period and the revenue it generated.
 The courses sold and revenues generated is also broken down to each date for precise analytics.
@@ -1209,9 +1209,9 @@ The courses sold and revenues generated is also broken down to each date for pre
 Usage patterns by setting different combos of URL parameters:
 
 1) If you only set the `month`, then the data for the *specified month* of the **current year** will be sent.
-1) If you only set the `year`, then the data for the *specified year* will be sent.
-1) If you set both the `month` and `year`, then the data for the *specified month* of the *specified year* will be sent.
-1) If you set none, then the data for the **current month** of the *current year* will be sent.
+2) If you only set the `year`, then the data for the *specified year* will be sent.
+3) If you set both the `month` and `year`, then the data for the *specified month* of the *specified year* will be sent.
+4) If you set none, then the data for the **current month** of the *current year* will be sent.
 
 Example request: `/api/protected/get/courses-sold/in?year=2025&month=9`
 
@@ -1235,6 +1235,43 @@ Response JSON:
     }
   ]
 }
+```
+
+### 5) GET api/protected/get/completed-items/analytics/in?item-type=\<string\>
+
+Used to retrieve the learner's completed course items. The values of `item-type` corresponds to the available
+course items and can have the values: `Video`, `Quiz`, `CodingTest` and `TerminalTest`.
+
+Usage patterns for setting different combos of URL parameters for `year` and `month`:
+
+1) If you only set the `month`, then the data for the *specified month* of the **current year** will be sent.
+2) If you only set the `year`, then the data for the *specified year* will be sent.
+3) If you set both the `month` and `year`, then the data for the *specified month* of the *specified year* will be sent.
+4) If you set none, then the data for the **current month** of the *current year* will be sent.
+
+Example request:
+
+```
+GET api/protected/get/completed-items/analytics?item-type=Quiz&year=2025&month=9
+```
+
+Response JSON:
+
+```json
+[
+  {
+    "associatedCourseId": "e73ba38b-d3c1-46fd-baf2-8e8bb97f90c2",
+    "itemId": "QZ_d2046dbe-f9c4-44e3-a805-9c100fdb7a7d",
+    "itemType": "Quiz",
+    "completedAt": "2025-09-15"
+  },
+  {
+    "associatedCourseId": "f88cxibb-d3c1-46fd-baf2-8e9az97f9fas",
+    "itemId": "QZ_d3v2f6dbd-f9c4-44e3-a805-9c100fdbcxibb",
+    "itemType": "Quiz",
+    "completedAt": "2025-09-10"
+  }
+]
 ```
 
 ## Transcription Controller

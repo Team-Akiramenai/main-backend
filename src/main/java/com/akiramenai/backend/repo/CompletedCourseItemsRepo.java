@@ -14,5 +14,12 @@ import java.util.UUID;
 public interface CompletedCourseItemsRepo extends JpaRepository<CompletedCourseItems, UUID> {
   Optional<List<CompletedCourseItems>> findCompletedCourseItemsByLearnerIdAndItemType(UUID learnerId, CourseItems itemType);
 
+  Optional<List<CompletedCourseItems>> findCompletedCourseItemsByLearnerIdAndItemTypeAndCompletedAtBetween(
+      UUID learnerId,
+      CourseItems itemType,
+      LocalDate completedAtAfter,
+      LocalDate completedAtBefore
+  );
+
   boolean existsByLearnerIdAndItemId(UUID learnerId, String itemId);
 }

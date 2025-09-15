@@ -52,6 +52,34 @@ public class AnalyticsController {
     this.completedCourseItemsRepo = completedCourseItemsRepo;
   }
 
+  private record DateRange(LocalDateTime start, LocalDateTime end) {
+  }
+
+  private DateRange getDateRange(Optional<Integer> year, Optional<Integer> month) {
+    LocalDateTime ldtNow = LocalDateTime.now();
+    LocalDateTime ldtStart = null;
+    LocalDateTime ldtEnd = null;
+    if (year.isEmpty() && month.isEmpty()) {
+      // data for this month
+      ldtStart = ldtNow.withDayOfMonth(1);
+      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
+    } else if (month.isEmpty()) {
+      // data for provided year
+      ldtStart = LocalDateTime.of(year.get(), 1, 1, 0, 0, 0);
+      ldtEnd = ldtStart.plusYears(1).minusDays(1);
+    } else if (year.isEmpty()) {
+      // data for provided month of this year
+      ldtStart = LocalDateTime.of(ldtNow.getYear(), month.get(), 1, 0, 0, 0);
+      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
+    } else {
+      // data of provided month of the provided year
+      ldtStart = LocalDateTime.of(year.get(), month.get(), 1, 0, 0, 0);
+      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
+    }
+
+    return new DateRange(ldtStart, ldtEnd);
+  }
+
   @GetMapping("api/protected/get/instructor-analytics")
   public void getInstructorAnalytics(
       HttpServletRequest request,
@@ -112,26 +140,7 @@ public class AnalyticsController {
       @RequestParam(name = "month", required = false) Optional<Integer> month
   ) {
 
-    LocalDateTime ldtNow = LocalDateTime.now();
-    LocalDateTime ldtStart = null;
-    LocalDateTime ldtEnd = null;
-    if (year.isEmpty() && month.isEmpty()) {
-      // data for this month
-      ldtStart = ldtNow.withDayOfMonth(1);
-      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
-    } else if (month.isEmpty()) {
-      // data for provided year
-      ldtStart = LocalDateTime.of(year.get(), 1, 1, 0, 0, 0);
-      ldtEnd = ldtStart.plusYears(1).minusDays(1);
-    } else if (year.isEmpty()) {
-      // data for provided month of this year
-      ldtStart = LocalDateTime.of(ldtNow.getYear(), month.get(), 1, 0, 0, 0);
-      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
-    } else {
-      // data of provided month of the provided year
-      ldtStart = LocalDateTime.of(year.get(), month.get(), 1, 0, 0, 0);
-      ldtEnd = ldtStart.plusMonths(1).minusDays(1);
-    }
+    DateRange dateRange = getDateRange(year, month);
 
     String userId = request.getAttribute("userId").toString();
     String accountType = request.getAttribute("accountType").toString();
@@ -143,8 +152,8 @@ public class AnalyticsController {
 
     List<Purchase> purchasesMade = purchaseRepo.findAllByAuthorIdAndPurchaseTimestampBetween(
         UUID.fromString(userId),
-        ldtStart,
-        ldtEnd
+        dateRange.start,
+        dateRange.end
     );
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -175,9 +184,9 @@ public class AnalyticsController {
     CourseAnalyticsResponse res =
         CourseAnalyticsResponse
             .builder()
-            .daysCovered(Duration.between(ldtStart, ldtEnd).toDays() + 1)
-            .startDate(ldtStart.format(formatter))
-            .endDate(ldtEnd.format(formatter))
+            .daysCovered(Duration.between(dateRange.start, dateRange.end).toDays() + 1)
+            .startDate(dateRange.start.format(formatter))
+            .endDate(dateRange.end.format(formatter))
             .datapoints(generatedDatapoints)
             .build();
 
@@ -280,7 +289,9 @@ public class AnalyticsController {
       HttpServletRequest request,
       HttpServletResponse response,
 
-      @RequestParam(name = "item-type", required = true) String itemType
+      @RequestParam(name = "item-type", required = true) String itemType,
+      @RequestParam(name = "year", required = false) Optional<Integer> year,
+      @RequestParam(name = "month", required = false) Optional<Integer> month
   ) {
     UUID userId = UUID.fromString(request.getAttribute("userId").toString());
     String accountType = request.getAttribute("accountType").toString();
@@ -288,6 +299,8 @@ public class AnalyticsController {
       responseWriter.writeFailedResponse(response, "Only learners can access this API endpoint.", HttpStatus.NOT_FOUND);
       return;
     }
+
+    DateRange dateRange = getDateRange(year, month);
 
     CourseItems requestCourseItem;
     try {
@@ -301,9 +314,11 @@ public class AnalyticsController {
     }
 
     Optional<List<CompletedCourseItems>> completedItems =
-        completedCourseItemsRepo.findCompletedCourseItemsByLearnerIdAndItemType(
+        completedCourseItemsRepo.findCompletedCourseItemsByLearnerIdAndItemTypeAndCompletedAtBetween(
             userId,
-            requestCourseItem
+            requestCourseItem,
+            dateRange.start.toLocalDate(),
+            dateRange.end.toLocalDate()
         );
     if (completedItems.isEmpty()) {
       responseWriter.writeFailedResponse(response, "Failed to retrieve completed items.", HttpStatus.INTERNAL_SERVER_ERROR);
