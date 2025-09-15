@@ -487,7 +487,8 @@ public class CourseService {
       return paginatedCourses.build();
     }
 
-    Page<Course> page = courseRepo.findAll(
+    Page<Course> page = courseRepo.findAllByIsPublished(
+        false,
         PageRequest.of(pageNumber, N, Sort.by(sorting, "createdAt"))
     );
 

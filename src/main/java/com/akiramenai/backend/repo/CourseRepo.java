@@ -15,6 +15,8 @@ import java.util.UUID;
 public interface CourseRepo extends JpaRepository<Course, UUID> {
   Optional<Course> findCourseById(UUID id);
 
+  Page<Course> findAllByIsPublished(Boolean isPublished, Pageable pageable);
+
   Page<Course> findAllByInstructorId(UUID instructorId, Pageable pageable);
 
   Page<Course> findCourseById(UUID instructorId, Pageable pageable);
