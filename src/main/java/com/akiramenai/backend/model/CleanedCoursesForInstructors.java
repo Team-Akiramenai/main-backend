@@ -16,6 +16,7 @@ public record CleanedCoursesForInstructors(
     List<String> courseItemIds,
     double price,
     double rating,
+    long voterCount,
     String createdAt,
     String lastModifiedAt,
     boolean isPublished
@@ -34,6 +35,7 @@ public record CleanedCoursesForInstructors(
             ? (double) course.getTotalStars() / (double) course.getUsersWhoRatedCount()
             : 0.0
         ),
+        course.getUsersWhoRatedCount(),
         course.getCreatedAt().toString(),
         course.getLastModifiedAt().toString(),
         course.getIsPublished()

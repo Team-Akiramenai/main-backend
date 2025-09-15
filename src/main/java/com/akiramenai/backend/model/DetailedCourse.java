@@ -18,6 +18,7 @@ public record DetailedCourse(
     List<String> courseItemIds,
     double price,
     double rating,
+    long voterCount,
     long courseSoldCount,
     String createdAt,
     String lastModifiedAt
@@ -37,6 +38,7 @@ public record DetailedCourse(
             ? (double) course.getTotalStars() / (double) course.getUsersWhoRatedCount()
             : 0.0
         ),
+        course.getUsersWhoRatedCount(),
         courseSoldCount,
         course.getCreatedAt().toString(),
         course.getLastModifiedAt().toString()
