@@ -327,6 +327,9 @@ public class CourseService {
     courseToBeModified.get().setLastModifiedAt(LocalDateTime.now());
 
     courseRepo.save(courseToBeModified.get());
+
+    meiliService.updateCourseInDocument(courseToBeModified.get());
+
     return Optional.empty();
   }
 
@@ -357,6 +360,8 @@ public class CourseService {
     courseToBeModified.get().setLastModifiedAt(LocalDateTime.now());
     meiliService.updateCourseInDocument(courseToBeModified.get());
     courseRepo.save(courseToBeModified.get());
+
+    meiliService.updateCourseInDocument(courseToBeModified.get());
 
     return res
         .result(true)
@@ -461,6 +466,8 @@ public class CourseService {
     courseToBeReviewed.get().setUsersWhoRatedCount(courseToBeReviewed.get().getUsersWhoRatedCount() + 1);
     courseToBeReviewed.get().setLastModifiedAt(LocalDateTime.now());
     courseRepo.save(courseToBeReviewed.get());
+
+    meiliService.updateCourseInDocument(courseToBeReviewed.get());
 
     return invalidReason;
   }
