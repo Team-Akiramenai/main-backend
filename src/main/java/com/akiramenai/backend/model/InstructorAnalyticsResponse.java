@@ -9,6 +9,8 @@ public record InstructorAnalyticsResponse(
     int loginStreak,
     List<Integer> loginActivity,
     double accountBalance,
-    long totalCoursesSold
+    long totalCoursesSold,
+    long totalAvailableStorage,
+    long usedStorage
 ) {
 }

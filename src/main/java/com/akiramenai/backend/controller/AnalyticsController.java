@@ -86,6 +86,8 @@ public class AnalyticsController {
             .loginActivity(activitiesThisMonth.get())
             .totalCoursesSold(currentInstructor.get().getTotalCoursesSold())
             .accountBalance(currentInstructor.get().getAccountBalance())
+            .totalAvailableStorage(instructorUser.get().getTotalStorageInBytes())
+            .usedStorage(instructorUser.get().getUsedStorageInBytes())
             .build();
 
     Optional<String> responseJson = jsonSerializer.serialize(responseObj);

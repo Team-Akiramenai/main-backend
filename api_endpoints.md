@@ -1065,6 +1065,8 @@ Response JSON:
 
 Used to receive learner account analytics.
 
+The storage related fields (`totalAvailableStorage` and `usedStorage`) are given in bytes.
+
 The `loginStreak` tells the number of consecutive days the user visited the site logged in.
 
 The `activityThisMonth` array tells indicates the days user logged in.
@@ -1116,7 +1118,9 @@ Response JSON:
     0
   ],
   "accountBalance": 21.0,
-  "totalCoursesSold": 5
+  "totalCoursesSold": 5,
+  "totalAvailableStorage": 1073741824,
+  "usedStorage": 109853229
 }
 ```
 
