@@ -6,7 +6,6 @@ import com.meilisearch.sdk.Config;
 import com.meilisearch.sdk.Index;
 import com.meilisearch.sdk.SearchRequest;
 import com.meilisearch.sdk.model.SearchResultPaginated;
-import com.meilisearch.sdk.model.TaskInfo;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -53,7 +52,7 @@ public class MeiliService {
         .put("rating", truncatedRating)
         .put("createdAt", course.getCreatedAt())
         .put("lastModifiedAt", course.getLastModifiedAt())
-        .put("tags", new JSONArray("[\"CS\", \"Computer Science\"]"));
+        .put("tags", new JSONArray(course.getTags()));
 
     if (instructorName != null) {
       toAdd.put("instructor", instructorName);

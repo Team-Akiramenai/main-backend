@@ -43,6 +43,10 @@ public class Course {
 
   private String thumbnailImageName;
 
+  @NotNull
+  private List<String> tags;
+
+  @NotNull
   private List<String> courseItemIds;
 
   @DecimalMin("1.0")
@@ -58,11 +62,10 @@ public class Course {
   private Long usersWhoRatedCount;
 
   @CreatedDate
-  @Column(nullable = false, updatable = false)
+  @Column(updatable = false)
   private LocalDateTime createdAt;
 
   @LastModifiedDate
-  @Column(nullable = false)
   private LocalDateTime lastModifiedAt;
 
   @ColumnDefault("false")

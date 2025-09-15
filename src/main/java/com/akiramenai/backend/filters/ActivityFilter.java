@@ -47,7 +47,7 @@ public class ActivityFilter extends OncePerRequestFilter {
     UUID userID = UUID.fromString(userIdStr.toString());
     Optional<Users> targetUser = userService.findUserById(userID);
     if (targetUser.isEmpty()) {
-      log.error("Invalid user ID provided. User with ID `{}` not found.", userID);
+      log.warn("Invalid user ID provided. User with ID `{}` not found.", userID);
       filterChain.doFilter(request, response);
       return;
     }

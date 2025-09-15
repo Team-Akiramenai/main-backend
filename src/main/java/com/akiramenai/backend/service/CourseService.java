@@ -91,19 +91,18 @@ public class CourseService {
           .build();
     }
 
-    LocalDateTime ldtNow = LocalDateTime.now();
     Course courseToAdd = Course
         .builder()
         .instructorId(currentUserId)
         .title(addCourseRequest.title().trim())
         .description(addCourseRequest.description().trim())
         .thumbnailImageName(null)
+        .tags(new ArrayList<>())
         .courseItemIds(new ArrayList<>())
         .price(addCourseRequest.price())
         .totalStars(0L)
         .usersWhoRatedCount(0L)
-        .createdAt(ldtNow)
-        .lastModifiedAt(ldtNow)
+        .createdAt(LocalDateTime.now())
         .isPublished(false)
         .build();
 
@@ -577,5 +576,134 @@ public class CourseService {
         .totalPaginatedPages(userPurchases.getTotalPages());
 
     return paginatedCourses.build();
+  }
+
+  public ResultOrError<String, BackendOperationErrors> addTags(UUID userId, UUID courseId, List<String> tagsToAdd) {
+    var res = ResultOrError.<String, BackendOperationErrors>builder();
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
+    if (targetCourse.isEmpty()) {
+      return res
+          .errorMessage("Course not found.")
+          .errorType(BackendOperationErrors.CourseNotFound)
+          .build();
+    }
+
+    Optional<Users> targetUser = userService.findUserById(userId);
+    if (targetUser.isEmpty()) {
+      return res
+          .errorMessage("User not found.")
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .build();
+    }
+
+    if (!targetCourse.get().getInstructorId().equals(userId)) {
+      return res
+          .errorMessage("Failed to add tag(s). Can't add tag(s) to a course that isn't yours.")
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
+          .build();
+    }
+
+    targetCourse.get().getTags().addAll(tagsToAdd);
+    courseRepo.save(targetCourse.get());
+    meiliService.updateCourseInDocument(targetCourse.get());
+
+    ItemId resp = new ItemId(courseId.toString());
+    Optional<String> respJson = jsonSerializer.serialize(resp);
+    if (respJson.isEmpty()) {
+      return res
+          .errorMessage("Failed to serialize JSON response.")
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
+          .build();
+    }
+
+    return res
+        .result(respJson.get())
+        .build();
+  }
+
+  public ResultOrError<String, BackendOperationErrors> modifyTags(UUID userId, UUID courseId, List<String> modifiedTagList) {
+    var res = ResultOrError.<String, BackendOperationErrors>builder();
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
+    if (targetCourse.isEmpty()) {
+      return res
+          .errorMessage("Course not found.")
+          .errorType(BackendOperationErrors.CourseNotFound)
+          .build();
+    }
+
+    Optional<Users> targetUser = userService.findUserById(userId);
+    if (targetUser.isEmpty()) {
+      return res
+          .errorMessage("User not found.")
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .build();
+    }
+
+    if (!targetCourse.get().getInstructorId().equals(userId)) {
+      return res
+          .errorMessage("Failed to modify the tag(s). Can't modify the tag(s) of a course that isn't yours.")
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
+          .build();
+    }
+
+    targetCourse.get().setTags(modifiedTagList);
+    courseRepo.save(targetCourse.get());
+    meiliService.updateCourseInDocument(targetCourse.get());
+
+    ItemId resp = new ItemId(courseId.toString());
+    Optional<String> respJson = jsonSerializer.serialize(resp);
+    if (respJson.isEmpty()) {
+      return res
+          .errorMessage("Failed to serialize JSON response.")
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
+          .build();
+    }
+
+    return res
+        .result(respJson.get())
+        .build();
+  }
+
+  public ResultOrError<String, BackendOperationErrors> deleteTags(UUID userId, UUID courseId, List<String> tagsToDelete) {
+    var res = ResultOrError.<String, BackendOperationErrors>builder();
+    Optional<Course> targetCourse = courseRepo.findCourseById(courseId);
+    if (targetCourse.isEmpty()) {
+      return res
+          .errorMessage("Course not found.")
+          .errorType(BackendOperationErrors.CourseNotFound)
+          .build();
+    }
+
+    Optional<Users> targetUser = userService.findUserById(userId);
+    if (targetUser.isEmpty()) {
+      return res
+          .errorMessage("User not found.")
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .build();
+    }
+
+    if (!targetCourse.get().getInstructorId().equals(userId)) {
+      return res
+          .errorMessage("Failed to delete the tag(s). Can't delete the tag(s) of a course that isn't yours.")
+          .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
+          .build();
+    }
+
+    targetCourse.get().getTags().removeAll(tagsToDelete);
+    courseRepo.save(targetCourse.get());
+    meiliService.updateCourseInDocument(targetCourse.get());
+
+    ItemId resp = new ItemId(courseId.toString());
+    Optional<String> respJson = jsonSerializer.serialize(resp);
+    if (respJson.isEmpty()) {
+      return res
+          .errorMessage("Failed to serialize JSON response.")
+          .errorType(BackendOperationErrors.FailedToSerializeJson)
+          .build();
+    }
+
+    return res
+        .result(respJson.get())
+        .build();
   }
 }

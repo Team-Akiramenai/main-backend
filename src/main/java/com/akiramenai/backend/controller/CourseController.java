@@ -393,4 +393,75 @@ public class CourseController {
                 .body("Course rated successfully")
         );
   }
+
+  @PostMapping("api/protected/add/tags")
+  public void addTags(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+
+      @RequestBody AddTagsRequest addTagsRequest
+  ) {
+    UUID userId = UUID.fromString(httpRequest.getAttribute("userId").toString());
+
+    Optional<UUID> courseId = IdParser.parseId(addTagsRequest.courseId());
+    if (courseId.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid courseId provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    ResultOrError<String, BackendOperationErrors> res = courseService.addTags(
+        userId,
+        courseId.get(),
+        addTagsRequest.tagsToBeAdded()
+    );
+    httpResponseWriter.handleDifferentResponses(httpResponse, res, HttpStatus.CREATED);
+  }
+
+
+  @PostMapping("api/protected/modify/tags")
+  public void modifyTags(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+
+      @RequestBody ModifyTagsRequest modifyTagsRequest
+  ) {
+    UUID userId = UUID.fromString(httpRequest.getAttribute("userId").toString());
+
+    Optional<UUID> courseId = IdParser.parseId(modifyTagsRequest.courseId());
+    if (courseId.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid courseId provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    ResultOrError<String, BackendOperationErrors> res = courseService.modifyTags(
+        userId,
+        courseId.get(),
+        modifyTagsRequest.tagsToBeModified()
+    );
+    httpResponseWriter.handleDifferentResponses(httpResponse, res, HttpStatus.OK);
+  }
+
+
+  @PostMapping("api/protected/delete/tags")
+  public void deleteTags(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+
+      @RequestBody DeleteTagsRequest deleteTagsRequest
+  ) {
+    UUID userId = UUID.fromString(httpRequest.getAttribute("userId").toString());
+
+    Optional<UUID> courseId = IdParser.parseId(deleteTagsRequest.courseId());
+    if (courseId.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid courseId provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    ResultOrError<String, BackendOperationErrors> res = courseService.deleteTags(
+        userId,
+        courseId.get(),
+        deleteTagsRequest.tagsToBeDeleted()
+    );
+    httpResponseWriter.handleDifferentResponses(httpResponse, res, HttpStatus.OK);
+  }
 }

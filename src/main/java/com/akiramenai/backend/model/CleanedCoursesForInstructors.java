@@ -12,6 +12,7 @@ public record CleanedCoursesForInstructors(
     String title,
     String description,
     String thumbnailImageName,
+    List<String> tags,
     List<String> courseItemIds,
     double price,
     double rating,
@@ -26,6 +27,7 @@ public record CleanedCoursesForInstructors(
         course.getTitle(),
         course.getDescription(),
         course.getThumbnailImageName(),
+        course.getTags(),
         course.getCourseItemIds(),
         course.getPrice(),
         (course.getUsersWhoRatedCount() > 0L
