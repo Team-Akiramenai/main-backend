@@ -50,6 +50,7 @@ public class MeiliService {
         .put("thumbnailImageName", course.getThumbnailImageName())
         .put("price", course.getPrice())
         .put("rating", truncatedRating)
+        .put("voterCount", course.getUsersWhoRatedCount())
         .put("createdAt", course.getCreatedAt())
         .put("lastModifiedAt", course.getLastModifiedAt())
         .put("tags", new JSONArray(course.getTags()));
