@@ -3,34 +3,54 @@ package com.akiramenai.backend.controller;
 
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.*;
+import com.akiramenai.backend.service.MediaStorageService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
+import com.akiramenai.backend.utility.VttHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.akiramenai.backend.model.FileUploadErrorTypes.*;
+
+@Slf4j
 @RestController
 @RequestMapping("api/protected")
 public class CourseItemController {
+  private final MediaStorageService mediaStorageService;
+  HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
+  JsonSerializer jsonSerializer = new JsonSerializer();
+
+  @Value("${application.default-values.media.subtitles-directory}")
+  private String subtitlesDirectory;
+
   private final QuizRepo quizRepo;
   private final VideoMetadataRepo videoMetadataRepo;
   private final CodingTestRepo codingTestRepo;
   private final LearnerInfosRepo learnerInfosRepo;
   private final CompletedCourseItemsRepo completedCourseItemsRepo;
-  HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
-  JsonSerializer jsonSerializer = new JsonSerializer();
 
-  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo) {
+  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, MediaStorageService mediaStorageService) {
     this.quizRepo = quizRepo;
     this.videoMetadataRepo = videoMetadataRepo;
     this.codingTestRepo = codingTestRepo;
     this.learnerInfosRepo = learnerInfosRepo;
     this.completedCourseItemsRepo = completedCourseItemsRepo;
+    this.mediaStorageService = mediaStorageService;
   }
 
   @GetMapping("get/course-item")
@@ -165,5 +185,110 @@ public class CourseItemController {
         .build();
     completedCourseItemsRepo.save(completedItem);
     httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.CREATED);
+  }
+
+
+  @GetMapping("get/transcription/{video-metadata-id}")
+  public void getTranscription(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+
+      @PathVariable(name = "video-metadata-id") String videoMetadataId
+  ) {
+    Optional<ParsedItemInfo> parsedItemInfo = IdParser.parseItemId(videoMetadataId);
+    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.Video) {
+      httpResponseWriter.writeFailedResponse(
+          httpResponse,
+          "Failed to parse videoMetadataId. Invalid videoMetadataId provided.",
+          HttpStatus.BAD_REQUEST
+      );
+      return;
+    }
+
+    Optional<VideoMetadata> videoMetadata = videoMetadataRepo.findVideoMetadataByItemId(videoMetadataId);
+    if (videoMetadata.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find videoMetadata.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    Path transcriptionFilePath = Paths.get(
+        //subtitlesDirectory,
+        videoMetadata.get().getSubtitleFileName()
+    );
+    try {
+      InputStream inputStream = new FileInputStream(transcriptionFilePath.toFile());
+      httpResponse.setContentType("text/vtt");
+      httpResponse.setStatus(HttpStatus.OK.value());
+      StreamUtils.copy(inputStream, httpResponse.getOutputStream());
+    } catch (Exception e) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to read transcription file.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+  }
+
+  @PostMapping("modify/transcription/{video-metadata-id}")
+  public void modifyTranscription(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+
+      @PathVariable(name = "video-metadata-id") String videoMetadataItemId,
+      @RequestParam(name = "modified-vtt") MultipartFile modifiedVtt
+  ) {
+    Optional<ParsedItemInfo> videoMetadataId = IdParser.parseItemId(videoMetadataItemId);
+    if (videoMetadataId.isEmpty() || videoMetadataId.get().itemType() != CourseItems.Video) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid videoMetadataId provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    Optional<VideoMetadata> targetVM = videoMetadataRepo.findVideoMetadataByItemId(videoMetadataItemId);
+    if (targetVM.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find videoMetadata.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    if (modifiedVtt == null || modifiedVtt.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid VTT file provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    ResultOrError<Path, FileUploadErrorTypes> savedVttPath = mediaStorageService.saveVtt(modifiedVtt);
+    if (savedVttPath.errorType() != null) {
+      switch (savedVttPath.errorType()) {
+        case UnsupportedFileType, FileIsEmpty -> {
+          httpResponseWriter.writeFailedResponse(httpResponse, savedVttPath.errorMessage(), HttpStatus.BAD_REQUEST);
+          return;
+        }
+        case InvalidUploadDir, FailedToCreateUploadDir, FailedToSaveFile -> {
+          httpResponseWriter.writeFailedResponse(httpResponse, savedVttPath.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+          return;
+        }
+      }
+    }
+
+    // check if it is a valid VTT file
+    VttValidationResult validationResult = VttHelper.validateVttFile(savedVttPath.result().toAbsolutePath().toString());
+    // if it isn't, then reject it and delete the temp vtt file
+    if (!validationResult.isValid()) {
+      if (!savedVttPath.result().toFile().delete()) {
+        log.warn("Failed to delete temp VTT file: {}", savedVttPath.result().toAbsolutePath().toString());
+      }
+      httpResponseWriter.writeFailedResponse(httpResponse, "Invalid VTT file provided.", HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    // if it is, then delete the old vtt file and rename the temp vtt file to the real filename
+    File oldVttFile = new File(targetVM.get().getSubtitleFileName());
+    if (!oldVttFile.delete()) {
+      log.warn("Failed to delete temp VTT file: {}", oldVttFile.getAbsolutePath());
+    }
+    boolean isRenamed = savedVttPath.result().toFile().renameTo(oldVttFile);
+    if (!isRenamed) {
+      log.error("Failed to rename temp VTT file: {}", savedVttPath.result().toAbsolutePath().toString());
+
+      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to save the modified VTT file.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    httpResponseWriter.writeOkResponse(httpResponse, "Modified the VTT file.", HttpStatus.CREATED);
   }
 }
