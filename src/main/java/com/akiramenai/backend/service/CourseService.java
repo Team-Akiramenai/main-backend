@@ -488,7 +488,7 @@ public class CourseService {
     }
 
     Page<Course> page = courseRepo.findAllByIsPublished(
-        false,
+        true,
         PageRequest.of(pageNumber, N, Sort.by(sorting, "createdAt"))
     );
 
