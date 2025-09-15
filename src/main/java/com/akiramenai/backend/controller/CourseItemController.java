@@ -212,7 +212,7 @@ public class CourseItemController {
     }
 
     Path transcriptionFilePath = Paths.get(
-        //subtitlesDirectory,
+        subtitlesDirectory,
         videoMetadata.get().getSubtitleFileName()
     );
     try {
@@ -232,7 +232,7 @@ public class CourseItemController {
       HttpServletResponse httpResponse,
 
       @PathVariable(name = "video-metadata-id") String videoMetadataItemId,
-      @RequestParam(name = "modified-vtt") MultipartFile modifiedVtt
+      @RequestParam(name = "modified-vtt", required = false) MultipartFile modifiedVtt
   ) {
     Optional<ParsedItemInfo> videoMetadataId = IdParser.parseItemId(videoMetadataItemId);
     if (videoMetadataId.isEmpty() || videoMetadataId.get().itemType() != CourseItems.Video) {
@@ -277,7 +277,10 @@ public class CourseItemController {
     }
 
     // if it is, then delete the old vtt file and rename the temp vtt file to the real filename
-    File oldVttFile = new File(targetVM.get().getSubtitleFileName());
+    File oldVttFile = new File(
+        subtitlesDirectory,
+        targetVM.get().getSubtitleFileName()
+    );
     if (!oldVttFile.delete()) {
       log.warn("Failed to delete temp VTT file: {}", oldVttFile.getAbsolutePath());
     }
