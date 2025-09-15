@@ -1,6 +1,7 @@
 package com.akiramenai.backend.controller;
 
 import com.akiramenai.backend.model.*;
+import com.akiramenai.backend.repo.CompletedCourseItemsRepo;
 import com.akiramenai.backend.repo.InstructorInfosRepo;
 import com.akiramenai.backend.repo.LearnerInfosRepo;
 import com.akiramenai.backend.repo.PurchaseRepo;
@@ -31,6 +32,7 @@ import java.util.*;
 @RestController
 public class AnalyticsController {
   private final LoginActivityService loginActivityService;
+  private final CompletedCourseItemsRepo completedCourseItemsRepo;
   HttpResponseWriter responseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
 
@@ -42,11 +44,12 @@ public class AnalyticsController {
       UserService userService,
       InstructorInfosRepo instructorInfosRepo,
       PurchaseRepo purchaseRepo,
-      LoginActivityService loginActivityService) {
+      LoginActivityService loginActivityService, CompletedCourseItemsRepo completedCourseItemsRepo) {
     this.userService = userService;
     this.instructorInfosRepo = instructorInfosRepo;
     this.purchaseRepo = purchaseRepo;
     this.loginActivityService = loginActivityService;
+    this.completedCourseItemsRepo = completedCourseItemsRepo;
   }
 
   @GetMapping("api/protected/get/instructor-analytics")
@@ -264,6 +267,55 @@ public class AnalyticsController {
 
     MonthActivityResponse resp = new MonthActivityResponse(activitiesToReturn.get());
     Optional<String> responseJson = jsonSerializer.serialize(resp);
+    if (responseJson.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Failed to serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    responseWriter.writeOkResponse(response, responseJson.get(), HttpStatus.OK);
+  }
+
+  @GetMapping("api/protected/get/completed-items/analytics")
+  public void quizAnalytics(
+      HttpServletRequest request,
+      HttpServletResponse response,
+
+      @RequestParam(name = "item-type", required = true) String itemType
+  ) {
+    UUID userId = UUID.fromString(request.getAttribute("userId").toString());
+    String accountType = request.getAttribute("accountType").toString();
+    if (!accountType.equals("Learner")) {
+      responseWriter.writeFailedResponse(response, "Only learners can access this API endpoint.", HttpStatus.NOT_FOUND);
+      return;
+    }
+
+    CourseItems requestCourseItem;
+    try {
+      requestCourseItem = CourseItems.valueOf(itemType);
+    } catch (Exception e) {
+      responseWriter.writeFailedResponse(
+          response,
+          "Invalid item type. Accepted ItemType: Video, Quiz, CodingTest, TerminalTest.", HttpStatus.NOT_FOUND
+      );
+      return;
+    }
+
+    Optional<List<CompletedCourseItems>> completedItems =
+        completedCourseItemsRepo.findCompletedCourseItemsByLearnerIdAndItemType(
+            userId,
+            requestCourseItem
+        );
+    if (completedItems.isEmpty()) {
+      responseWriter.writeFailedResponse(response, "Failed to retrieve completed items.", HttpStatus.INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    ArrayList<CleanedCompletedItem> cleanedCompletedItems = new ArrayList<>();
+    for (CompletedCourseItems cci : completedItems.get()) {
+      cleanedCompletedItems.add(new CleanedCompletedItem(cci));
+    }
+
+    Optional<String> responseJson = jsonSerializer.serialize(cleanedCompletedItems);
     if (responseJson.isEmpty()) {
       responseWriter.writeFailedResponse(response, "Failed to serialize JSON response.", HttpStatus.INTERNAL_SERVER_ERROR);
       return;
