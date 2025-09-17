@@ -28,7 +28,10 @@ public class VideoMetadataService {
     this.courseRepo = courseRepo;
   }
 
-  public ResultOrError<String, BackendOperationErrors> modifyVideoMetadata(ModifyVideoMetadataRequest modifyVideoMetadataRequest, UUID currentUserId) {
+  public ResultOrError<String, BackendOperationErrors> modifyVideoMetadata(
+      ModifyVideoMetadataRequest modifyVideoMetadataRequest,
+      UUID currentUserId
+  ) {
     var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     Optional<UUID> courseId = IdParser.parseId(modifyVideoMetadataRequest.getCourseId());
@@ -36,6 +39,15 @@ public class VideoMetadataService {
       return resp
           .result(null)
           .errorMessage("Failed to parse the provided courseId. Invalid courseId provided.")
+          .errorType(BackendOperationErrors.InvalidRequest)
+          .build();
+    }
+
+    Optional<ParsedItemInfo> videoMetadataItem = IdParser.parseItemId(modifyVideoMetadataRequest.getItemId());
+    if (videoMetadataItem.isEmpty() || videoMetadataItem.get().itemType() != CourseItems.Video) {
+      return resp
+          .result(null)
+          .errorMessage("Invalid itemType provided.")
           .errorType(BackendOperationErrors.InvalidRequest)
           .build();
     }
@@ -59,8 +71,8 @@ public class VideoMetadataService {
           .build();
     }
 
-    Optional<VideoMetadata> targetVideoMetadata = videoMetadataRepo.findVideoMetadataById(
-        UUID.fromString(modifyVideoMetadataRequest.getItemId())
+    Optional<VideoMetadata> targetVideoMetadata = videoMetadataRepo.findVideoMetadataByItemId(
+        modifyVideoMetadataRequest.getItemId()
     );
     if (targetVideoMetadata.isEmpty()) {
       return resp
