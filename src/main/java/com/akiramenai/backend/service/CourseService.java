@@ -91,6 +91,14 @@ public class CourseService {
           .build();
     }
 
+    Optional<Users> targetUser = userService.findUserById(currentUserId);
+    if (targetUser.isEmpty()) {
+      return result
+          .errorMessage("User not found.")
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .build();
+    }
+
     Course courseToAdd = Course
         .builder()
         .instructorId(currentUserId)
@@ -105,6 +113,7 @@ public class CourseService {
         .createdAt(LocalDateTime.now())
         .lastModifiedAt(LocalDateTime.now())
         .isPublished(false)
+        .isHidden(targetUser.get().isShadowBanned())
         .build();
 
     try {
@@ -443,7 +452,9 @@ public class CourseService {
       return Optional.of("Failed to retrieve instructor account info.");
     }
 
-    meiliService.addCourseToIndex(courseToPublish.get(), instructor.get().getUsername());
+    if (!courseToPublish.get().getIsHidden()) {
+      meiliService.addCourseToIndex(courseToPublish.get(), instructor.get().getUsername());
+    }
 
     return Optional.empty();
   }
@@ -491,8 +502,9 @@ public class CourseService {
       return paginatedCourses.build();
     }
 
-    Page<Course> page = courseRepo.findAllByIsPublished(
+    Page<Course> page = courseRepo.findAllByIsPublishedAndIsHidden(
         true,
+        false,
         PageRequest.of(pageNumber, N, Sort.by(sorting, "createdAt"))
     );
 
@@ -577,7 +589,9 @@ public class CourseService {
     userPurchases.forEach(purchase -> {
       Optional<Course> targetCourse = courseRepo.findCourseById(purchase.getCourseId());
       targetCourse.ifPresent((course) -> {
+        //if (!course.getIsHidden()) {
         purchasedCourses.add(new CleanedCourse(course));
+        //}
       });
     });
 

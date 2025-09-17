@@ -11,7 +11,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -64,6 +63,10 @@ public class Users {
   @NotNull
   @ColumnDefault("0")
   private int loginStreak;
+
+  @NotNull
+  @ColumnDefault("false")
+  private boolean isShadowBanned;
 
   public void setUserType(String accType) {
     if (accType.equalsIgnoreCase("Learner")) {

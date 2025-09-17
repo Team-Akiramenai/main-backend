@@ -68,6 +68,11 @@ public class Course {
   @LastModifiedDate
   private LocalDateTime lastModifiedAt;
 
+  @NotNull
   @ColumnDefault("false")
   private Boolean isPublished;
+
+  @NotNull
+  @ColumnDefault("false")
+  private Boolean isHidden;
 }

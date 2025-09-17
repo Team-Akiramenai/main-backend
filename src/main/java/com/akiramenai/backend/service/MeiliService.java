@@ -113,4 +113,19 @@ public class MeiliService {
 
     return true;
   }
+
+  public boolean deleteCourseInDocument(String courseId) {
+    if (meiliClient == null) {
+      initConnection();
+    }
+
+    try {
+      this.coursesIndex.deleteDocument(courseId);
+    } catch (Exception e) {
+      log.error("Couldn't delete course: {}", courseId);
+      return false;
+    }
+
+    return true;
+  }
 }

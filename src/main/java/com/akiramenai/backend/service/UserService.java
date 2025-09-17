@@ -107,6 +107,7 @@ public class UserService {
     userToRegister.setPfpFileName(defaultProfilePictureFilename);
     userToRegister.setTotalStorageInBytes(Long.parseLong(defaultStorageGiven));
     userToRegister.setUsedStorageInBytes(0);
+    userToRegister.setShadowBanned(false);
 
     if (registerRequest.getAccountType().equalsIgnoreCase("Learner")) {
       LearnerInfos savedLearnerInfo = learnerInfosRepo.save(
