@@ -32,23 +32,15 @@ public class VideoController {
       @RequestBody ModifyVideoMetadataRequest modifyVideoMetadataRequest
   ) {
     if (!request.getAttribute("accountType").equals("Instructor")) {
-      httpResponseWriter.writeFailedResponse(response, "Only instructors can upload videos.", HttpStatus.FORBIDDEN);
+      httpResponseWriter.writeFailedResponse(response, "Only instructors can modify video metadata.", HttpStatus.FORBIDDEN);
       return;
     }
     if (modifyVideoMetadataRequest.getCourseId() == null) {
-      httpResponseWriter.writeFailedResponse(response, "Associated courseId not provided.", HttpStatus.BAD_REQUEST);
+      httpResponseWriter.writeFailedResponse(response, "You need to provide courseId.", HttpStatus.BAD_REQUEST);
       return;
     }
     if (modifyVideoMetadataRequest.getItemId() == null) {
-      httpResponseWriter.writeFailedResponse(response, "Associated itemUUID not provided.", HttpStatus.BAD_REQUEST);
-      return;
-    }
-    if (modifyVideoMetadataRequest.getTitle() == null || modifyVideoMetadataRequest.getTitle().isBlank()) {
-      httpResponseWriter.writeFailedResponse(response, "Video title must not be empty or filled with only whitespace characters.", HttpStatus.BAD_REQUEST);
-      return;
-    }
-    if (modifyVideoMetadataRequest.getDescription() == null || modifyVideoMetadataRequest.getDescription().isBlank()) {
-      httpResponseWriter.writeFailedResponse(response, "Video description must not be empty or filled with only whitespace characters.", HttpStatus.BAD_REQUEST);
+      httpResponseWriter.writeFailedResponse(response, "You need to provide itemId.", HttpStatus.BAD_REQUEST);
       return;
     }
 

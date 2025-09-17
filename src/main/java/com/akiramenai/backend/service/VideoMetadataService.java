@@ -54,7 +54,7 @@ public class VideoMetadataService {
     if (!currentUserId.equals(targetCourse.get().getInstructorId())) {
       return resp
           .result(null)
-          .errorMessage("Can't upload video. You're not the author of the course.")
+          .errorMessage("Can't modify video metadata. You're not the author of the course.")
           .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
@@ -70,8 +70,12 @@ public class VideoMetadataService {
           .build();
     }
 
-    targetVideoMetadata.get().setTitle(modifyVideoMetadataRequest.getTitle());
-    targetVideoMetadata.get().setDescription(modifyVideoMetadataRequest.getDescription());
+    if (modifyVideoMetadataRequest.getTitle() != null) {
+      targetVideoMetadata.get().setTitle(modifyVideoMetadataRequest.getTitle());
+    }
+    if (modifyVideoMetadataRequest.getDescription() != null) {
+      targetVideoMetadata.get().setDescription(modifyVideoMetadataRequest.getDescription());
+    }
     targetVideoMetadata.get().setLastModifiedDateTime(LocalDateTime.now());
 
     try {
