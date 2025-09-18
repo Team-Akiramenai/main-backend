@@ -2,7 +2,7 @@ package com.akiramenai.backend.controller;
 
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.service.JWTService;
-import com.akiramenai.backend.service.MediaStorageService;
+import com.akiramenai.backend.service.StorageService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.JsonSerializer;
@@ -36,7 +36,7 @@ public class UserController {
   private final JsonSerializer jsonSerializer = new JsonSerializer();
 
   private final UserService userService;
-  private final MediaStorageService mediaStorageService;
+  private final StorageService storageService;
   private final JWTService jwtService;
 
   @Value("${application.security.jwt.refresh-token-validity-duration}")
@@ -51,9 +51,9 @@ public class UserController {
   @Value("${application.default-values.default-user-pfp-filename}")
   private String defaultPfpFilename;
 
-  public UserController(UserService service, MediaStorageService mediaStorageService, JWTService jwtService) {
+  public UserController(UserService service, StorageService storageService, JWTService jwtService) {
     this.userService = service;
-    this.mediaStorageService = mediaStorageService;
+    this.storageService = storageService;
     this.jwtService = jwtService;
   }
 
@@ -184,7 +184,7 @@ public class UserController {
       return;
     }
 
-    ResultOrError<String, FileUploadErrorTypes> savedFilename = mediaStorageService.saveImage(newProfilePicture);
+    ResultOrError<String, FileUploadErrorTypes> savedFilename = storageService.saveImage(newProfilePicture);
     if (savedFilename.errorType() != null) {
       switch (savedFilename.errorType()) {
         case UnsupportedFileType, FileIsEmpty -> {
@@ -250,11 +250,11 @@ public class UserController {
       if (targetUser.get().getPfpFileName() == null) {
         Path defaultPicturePath = Paths.get(pictureDirectory, defaultPfpFilename);
         is = new FileInputStream(defaultPicturePath.toFile());
-        imageType = MediaStorageService.getFileType(defaultPicturePath);
+        imageType = StorageService.getFileType(defaultPicturePath);
       } else {
         Path pfpFilePath = Paths.get(pictureDirectory, targetUser.get().getPfpFileName());
         is = new FileInputStream(pfpFilePath.toFile());
-        imageType = MediaStorageService.getFileType(pfpFilePath);
+        imageType = StorageService.getFileType(pfpFilePath);
       }
     } catch (Exception e) {
       log.error("Failed to get user's profile picture. Reason: {}", e.getMessage());

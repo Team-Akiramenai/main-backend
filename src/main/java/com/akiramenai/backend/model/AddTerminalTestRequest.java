@@ -1,9 +1,12 @@
 package com.akiramenai.backend.model;
 
-public record AddCodingTestRequest(
+import java.nio.file.Path;
+
+public record AddTerminalTestRequest(
     String courseId,
     String question,
     String description,
-    String expectedStdout
+
+    Path evalScript
 ) {
 }

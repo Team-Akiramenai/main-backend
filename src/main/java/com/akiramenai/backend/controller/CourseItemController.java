@@ -3,7 +3,7 @@ package com.akiramenai.backend.controller;
 
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.*;
-import com.akiramenai.backend.service.MediaStorageService;
+import com.akiramenai.backend.service.StorageService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
@@ -25,13 +25,11 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.akiramenai.backend.model.FileUploadErrorTypes.*;
-
 @Slf4j
 @RestController
 @RequestMapping("api/protected")
 public class CourseItemController {
-  private final MediaStorageService mediaStorageService;
+  private final StorageService storageService;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
 
@@ -44,13 +42,13 @@ public class CourseItemController {
   private final LearnerInfosRepo learnerInfosRepo;
   private final CompletedCourseItemsRepo completedCourseItemsRepo;
 
-  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, MediaStorageService mediaStorageService) {
+  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, StorageService storageService) {
     this.quizRepo = quizRepo;
     this.videoMetadataRepo = videoMetadataRepo;
     this.codingTestRepo = codingTestRepo;
     this.learnerInfosRepo = learnerInfosRepo;
     this.completedCourseItemsRepo = completedCourseItemsRepo;
-    this.mediaStorageService = mediaStorageService;
+    this.storageService = storageService;
   }
 
   @GetMapping("get/course-item")
@@ -251,7 +249,7 @@ public class CourseItemController {
       return;
     }
 
-    ResultOrError<Path, FileUploadErrorTypes> savedVttPath = mediaStorageService.saveVtt(modifiedVtt);
+    ResultOrError<Path, FileUploadErrorTypes> savedVttPath = storageService.saveVtt(modifiedVtt);
     if (savedVttPath.errorType() != null) {
       switch (savedVttPath.errorType()) {
         case UnsupportedFileType, FileIsEmpty -> {

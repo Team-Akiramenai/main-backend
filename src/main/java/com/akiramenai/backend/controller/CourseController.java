@@ -4,7 +4,7 @@ import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.LearnerInfosRepo;
 import com.akiramenai.backend.repo.PurchaseRepo;
 import com.akiramenai.backend.service.CourseService;
-import com.akiramenai.backend.service.MediaStorageService;
+import com.akiramenai.backend.service.StorageService;
 import com.akiramenai.backend.service.UserService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.IdParser;
@@ -32,7 +32,7 @@ import java.util.UUID;
 @Slf4j
 @RestController
 public class CourseController {
-  private final MediaStorageService mediaStorageService;
+  private final StorageService storageService;
   private final PurchaseRepo purchaseRepo;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
@@ -47,11 +47,11 @@ public class CourseController {
   private final LearnerInfosRepo learnerInfosRepo;
   private final CourseService courseService;
 
-  public CourseController(CourseService courseService, UserService userService, LearnerInfosRepo learnerInfosRepo, MediaStorageService mediaStorageService, PurchaseRepo purchaseRepo) {
+  public CourseController(CourseService courseService, UserService userService, LearnerInfosRepo learnerInfosRepo, StorageService storageService, PurchaseRepo purchaseRepo) {
     this.courseService = courseService;
     this.userService = userService;
     this.learnerInfosRepo = learnerInfosRepo;
-    this.mediaStorageService = mediaStorageService;
+    this.storageService = storageService;
     this.purchaseRepo = purchaseRepo;
   }
 
@@ -120,11 +120,11 @@ public class CourseController {
       if (targetCourse.get().getThumbnailImageName() == null) {
         Path defaultPicturePath = Paths.get(pictureDirectory, defaultCourseThumbnailFilename);
         is = new FileInputStream(defaultPicturePath.toFile());
-        imageType = MediaStorageService.getFileType(defaultPicturePath);
+        imageType = StorageService.getFileType(defaultPicturePath);
       } else {
         Path pfpFilePath = Paths.get(pictureDirectory, targetCourse.get().getThumbnailImageName());
         is = new FileInputStream(pfpFilePath.toFile());
-        imageType = MediaStorageService.getFileType(pfpFilePath);
+        imageType = StorageService.getFileType(pfpFilePath);
       }
     } catch (Exception e) {
       log.error("Failed to get the thumbnail of the course. Reason: {}", e.getMessage());
@@ -249,7 +249,7 @@ public class CourseController {
       return;
     }
 
-    ResultOrError<String, FileUploadErrorTypes> savedThumbnail = mediaStorageService.saveImage(newThumbnail);
+    ResultOrError<String, FileUploadErrorTypes> savedThumbnail = storageService.saveImage(newThumbnail);
     if (savedThumbnail.errorType() != null) {
       switch (savedThumbnail.errorType()) {
         case UnsupportedFileType, FileIsEmpty ->

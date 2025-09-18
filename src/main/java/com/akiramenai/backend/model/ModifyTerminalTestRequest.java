@@ -1,11 +1,13 @@
 package com.akiramenai.backend.model;
 
-public record ModifyCodingTestRequest(
+import java.nio.file.Path;
+
+public record ModifyTerminalTestRequest(
     String courseId,
     String itemId,
 
     String question,
     String description,
-    String expectedStdout
+    Path newScript
 ) {
 }

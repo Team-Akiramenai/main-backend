@@ -9,19 +9,21 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
 
 @Slf4j
 @Service
-public class MediaStorageService {
+public class StorageService {
   @Value("${application.default-values.media.picture-directory}")
-  private String pictureDirectoryString;
+  public String pictureDirectoryString;
 
   @Value("${application.default-values.media.subtitles-directory}")
-  private String subtitlesDirectoryString;
+  public String subtitlesDirectoryString;
+
+  @Value("${application.default-values.scripts.script-storage-directory}")
+  public String scriptDirectoryString;
 
   public static MediaType getFileType(MultipartFile file) {
     if (file.getContentType() == null) {
@@ -110,6 +112,57 @@ public class MediaStorageService {
 
     try {
       Path uploadPath = Paths.get(this.subtitlesDirectoryString);
+      if (!Files.exists(uploadPath)) {
+        Files.createDirectories(uploadPath);
+      }
+
+      String fileName = getGeneratedFileName(file.getOriginalFilename());
+      Path filePath = uploadPath.resolve(fileName);
+      Files.copy(file.getInputStream(), filePath);
+
+      return resp
+          .result(filePath)
+          .errorMessage(null)
+          .errorType(null)
+          .build();
+    } catch (InvalidPathException e) {
+      return resp
+          .errorMessage(e.getMessage())
+          .errorType(FileUploadErrorTypes.InvalidUploadDir)
+          .result(null)
+          .build();
+    } catch (UnsupportedOperationException e) {
+      return resp
+          .errorMessage(e.getMessage())
+          .errorType(FileUploadErrorTypes.FailedToCreateUploadDir)
+          .result(null)
+          .build();
+    } catch (IOException e) {
+      return resp
+          .errorMessage(e.getMessage())
+          .errorType(FileUploadErrorTypes.FailedToSaveFile)
+          .result(null)
+          .build();
+    }
+  }
+
+  public ResultOrError<Path, FileUploadErrorTypes> saveScript(MultipartFile file) {
+    var resp = ResultOrError.<Path, FileUploadErrorTypes>builder();
+    if (file.isEmpty()) {
+      return resp
+          .errorMessage("Failed to save script file. Provided script file is empty.")
+          .errorType(FileUploadErrorTypes.FileIsEmpty)
+          .build();
+    }
+    if (file.getContentType() == null || !file.getContentType().equals("text/plain")) {
+      return resp
+          .errorMessage("Invalid content type. Only text/plain content type is accepted for scripts.")
+          .errorType(FileUploadErrorTypes.UnsupportedFileType)
+          .build();
+    }
+
+    try {
+      Path uploadPath = Paths.get(this.scriptDirectoryString);
       if (!Files.exists(uploadPath)) {
         Files.createDirectories(uploadPath);
       }

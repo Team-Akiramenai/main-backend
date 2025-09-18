@@ -765,6 +765,72 @@ Response JSON:
 }
 ```
 
+## Terminal Test Controller
+
+1) POST api/protected/add/terminal-test
+
+Add a terminal test challenge.
+
+Request body in `form-data`:
+
+```
+course-id   -> The course Id
+question    -> The question to display
+description -> The description to display
+eval-script -> The script file that will be run to evaluate the test
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "TT_26cc5297-4aa4-4a6c-b179-b8563df21766"
+}
+```
+
+2) POST api/protected/modify/terminal-test
+
+Modify a terminal test challenge.
+
+Request body in `form-data`:
+
+```
+course-id   -> The courseId
+item-id   -> The itemId of the terminal test you want to modify
+question    -> (Optional) The modified question
+description -> (Optional) The modified description
+new-script -> (Optional) The new script file
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "TT_26cc5297-4aa4-4a6c-b179-b8563df21766"
+}
+```
+
+3) POST api/protected/remove/terminal-test
+
+Delete a terminal test challenge.
+
+Request JSON:
+
+```json
+{
+  "courseId": "255e37f3-5473-4c51-99f4-1d0335780f3a",
+  "itemId": "TT_8a2ce190-e5d2-4310-b5b8-fe2bf1c85bf8"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "TT_8a2ce190-e5d2-4310-b5b8-fe2bf1c85bf8"
+}
+```
+
 ## Course Item Controller
 
 1) GET api/protected/get/course-item?itemId=<courseItemId>
