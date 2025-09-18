@@ -285,7 +285,7 @@ public class AnalyticsController {
   }
 
   @GetMapping("api/protected/get/completed-items/analytics")
-  public void quizAnalytics(
+  public void completedItemAnalytics(
       HttpServletRequest request,
       HttpServletResponse response,
 
