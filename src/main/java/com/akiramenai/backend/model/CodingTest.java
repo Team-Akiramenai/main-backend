@@ -29,6 +29,7 @@ public class CodingTest {
   private String question;
 
   @NotBlank
+  @Column(columnDefinition = "TEXT")
   private String description;
 
   private String input;

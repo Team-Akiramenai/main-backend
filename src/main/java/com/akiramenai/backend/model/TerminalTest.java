@@ -29,6 +29,7 @@ public class TerminalTest {
   private String question;
 
   @NotBlank
+  @Column(columnDefinition = "TEXT")
   private String description;
 
   @NotBlank
