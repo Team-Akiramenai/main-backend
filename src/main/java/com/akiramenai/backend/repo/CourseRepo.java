@@ -1,8 +1,6 @@
 package com.akiramenai.backend.repo;
 
 import com.akiramenai.backend.model.Course;
-import jakarta.validation.constraints.NotNull;
-import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,4 +30,7 @@ public interface CourseRepo extends JpaRepository<Course, UUID> {
   @Transactional
   @Query("UPDATE Course c SET c.isHidden = true WHERE c.instructorId = :userId")
   void hideCoursesByUserId(@Param("userId") UUID userId);
+
+  @Query("SELECT title from Course where isPublished = true")
+  ArrayList<String> getPublishedCourseTitles();
 }

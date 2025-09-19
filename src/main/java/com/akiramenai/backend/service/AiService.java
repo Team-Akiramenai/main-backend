@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.akiramenai.backend.model.*;
 
+import com.akiramenai.backend.repo.CourseRepo;
 import com.akiramenai.backend.repo.VideoMetadataRepo;
 import com.akiramenai.backend.utility.IdParser;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +34,13 @@ public class AiService {
   private final Client gClient;
   private final String MODEL = "gemini-2.0-flash";
   private final VideoMetadataRepo videoMetadataRepo;
+  private final CourseRepo courseRepo;
 
   @Autowired
-  public AiService(Client gClient, VideoMetadataRepo videoMetadataRepo) {
+  public AiService(Client gClient, VideoMetadataRepo videoMetadataRepo, CourseRepo courseRepo) {
     this.gClient = gClient;
     this.videoMetadataRepo = videoMetadataRepo;
+    this.courseRepo = courseRepo;
   }
 
   public Optional<AiSuggestResponse> getCourseSuggestions(AiSuggestRequest req) throws IOException {
@@ -55,11 +58,7 @@ public class AiService {
             .threshold(HarmBlockThreshold.Known.BLOCK_LOW_AND_ABOVE)
             .build());
 
-    ArrayList<String> courseTitles = new ArrayList<>();
-    courseTitles.add("Git Basics");
-    courseTitles.add("Docker for Beginners");
-    courseTitles.add("HTML for Newbies - A Gentle Introduction to the World of Web Development");
-    courseTitles.add("All the CSS you'll even need - A CSS Course for Beginners and Experts Alike");
+    ArrayList<String> courseTitles = courseRepo.getPublishedCourseTitles();
 
     Content systemInstruction = Content.fromParts(
         Part.fromText(
