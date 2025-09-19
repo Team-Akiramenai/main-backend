@@ -68,10 +68,10 @@ public class AiController {
 
       @RequestBody GenericAiRequest genericAiRequest
   ) {
-    UUID userId = UUID.fromString(httpRequest.getParameter("userId"));
+    UUID userId = UUID.fromString(httpRequest.getAttribute("userId").toString());
 
-    int userCoursePuchaseCount = purchaseRepo.countPurchaseByBuyerId(userId);
-    if (userCoursePuchaseCount <= 0) {
+    int userPurchasedCourseCount = purchaseRepo.countPurchaseByBuyerId(userId);
+    if (userPurchasedCourseCount <= 0) {
       httpResponseWriter.writeFailedResponse(
           httpResponse,
           "Learner can use AI tools once they've bought at least one course.",
