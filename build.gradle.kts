@@ -33,7 +33,7 @@ dependencies {
 
     implementation("io.swagger.core.v3:swagger-annotations:2.2.32")
 
-    compileOnly("org.projectlombok:lombok")
+    implementation("org.projectlombok:lombok:1.18.38")
     runtimeOnly("org.postgresql:postgresql")
 
     annotationProcessor("org.projectlombok:lombok")
