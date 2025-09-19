@@ -4,6 +4,7 @@ import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.CourseRepo;
 import com.akiramenai.backend.repo.LearnerInfosRepo;
 import com.akiramenai.backend.repo.PurchaseRepo;
+import com.akiramenai.backend.repo.UserRepo;
 import com.akiramenai.backend.utility.JsonSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import java.util.*;
 @Slf4j
 @Service
 public class CourseService {
+  private final UserRepo userRepo;
   JsonSerializer jsonSerializer = new JsonSerializer();
 
   private final LearnerInfosRepo learnerInfosRepo;
@@ -32,14 +34,15 @@ public class CourseService {
       InstructorInfosService instructorInfosService,
       LearnerInfosRepo learnerInfosRepo,
       UserService userService,
-      MeiliService meiliService
-  ) {
+      MeiliService meiliService,
+      UserRepo userRepo) {
     this.courseRepo = courseRepo;
     this.purchaseRepo = purchaseRepo;
     this.instructorInfosService = instructorInfosService;
     this.learnerInfosRepo = learnerInfosRepo;
     this.userService = userService;
     this.meiliService = meiliService;
+    this.userRepo = userRepo;
   }
 
   private Optional<String> basicCourseModificationRequestValidation(CourseModificationRequest courseModificationRequest) {
@@ -350,7 +353,8 @@ public class CourseService {
   public ResultOrError<Boolean, BackendOperationErrors> updateCourseThumbnail(
       UUID courseId,
       UUID userId,
-      String newThumbnailFilename
+      String newThumbnailFilename,
+      long imageSize
   ) {
     var res = ResultOrError.<Boolean, BackendOperationErrors>builder();
 
@@ -369,6 +373,27 @@ public class CourseService {
           .errorType(BackendOperationErrors.AttemptingToModifyOthersItem)
           .build();
     }
+
+    Optional<Users> targetUser = userService.findUserById(userId);
+    if (targetUser.isEmpty()) {
+      return res
+          .result(false)
+          .errorMessage("User not found.")
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .build();
+    }
+
+    // if the size exceeds the available storage, reject it
+    long freeStorage = targetUser.get().getTotalStorageInBytes() - targetUser.get().getUsedStorageInBytes();
+    if (freeStorage < imageSize) {
+      return res
+          .result(false)
+          .errorMessage("Not enough free storage available. Either free up space by deleting things or buy more storage.")
+          .errorType(BackendOperationErrors.NotEnoughStorage)
+          .build();
+    }
+    targetUser.get().setUsedStorageInBytes(targetUser.get().getUsedStorageInBytes() + imageSize);
+    userRepo.save(targetUser.get());
 
     courseToBeModified.get().setThumbnailImageName(newThumbnailFilename);
     courseToBeModified.get().setLastModifiedAt(LocalDateTime.now());

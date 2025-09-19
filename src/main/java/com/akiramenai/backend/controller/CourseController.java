@@ -249,6 +249,8 @@ public class CourseController {
       return;
     }
 
+    long imageSize = newThumbnail.getSize();
+
     ResultOrError<String, FileUploadErrorTypes> savedThumbnail = storageService.saveImage(newThumbnail);
     if (savedThumbnail.errorType() != null) {
       switch (savedThumbnail.errorType()) {
@@ -280,12 +282,15 @@ public class CourseController {
     ResultOrError<Boolean, BackendOperationErrors> res = courseService.updateCourseThumbnail(
         courseUUID.get(),
         userId.get(),
-        savedThumbnail.result()
+        savedThumbnail.result(),
+        imageSize
     );
     if (res.errorType() != null) {
       switch (res.errorType()) {
-        case CourseNotFound ->
+        case CourseNotFound, ItemNotFound ->
             httpResponseWriter.writeFailedResponse(response, res.errorMessage(), HttpStatus.NOT_FOUND);
+        case NotEnoughStorage ->
+            httpResponseWriter.writeFailedResponse(response, res.errorMessage(), HttpStatus.INSUFFICIENT_STORAGE);
         case AttemptingToModifyOthersItem ->
             httpResponseWriter.writeFailedResponse(response, res.errorMessage(), HttpStatus.BAD_REQUEST);
       }
