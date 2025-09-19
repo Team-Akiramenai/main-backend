@@ -54,12 +54,13 @@ public class ActivityFilter extends OncePerRequestFilter {
 
     LocalDate lastUserLoginDate = targetUser.get().getLastLoginDate();
     LocalDate dateToday = LocalDate.now();
+
+    loginActivityService.addLoginActivity(userID, dateToday);
+
     if (lastUserLoginDate.equals(dateToday)) {
       filterChain.doFilter(request, response);
       return;
     }
-
-    loginActivityService.addLoginActivity(userID, dateToday);
 
     long dayDiff = ChronoUnit.DAYS.between(lastUserLoginDate, dateToday);
     if (dayDiff == 1) {
