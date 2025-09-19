@@ -20,6 +20,8 @@ public interface PurchaseRepo extends JpaRepository<Purchase, UUID> {
 
   Page<Purchase> findPurchaseByBuyerId(UUID buyerId, Pageable pageable);
 
+  Optional<Purchase> findPurchaseByBuyerIdAndCourseId(UUID buyerId, UUID courseId);
+
   long countByAuthorIdAndPurchaseTimestampBetween(UUID authorId, LocalDateTime purchaseTimestampLdtAfter, LocalDateTime purchaseTimestampLdtBefore);
 
   Optional<Long> countByCourseId(UUID courseId);

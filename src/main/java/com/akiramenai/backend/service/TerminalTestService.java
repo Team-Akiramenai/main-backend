@@ -2,6 +2,7 @@ package com.akiramenai.backend.service;
 
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.CourseRepo;
+import com.akiramenai.backend.repo.PurchaseRepo;
 import com.akiramenai.backend.repo.TerminalTestRepo;
 import com.akiramenai.backend.utility.JsonSerializer;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,13 @@ public class TerminalTestService {
   private final CourseRepo courseRepo;
   private final TerminalTestRepo terminalTestRepo;
   private final StorageService storageService;
+  private final PurchaseRepo purchaseRepo;
 
-  public TerminalTestService(TerminalTestRepo terminalTestRepo, CourseRepo courseRepo, StorageService storageService) {
+  public TerminalTestService(TerminalTestRepo terminalTestRepo, CourseRepo courseRepo, StorageService storageService, PurchaseRepo purchaseRepo) {
     this.terminalTestRepo = terminalTestRepo;
     this.courseRepo = courseRepo;
     this.storageService = storageService;
+    this.purchaseRepo = purchaseRepo;
   }
 
   public ResultOrError<String, BackendOperationErrors> addTerminalTest(
@@ -274,5 +277,35 @@ public class TerminalTestService {
     return resp
         .result(responseJson.get())
         .build();
+  }
+
+  public ResultOrError<Path, BackendOperationErrors> getEvalScript(
+      String itemId
+  ) {
+    var resp = ResultOrError.<Path, BackendOperationErrors>builder();
+
+    Optional<TerminalTest> targetTerminalTest = terminalTestRepo.findTerminalTestByItemId(itemId);
+    if (targetTerminalTest.isEmpty()) {
+      return resp
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .errorMessage("Terminal Test metadata not found.")
+          .build();
+    }
+
+    try {
+      Path pathToScript = Paths.get(
+          storageService.scriptDirectoryString,
+          targetTerminalTest.get().getVerificationScriptFilename()
+      );
+      return resp
+          .result(pathToScript)
+          .build();
+    } catch (Exception e) {
+      return resp
+          .errorType(BackendOperationErrors.ItemNotFound)
+          .errorMessage("Failed to retrieve the script file.")
+          .build();
+    }
+
   }
 }

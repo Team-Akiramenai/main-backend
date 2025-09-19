@@ -833,7 +833,7 @@ Response JSON:
 
 ## Course Item Controller
 
-1) GET api/protected/get/course-item?itemId=<courseItemId>
+### 1) GET api/protected/get/course-item?itemId=<courseItemId>
 
 Retrieve all the information related to a course item (video metadata, quiz, coding test and terminal test).
 
@@ -856,7 +856,7 @@ Response JSON:
 }
 ```
 
-2) POST api/protected/add/completed/course-item
+### 2) POST api/protected/add/completed/course-item
 
 Mark a course item as completed.
 
@@ -876,6 +876,14 @@ Response JSON:
   "itemId": "CT_b7a30066-7f0d-4733-a9e3-f716ecb9a795"
 }
 ```
+
+### 3) GET api/protected/get/terminal-test/eval-script?itemId=\<String\>
+
+Get the evaluation script file for a given terminal test.
+
+Example request: `GET api/protected/get/terminal-test/eval-script?itemId=TT_b7a30066-7f0d-4733-a9e3-f716ecb9a795`
+
+Response: The script file.
 
 ## Comments Controller
 

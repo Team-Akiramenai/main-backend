@@ -4,6 +4,7 @@ package com.akiramenai.backend.controller;
 import com.akiramenai.backend.model.*;
 import com.akiramenai.backend.repo.*;
 import com.akiramenai.backend.service.StorageService;
+import com.akiramenai.backend.service.TerminalTestService;
 import com.akiramenai.backend.utility.HttpResponseWriter;
 import com.akiramenai.backend.utility.IdParser;
 import com.akiramenai.backend.utility.JsonSerializer;
@@ -12,13 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +36,7 @@ import java.util.UUID;
 public class CourseItemController {
   private final StorageService storageService;
   private final TerminalTestRepo terminalTestRepo;
+  private final TerminalTestService terminalTestService;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
 
@@ -43,7 +49,7 @@ public class CourseItemController {
   private final LearnerInfosRepo learnerInfosRepo;
   private final CompletedCourseItemsRepo completedCourseItemsRepo;
 
-  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, StorageService storageService, TerminalTestRepo terminalTestRepo) {
+  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, StorageService storageService, TerminalTestRepo terminalTestRepo, TerminalTestService terminalTestService) {
     this.quizRepo = quizRepo;
     this.videoMetadataRepo = videoMetadataRepo;
     this.codingTestRepo = codingTestRepo;
@@ -51,6 +57,7 @@ public class CourseItemController {
     this.completedCourseItemsRepo = completedCourseItemsRepo;
     this.storageService = storageService;
     this.terminalTestRepo = terminalTestRepo;
+    this.terminalTestService = terminalTestService;
   }
 
   @GetMapping("get/course-item")
@@ -131,6 +138,33 @@ public class CourseItemController {
 
         httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
       }
+    }
+  }
+
+  @GetMapping("get/terminal-test/eval-script")
+  public ResponseEntity<InputStreamResource> getAllCourseItems(
+      HttpServletRequest httpRequest,
+      HttpServletResponse httpResponse,
+
+      @RequestParam(required = true) String itemId
+  ) {
+    ResultOrError<Path, BackendOperationErrors> scriptPath = terminalTestService.getEvalScript(
+        itemId
+    );
+    if (scriptPath.errorType() != null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    try {
+      InputStream is = new FileInputStream(scriptPath.result().toFile());
+      return ResponseEntity
+          .ok()
+          .contentType(MediaType.TEXT_PLAIN)
+          .body(new InputStreamResource(is));
+    } catch (FileNotFoundException e) {
+      log.error("Script file not found. Reason: ", e);
+
+      return ResponseEntity.notFound().build();
     }
   }
 
