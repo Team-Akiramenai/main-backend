@@ -154,12 +154,6 @@ public class StorageService {
           .errorType(FileUploadErrorTypes.FileIsEmpty)
           .build();
     }
-    if (file.getContentType() == null || !file.getContentType().equals("text/plain")) {
-      return resp
-          .errorMessage("Invalid content type. Only text/plain content type is accepted for scripts.")
-          .errorType(FileUploadErrorTypes.UnsupportedFileType)
-          .build();
-    }
 
     try {
       Path uploadPath = Paths.get(this.scriptDirectoryString);
