@@ -31,6 +31,8 @@ public class CodingTest {
   @NotBlank
   private String description;
 
+  private String input;
+
   @NotBlank
   private String expectedStdout;
 }

@@ -7,6 +7,7 @@ public record CleanedCodingTest(
     UUID courseId,
     String question,
     String description,
+    String input,
     String expectedStdout,
     boolean isCompleted
 ) {
@@ -16,6 +17,7 @@ public record CleanedCodingTest(
         ct.getCourseId(),
         ct.getQuestion(),
         ct.getDescription(),
+        ct.getInput(),
         ct.getExpectedStdout(),
         isCompleted
     );

@@ -23,7 +23,10 @@ public class CodingTestService {
     this.courseRepo = courseRepo;
   }
 
-  public ResultOrError<String, BackendOperationErrors> addCodingTest(AddCodingTestRequest addCodingTestRequest, UUID currentUserId) {
+  public ResultOrError<String, BackendOperationErrors> addCodingTest(
+      AddCodingTestRequest addCodingTestRequest,
+      UUID currentUserId
+  ) {
     var resp = ResultOrError.<String, BackendOperationErrors>builder();
 
     UUID courseId;
@@ -61,6 +64,7 @@ public class CodingTestService {
         .itemId("CT_" + UUID.randomUUID())
         .question(addCodingTestRequest.question())
         .description(addCodingTestRequest.description())
+        .input(addCodingTestRequest.input())
         .expectedStdout(addCodingTestRequest.expectedStdout())
         .build();
 
@@ -206,6 +210,9 @@ public class CodingTestService {
     }
     if (modifyCodingTestRequest.description() != null) {
       codingTestToModify.get().setDescription(modifyCodingTestRequest.description().trim());
+    }
+    if (modifyCodingTestRequest.input() != null) {
+      codingTestToModify.get().setInput(modifyCodingTestRequest.input().trim());
     }
     if (modifyCodingTestRequest.expectedStdout() != null) {
       codingTestToModify.get().setExpectedStdout(modifyCodingTestRequest.expectedStdout().trim());

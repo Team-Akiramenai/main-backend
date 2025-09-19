@@ -6,6 +6,7 @@ public record ModifyCodingTestRequest(
 
     String question,
     String description,
+    String input,
     String expectedStdout
 ) {
 }

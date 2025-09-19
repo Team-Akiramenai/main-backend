@@ -702,6 +702,8 @@ Response JSON:
 
 Add a coding test challenge.
 
+All the fields except the `input` field is mandatory.
+
 Request JSON:
 
 ```json
@@ -709,6 +711,7 @@ Request JSON:
   "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
   "question": "Which came before: Chicken? Or the egg?",
   "description": "Lorem ipsum dolores....",
+  "input": "I'm the optional field",
   "expectedStdout": "The big beautiful bill..."
 }
 ```
@@ -849,9 +852,10 @@ Response JSON:
 {
   "itemId": "CT_90a22596-4ce0-41c8-94d0-bd3cb2487368",
   "courseId": "cbdc0b4a-6f0b-4964-9964-24a7f4775207",
-  "question": "Which came before: Chicken? Or the egg?",
-  "description": "Lorem ipsum dolores....",
-  "expectedStdout": "The big beautiful bill...",
+  "question": "Can you print N times using a loop?",
+  "description": "Print the given word given number of times.",
+  "input": "3 ninja",
+  "expectedStdout": "ninja ninja ninja",
   "isCompleted": false
 }
 ```
