@@ -215,7 +215,7 @@ public class AnalyticsController {
 
     log.info("Account type is: " + accountType);
 
-    if (!accountType.equals("Learner")) {
+    if (!accountType.equalsIgnoreCase("Learner")) {
       responseWriter.writeFailedResponse(response, "Only learners can access this API endpoint.", HttpStatus.NOT_FOUND);
       return;
     }
