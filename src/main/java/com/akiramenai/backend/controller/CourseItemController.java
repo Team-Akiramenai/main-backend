@@ -25,8 +25,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -91,7 +93,7 @@ public class CourseItemController {
 
         httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
       }
-      case Video -> {
+      case VideoMetadata -> {
         Optional<VideoMetadata> targetItem = videoMetadataRepo.findVideoMetadataByItemId(itemId);
         if (targetItem.isEmpty()) {
           httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find course item.", HttpStatus.NOT_FOUND);
@@ -229,7 +231,7 @@ public class CourseItemController {
       @PathVariable(name = "video-metadata-id") String videoMetadataId
   ) {
     Optional<ParsedItemInfo> parsedItemInfo = IdParser.parseItemId(videoMetadataId);
-    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.Video) {
+    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.VideoMetadata) {
       httpResponseWriter.writeFailedResponse(
           httpResponse,
           "Failed to parse videoMetadataId. Invalid videoMetadataId provided.",
@@ -238,23 +240,24 @@ public class CourseItemController {
       return;
     }
 
-    Optional<VideoMetadata> videoMetadata = videoMetadataRepo.findVideoMetadataByItemId(videoMetadataId);
-    if (videoMetadata.isEmpty()) {
-      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find videoMetadata.", HttpStatus.NOT_FOUND);
-      return;
-    }
-
-    Path transcriptionFilePath = Paths.get(
-        subtitlesDirectory,
-        videoMetadata.get().getSubtitleFileName()
-    );
     try {
+      Path transcriptionFilePath = Paths.get(
+          storageService.videoDirectoryString,
+          videoMetadataId.substring(3),
+          "subtitle.vtt"
+      );
       InputStream inputStream = new FileInputStream(transcriptionFilePath.toFile());
       httpResponse.setContentType("text/vtt");
       httpResponse.setStatus(HttpStatus.OK.value());
       StreamUtils.copy(inputStream, httpResponse.getOutputStream());
     } catch (Exception e) {
-      httpResponseWriter.writeFailedResponse(httpResponse, "Failed to read transcription file.", HttpStatus.INTERNAL_SERVER_ERROR);
+      log.error("Failed to read transcription file. Reason: ", e);
+
+      httpResponseWriter.writeFailedResponse(
+          httpResponse,
+          "Failed to read transcription file.",
+          HttpStatus.INTERNAL_SERVER_ERROR
+      );
       return;
     }
   }
@@ -268,7 +271,7 @@ public class CourseItemController {
       @RequestParam(name = "modified-vtt", required = false) MultipartFile modifiedVtt
   ) {
     Optional<ParsedItemInfo> videoMetadataId = IdParser.parseItemId(videoMetadataItemId);
-    if (videoMetadataId.isEmpty() || videoMetadataId.get().itemType() != CourseItems.Video) {
+    if (videoMetadataId.isEmpty() || videoMetadataId.get().itemType() != CourseItems.VideoMetadata) {
       httpResponseWriter.writeFailedResponse(httpResponse, "Invalid videoMetadataId provided.", HttpStatus.BAD_REQUEST);
       return;
     }
@@ -310,16 +313,18 @@ public class CourseItemController {
     }
 
     // if it is, then delete the old vtt file and rename the temp vtt file to the real filename
-    File oldVttFile = new File(
-        subtitlesDirectory,
-        targetVM.get().getSubtitleFileName()
-    );
-    if (!oldVttFile.delete()) {
-      log.warn("Failed to delete temp VTT file: {}", oldVttFile.getAbsolutePath());
-    }
-    boolean isRenamed = savedVttPath.result().toFile().renameTo(oldVttFile);
-    if (!isRenamed) {
-      log.error("Failed to rename temp VTT file: {}", savedVttPath.result().toAbsolutePath().toString());
+    try {
+      Path oldVttFilePath = Paths.get(
+          storageService.videoDirectoryString,
+          videoMetadataItemId.substring(3),
+          "subtitle.vtt"
+      );
+      if (!oldVttFilePath.toFile().delete()) {
+        log.warn("Failed to delete temp VTT file: {}", oldVttFilePath.toFile().getAbsolutePath());
+      }
+      Files.move(savedVttPath.result(), oldVttFilePath, StandardCopyOption.REPLACE_EXISTING);
+    } catch (Exception e) {
+      log.error("Failed to modify VTT file: {}", savedVttPath.result().toAbsolutePath());
 
       httpResponseWriter.writeFailedResponse(httpResponse, "Failed to save the modified VTT file.", HttpStatus.INTERNAL_SERVER_ERROR);
       return;

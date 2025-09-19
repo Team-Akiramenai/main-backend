@@ -19,6 +19,9 @@ public class StorageService {
   @Value("${application.default-values.media.picture-directory}")
   public String pictureDirectoryString;
 
+  @Value("${application.default-values.media.video-directory}")
+  public String videoDirectoryString;
+
   @Value("${application.default-values.media.subtitles-directory}")
   public String subtitlesDirectoryString;
 

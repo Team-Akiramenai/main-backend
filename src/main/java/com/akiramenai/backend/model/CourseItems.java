@@ -1,7 +1,7 @@
 package com.akiramenai.backend.model;
 
 public enum CourseItems {
-  Video,
+  VideoMetadata,
   Quiz,
   CodingTest,
   TerminalTest,

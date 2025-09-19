@@ -97,7 +97,7 @@ public class AiService {
     }
 
     Optional<ParsedItemInfo> parsedItemInfo = IdParser.parseItemId(req.videoMetadataId());
-    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.Video) {
+    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.VideoMetadata) {
       return Optional.empty();
     }
 

@@ -23,7 +23,7 @@ public class IdParser {
     }
 
     return switch (itemTypeString) {
-      case "VM" -> Optional.of(new ParsedItemInfo(CourseItems.Video, uuidString));
+      case "VM" -> Optional.of(new ParsedItemInfo(CourseItems.VideoMetadata, uuidString));
       case "QZ" -> Optional.of(new ParsedItemInfo(CourseItems.Quiz, uuidString));
       case "CT" -> Optional.of(new ParsedItemInfo(CourseItems.CodingTest, uuidString));
       case "TT" -> Optional.of(new ParsedItemInfo(CourseItems.TerminalTest, uuidString));

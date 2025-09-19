@@ -8,5 +8,6 @@ public enum BackendOperationErrors {
   FailedToSerializeJson,
   FailedToSaveToDb,
   FailedToSaveFile,
+  FailedToDelete,
   NotEnoughStorage
 }

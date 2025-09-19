@@ -619,6 +619,52 @@ Response JSON:
 }
 ```
 
+## Video Metadata Controller
+
+### 1) POST api/protected/video-metadata/modify
+
+Modifies a video metadata.
+
+Example request:
+
+```json
+{
+  "itemId": "VM_889179a4-2ae1-4eac-843b-cbc2b9923730",
+  "title": "Hit that same address",
+  "description": "just another day in mother Russia",
+  "courseId": "8bc9dcda-7a9b-4a27-8082-f1630ca9888b"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "VM_e885da4d-a78d-42bf-8f04-cf6ce4fd1932"
+}
+```
+
+### 2) POST api/protected/video-metadata/remove
+
+Removes a video metadata.
+
+Example request:
+
+```json
+{
+  "courseId": "d2a5fbe0-f33a-4beb-be64-612f4539abf7",
+  "itemId": "VM_e885da4d-a78d-42bf-8f04-cf6ce4fd1932"
+}
+```
+
+Response JSON:
+
+```json
+{
+  "itemId": "VM_e885da4d-a78d-42bf-8f04-cf6ce4fd1932"
+}
+```
+
 ## Quiz Controller
 
 1) POST api/protected/add/quiz

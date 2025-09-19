@@ -27,7 +27,7 @@ public class HttpResponseWriter {
         writeFailedResponse(response, result.errorMessage(), HttpStatus.NOT_FOUND);
         return;
       }
-      case FailedToSaveToDb, FailedToSaveFile, FailedToSerializeJson -> {
+      case FailedToSaveToDb, FailedToDelete, FailedToSaveFile, FailedToSerializeJson -> {
         writeFailedResponse(response, result.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return;
       }

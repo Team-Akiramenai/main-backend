@@ -15,6 +15,8 @@ repositories {
 }
 
 dependencies {
+    implementation("commons-io:commons-io:2.20.0")
+
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")

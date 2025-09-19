@@ -42,7 +42,7 @@ public class CommentController {
     }
 
     Optional<ParsedItemInfo> parsedItemInfo = IdParser.parseItemId(videoMetadataId);
-    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.Video) {
+    if (parsedItemInfo.isEmpty() || parsedItemInfo.get().itemType() != CourseItems.VideoMetadata) {
       httpResponseWriter.writeFailedResponse(response, "Invalid VideoId provided.", HttpStatus.BAD_REQUEST);
       return;
     }
