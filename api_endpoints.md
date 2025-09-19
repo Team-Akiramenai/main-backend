@@ -1415,3 +1415,70 @@ The request body will have to be in `form-data` and there will have to be a VTT 
 attached to the request.
 
 HTTP response code: `HTTP 201`
+
+## AI Controller
+
+### 1) POST api/protected/suggest/course
+
+To get suggested courses according to the user's question/input text.
+
+Example request:
+
+```json
+{
+  "question": "I want to build websites. Which course should I buy to learn that skill?"
+}
+```
+
+Response:
+
+```json
+{
+  "suggestedCoursesText": "I recommend these courses:\n\n- [Course Title #1]\n- [Course Title #12]\n- [Course Title #34]\n"
+}
+```
+
+### 2) POST api/protected/get/video/help
+
+To get video specific help from the AI. The videos subtitles are used to generate tailored
+response from the AI.
+
+Example request:
+
+```json
+{
+  "question": "What is the full form of 'lorem' used in this video?",
+  "videoMetadataId": "VM_7f25bccf-9155-4ef1-866e-2f374ecf579f"
+}
+```
+
+Response:
+
+```json
+{
+  "answer": "Lorem ipsum dolores..."
+}
+```
+
+### 3) POST api/protected/get/generic/help
+
+To get generic responses from AI by providing a `context` and `question`.
+
+Example request:
+
+```json
+{
+  "context": "lorem ipsum",
+  "question": "What does that mean?"
+}
+```
+
+Response:
+
+```json
+{
+  "prompt": "Context: lorem ipsum\nQuestion: What does that mean?",
+  "response": "It's a boiler plate text used in mock designs."
+}
+```
+

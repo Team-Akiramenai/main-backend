@@ -47,7 +47,7 @@ public class AiController {
   }
 
 
-  @PostMapping("api/protected/get/help")
+  @PostMapping("api/protected/get/video/help")
   public ResponseEntity<AiHelpResponse> getHelp(@RequestBody VideoAiHelpRequest req) {
     try {
       Optional<AiHelpResponse> resp = this.aiService.getHelp(req);
