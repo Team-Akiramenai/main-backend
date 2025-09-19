@@ -66,7 +66,7 @@ public class SecurityConfig {
     configuration.addAllowedOriginPattern("https://*");             // allow any origin that's behind https
 
     //configuration.setAllowedOrigins(Arrays.asList("*"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
 
     configuration.setAllowedHeaders(Arrays.asList("*")); // Allow all headers
     configuration.setAllowCredentials(true);             // Allow sending credentials (cookies, auth headers)
