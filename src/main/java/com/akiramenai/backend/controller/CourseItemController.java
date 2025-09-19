@@ -30,6 +30,7 @@ import java.util.UUID;
 @RequestMapping("api/protected")
 public class CourseItemController {
   private final StorageService storageService;
+  private final TerminalTestRepo terminalTestRepo;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
   JsonSerializer jsonSerializer = new JsonSerializer();
 
@@ -42,13 +43,14 @@ public class CourseItemController {
   private final LearnerInfosRepo learnerInfosRepo;
   private final CompletedCourseItemsRepo completedCourseItemsRepo;
 
-  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, StorageService storageService) {
+  public CourseItemController(QuizRepo quizRepo, VideoMetadataRepo videoMetadataRepo, CodingTestRepo codingTestRepo, LearnerInfosRepo learnerInfosRepo, CompletedCourseItemsRepo completedCourseItemsRepo, StorageService storageService, TerminalTestRepo terminalTestRepo) {
     this.quizRepo = quizRepo;
     this.videoMetadataRepo = videoMetadataRepo;
     this.codingTestRepo = codingTestRepo;
     this.learnerInfosRepo = learnerInfosRepo;
     this.completedCourseItemsRepo = completedCourseItemsRepo;
     this.storageService = storageService;
+    this.terminalTestRepo = terminalTestRepo;
   }
 
   @GetMapping("get/course-item")
@@ -115,20 +117,19 @@ public class CourseItemController {
         httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
       }
       case TerminalTest -> {
-        httpResponseWriter.writeFailedResponse(httpResponse, "TODO: Implement this...", HttpStatus.INTERNAL_SERVER_ERROR);
-//        Optional<Quiz> targetQuiz = quizRepo.findQuizByItemId(courseItem.itemId());
-//        if (targetQuiz.isEmpty()) {
-//          httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find course item.", HttpStatus.NOT_FOUND);
-//          return;
-//        }
-//
-//        Optional<String> respJson = jsonSerializer.serialize(new CleanedQuiz(targetQuiz.get()));
-//        if (respJson.isEmpty()) {
-//          httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
-//          return;
-//        }
-//
-//        httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
+        Optional<TerminalTest> targetTerminalTest = terminalTestRepo.findTerminalTestByItemId(itemId);
+        if (targetTerminalTest.isEmpty()) {
+          httpResponseWriter.writeFailedResponse(httpResponse, "Failed to find course item.", HttpStatus.NOT_FOUND);
+          return;
+        }
+
+        Optional<String> respJson = jsonSerializer.serialize(new CleanedTerminalTest(targetTerminalTest.get()));
+        if (respJson.isEmpty()) {
+          httpResponseWriter.writeFailedResponse(httpResponse, "Failed to serialize the response JSON.", HttpStatus.INTERNAL_SERVER_ERROR);
+          return;
+        }
+
+        httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
       }
     }
   }
