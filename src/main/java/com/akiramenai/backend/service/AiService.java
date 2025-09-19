@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,6 @@ import com.akiramenai.backend.repo.VideoMetadataRepo;
 import com.akiramenai.backend.utility.IdParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.ImmutableList;
@@ -35,6 +35,17 @@ public class AiService {
   private final String MODEL = "gemini-2.0-flash";
   private final VideoMetadataRepo videoMetadataRepo;
   private final CourseRepo courseRepo;
+
+  private final List<SafetySetting> safetySettings = ImmutableList.of(
+      SafetySetting.builder()
+          .category(HarmCategory.Known.HARM_CATEGORY_HATE_SPEECH)
+          .threshold(HarmBlockThreshold.Known.BLOCK_ONLY_HIGH)
+          .build(),
+      SafetySetting.builder()
+          .category(HarmCategory.Known.HARM_CATEGORY_DANGEROUS_CONTENT)
+          .threshold(HarmBlockThreshold.Known.BLOCK_LOW_AND_ABOVE)
+          .build()
+  );
 
   @Autowired
   public AiService(Client gClient, VideoMetadataRepo videoMetadataRepo, CourseRepo courseRepo) {
@@ -77,10 +88,10 @@ public class AiService {
 
     String prompt = req.question();
     GenerateContentResponse resp = this.gClient.models.generateContent(this.MODEL, prompt, contentConfig);
-    return Optional.of(new AiSuggestResponse(prompt, resp.text()));
+    return Optional.of(new AiSuggestResponse(resp.text()));
   }
 
-  public Optional<AiHelpResponse> getHelp(AiHelpRequest req) throws IOException {
+  public Optional<AiHelpResponse> getHelp(VideoAiHelpRequest req) throws IOException {
     if (req.question().isBlank() || req.videoMetadataId().isBlank()) {
       return Optional.empty();
     }
@@ -95,15 +106,6 @@ public class AiService {
       return Optional.empty();
     }
 
-    List<SafetySetting> safetySettings = ImmutableList.of(
-        SafetySetting.builder()
-            .category(HarmCategory.Known.HARM_CATEGORY_HATE_SPEECH)
-            .threshold(HarmBlockThreshold.Known.BLOCK_ONLY_HIGH)
-            .build(),
-        SafetySetting.builder()
-            .category(HarmCategory.Known.HARM_CATEGORY_DANGEROUS_CONTENT)
-            .threshold(HarmBlockThreshold.Known.BLOCK_LOW_AND_ABOVE)
-            .build());
 
     Path subtitleFilePath = Paths.get(
         videoMetadata.get().getSubtitleFileName()
@@ -128,12 +130,32 @@ public class AiService {
     GenerateContentConfig contentConfig = GenerateContentConfig.builder()
         .candidateCount(1)
         .maxOutputTokens(1024)
-        .safetySettings(safetySettings)
+        .safetySettings(this.safetySettings)
         .systemInstruction(systemInstruction)
         .build();
 
     String prompt = req.question();
     GenerateContentResponse resp = this.gClient.models.generateContent(this.MODEL, prompt, contentConfig);
     return Optional.of(new AiHelpResponse(resp.text()));
+  }
+
+  public Optional<GenericAiResponse> getGenericResponse(GenericAiRequest req) {
+    Content systemInstruction = Content.fromParts(
+        Part.fromText(
+            "You need to answer the given question based on the given context."
+        )
+    );
+
+    GenerateContentConfig contentConfig = GenerateContentConfig.builder()
+        .candidateCount(1)
+        .maxOutputTokens(1024)
+        .safetySettings(this.safetySettings)
+        .systemInstruction(systemInstruction)
+        .build();
+
+    String prompt = MessageFormat.format("Context: {0}\nQuestion: {1}", req.context(), req.question());
+
+    GenerateContentResponse resp = this.gClient.models.generateContent(this.MODEL, prompt, contentConfig);
+    return Optional.of(new GenericAiResponse(prompt, resp.text()));
   }
 }

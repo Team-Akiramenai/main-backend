@@ -1,4 +1,7 @@
 package com.akiramenai.backend.model;
 
-public class GenericAiRequest {
+public record GenericAiRequest(
+    String context,
+    String question
+) {
 }

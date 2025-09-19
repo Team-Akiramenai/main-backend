@@ -31,6 +31,9 @@ public class HttpResponseWriter {
         writeFailedResponse(response, result.errorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return;
       }
+      case NotEnoughStorage -> {
+        writeFailedResponse(response, result.errorMessage(), HttpStatus.INSUFFICIENT_STORAGE);
+      }
       case null -> {
         writeOkResponse(response, result.result(), onSuccessHttpStatus);
         return;
