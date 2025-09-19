@@ -175,6 +175,12 @@ public class VideoMetadataService {
           .build();
     }
 
+    targetCourse.get().getCourseItemIds().remove(itemId);
+    targetCourse.get().setLastModifiedAt(LocalDateTime.now());
+    courseRepo.save(targetCourse.get());
+
+    videoMetadataRepo.delete(videoMetadata.get());
+
     // get size of itemId dir and then delete
     try {
       String videoItemIdWithoutPrefix = itemId.substring(3);
