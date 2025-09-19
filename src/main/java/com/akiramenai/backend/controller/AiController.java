@@ -10,6 +10,7 @@ import com.akiramenai.backend.repo.PurchaseRepo;
 import com.akiramenai.backend.service.AiService;
 
 import com.akiramenai.backend.utility.HttpResponseWriter;
+import com.akiramenai.backend.utility.JsonSerializer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AiController {
   private final PurchaseRepo purchaseRepo;
   HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
+  JsonSerializer jsonSerializer = new JsonSerializer();
 
   private final AiService aiService;
 
@@ -100,5 +102,17 @@ public class AiController {
       );
       return;
     }
+
+    Optional<String> respJson = jsonSerializer.serialize(aiResponse.get());
+    if (respJson.isEmpty()) {
+      httpResponseWriter.writeFailedResponse(
+          httpResponse,
+          "Failed to serialize JSON response.",
+          HttpStatus.INTERNAL_SERVER_ERROR
+      );
+      return;
+    }
+
+    httpResponseWriter.writeOkResponse(httpResponse, respJson.get(), HttpStatus.OK);
   }
 }
