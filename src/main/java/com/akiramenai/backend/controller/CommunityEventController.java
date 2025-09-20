@@ -69,8 +69,6 @@ public class CommunityEventController {
 
       @RequestBody AddCommunityEventRequest addCommunityEventRequest
   ) {
-    UUID userId = UUID.fromString(httpRequest.getAttribute("userId").toString());
-
     if (addCommunityEventRequest.eventName() == null || addCommunityEventRequest.eventName().isBlank()) {
       httpResponseWriter.writeFailedResponse(
           httpResponse,
