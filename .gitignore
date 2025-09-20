@@ -38,4 +38,5 @@ out/
 
 ## Project Specific ##
 **/resources/media/**
-**/resources/application.yaml
+**/resources/application-dev.yml
+**/resources/application-prod.yml

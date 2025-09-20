@@ -36,10 +36,10 @@ public class RefreshTokenHandler {
     refreshTokenCookie.setPath("/");
     if (httpOnly) {
       refreshTokenCookie.setSecure(true);
-      log.warn("Refresh token cookie will ONLY be sent over HTTPS. This can changed in the `application.yaml` file.");
+      log.warn("Refresh token cookie will ONLY be sent over HTTPS. This can changed in the profile specific config file.");
     } else {
       refreshTokenCookie.setSecure(false);
-      log.warn("Refresh token cookie will be sent over both HTTP and HTTPS. This can changed in the `application.yaml` file.");
+      log.warn("Refresh token cookie will be sent over both HTTP and HTTPS. This can changed in the profile specific config file.");
     }
 
     return refreshTokenCookie;
