@@ -129,6 +129,7 @@ public class CommentService {
           .builder()
           .commentId(comment.getId().toString())
           .authorName(targetUser.get().getUsername())
+          .authorId(targetUser.get().getId().toString())
           .authorProfilePicture(targetUser.get().getPfpFileName())
           .content(comment.getContent())
           .createdAt(comment.getCreatedAt().toString())

@@ -956,6 +956,7 @@ JSON Response:
     {
       "commentId": "5c0a91a4-bb09-4fd0-b988-5b497ff4782d",
       "authorName": "Amanda",
+      "authorId": "690a420-bb09-4fd0-b988-5b497ff4782d",
       "authorProfilePicture": "default-user-logo.png",
       "content": "Just a simple test comment to see if it works...",
       "createdAt": "2025-09-11T14:35:51.677726",
@@ -994,6 +995,7 @@ JSON Response:
     {
       "commentId": "5c0a91a4-bb09-4fd0-b988-5b497ff4782d",
       "authorName": "Amanda",
+      "authorId": "690a420-bb09-4fd0-b988-5b497ff4782d",
       "authorProfilePicture": "default-user-logo.png",
       "content": "Just a simple test comment to see if it works...",
       "createdAt": "2025-09-11T14:35:51.677726",
