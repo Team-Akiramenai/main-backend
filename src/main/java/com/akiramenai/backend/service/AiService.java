@@ -46,12 +46,14 @@ public class AiService {
           .threshold(HarmBlockThreshold.Known.BLOCK_LOW_AND_ABOVE)
           .build()
   );
+  private final StorageService storageService;
 
   @Autowired
-  public AiService(Client gClient, VideoMetadataRepo videoMetadataRepo, CourseRepo courseRepo) {
+  public AiService(Client gClient, VideoMetadataRepo videoMetadataRepo, CourseRepo courseRepo, StorageService storageService) {
     this.gClient = gClient;
     this.videoMetadataRepo = videoMetadataRepo;
     this.courseRepo = courseRepo;
+    this.storageService = storageService;
   }
 
   public Optional<AiSuggestResponse> getCourseSuggestions(AiSuggestRequest req) throws IOException {
@@ -108,7 +110,9 @@ public class AiService {
 
 
     Path subtitleFilePath = Paths.get(
-        videoMetadata.get().getSubtitleFileName()
+        storageService.videoDirectoryString,
+        req.videoMetadataId().substring(3),
+        "subtitle.vtt"
     );
     String subtitles;
     try {
