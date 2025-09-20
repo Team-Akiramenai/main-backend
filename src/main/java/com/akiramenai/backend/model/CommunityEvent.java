@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class CommunityEvent {
   private String eventType;
 
   @NotNull
-  private LocalDateTime eventDateTime;
+  private LocalDate eventDate;
 
   @CreatedDate
   @NotNull
