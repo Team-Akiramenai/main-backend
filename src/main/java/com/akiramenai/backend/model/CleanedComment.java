@@ -6,6 +6,7 @@ import lombok.Builder;
 public record CleanedComment(
     String commentId,
     String authorName,
+    String authorId,
     String authorProfilePicture,
     String content,
     String createdAt,

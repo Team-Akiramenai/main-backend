@@ -69,6 +69,7 @@ public class CommentService {
       var cc = CleanedComment
           .builder()
           .commentId(comment.getId().toString())
+          .authorId(targetUser.get().getId().toString())
           .authorName(targetUser.get().getUsername())
           .authorProfilePicture(targetUser.get().getPfpFileName())
           .content(comment.getContent())
