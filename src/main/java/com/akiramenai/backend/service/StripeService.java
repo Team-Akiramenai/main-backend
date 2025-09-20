@@ -28,7 +28,7 @@ public class StripeService {
                     ProductData.builder()
                         .setName(stripeRequest.productName())
                         .setDescription(stripeRequest.productDescription())
-                        .addImage("https://preview.redd.it/macos-beta-liquid-glass-firefox-icons-v0-ulz45as6vb6f1.png?width=640&crop=smart&auto=webp&s=a7efbe0608b358daeaf252c25a7fffc0a52d54dc")
+                        .addImage("https://images2.imgbox.com/b5/37/5sjRimXe_o.png")
                         .build()
                 )
                 .build()
