@@ -69,7 +69,7 @@ public class HlsController {
 
     videoName = videoName.substring(3);
 
-    Path filePath = Paths.get(storageService.videoDirectoryString).resolve(videoName).resolve(fileName).normalize();
+    Path filePath = Paths.get(storageService.videoDirectoryString).resolve(videoName).resolve(subdir).resolve(fileName).normalize();
     Resource resource = new UrlResource(filePath.toUri());
 
     if (!resource.exists()) {
