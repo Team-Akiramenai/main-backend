@@ -1,5 +1,6 @@
 package com.akiramenai.backend.controller;
 
+import com.akiramenai.backend.service.StorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -19,7 +20,11 @@ import java.nio.file.Paths;
 @RequestMapping("/hls")
 public class HlsController {
 
-  private final Path videoBasePath = Paths.get("/home/twaha/SynapticLearn/media/videos"); // Relative to working directory
+  private final StorageService storageService;
+
+  public HlsController(StorageService storageService) {
+    this.storageService = storageService;
+  }
 
   @GetMapping("/{videoName}/{fileName:.+}")
   public ResponseEntity<Resource> getVideoSegment(
@@ -28,7 +33,7 @@ public class HlsController {
 
     videoName = videoName.substring(3);
 
-    Path filePath = videoBasePath.resolve(videoName).resolve(fileName).normalize();
+    Path filePath = Paths.get(storageService.videoDirectoryString).resolve(videoName).resolve(fileName).normalize();
     Resource resource = new UrlResource(filePath.toUri());
 
     if (!resource.exists()) {
@@ -64,7 +69,7 @@ public class HlsController {
 
     videoName = videoName.substring(3);
 
-    Path filePath = videoBasePath.resolve(videoName).resolve(subdir).resolve(fileName).normalize();
+    Path filePath = Paths.get(storageService.videoDirectoryString).resolve(videoName).resolve(fileName).normalize();
     Resource resource = new UrlResource(filePath.toUri());
 
     if (!resource.exists()) {
