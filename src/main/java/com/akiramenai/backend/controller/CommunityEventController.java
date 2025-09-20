@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -61,7 +62,7 @@ public class CommunityEventController {
   }
 
 
-  @GetMapping("api/public/add/events")
+  @PostMapping("api/public/add/events")
   public void addCommunityEvents(
       HttpServletRequest httpRequest,
       HttpServletResponse httpResponse,
